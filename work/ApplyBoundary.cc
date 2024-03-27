@@ -8,13 +8,14 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
     std::list<Load> loadCondition;
     for (auto&& element : mesh->Elements) {
         if (element->elementName == "Serendipity") {
-            for (int i = 0; i < 3; ++i) {
-                // Upper bounds
+            for (int i = 0; i < 4; ++i) {
+                int j = (i + 1) % 4;
+                // Right bound
                 if (std::fabs(element->nodes[i]->x - L / 2) < 1e-6 &&
-                    std::fabs(element->nodes[i + 1]->x - L / 2) < 1e-6) {
-                    if (element->nodes[i]->x < element->nodes[i + 1]->x) {
+                    std::fabs(element->nodes[j]->x - L / 2) < 1e-6) {
+                    if (element->nodes[i]->y > element->nodes[j]->y) {
                         Load load;
-                        load.nodes[0] = element->nodes[i + 1];
+                        load.nodes[0] = element->nodes[j];
                         load.nodes[1] = element->nodes[i];
                         load.nodes[2] = element->nodes[i + 4];
                         load.normalForce[0] = 1.0;
@@ -25,7 +26,7 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                     } else {
                         Load load;
                         load.nodes[0] = element->nodes[i];
-                        load.nodes[1] = element->nodes[i + 1];
+                        load.nodes[1] = element->nodes[j];
                         load.nodes[2] = element->nodes[i + 4];
                         load.normalForce[0] = 1.0;
                         load.normalForce[1] = 1.0;
@@ -34,12 +35,12 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                         loadCondition.push_back(load);
                     }
                 }
-                // Right bounds
+                // Upper bound
                 if (std::fabs(element->nodes[i]->y - B / 2) < 1e-6 &&
-                    std::fabs(element->nodes[i + 1]->y - B / 2) < 1e-6) {
-                    if (element->nodes[i]->y < element->nodes[i + 1]->y) {
+                    std::fabs(element->nodes[j]->y - B / 2) < 1e-6) {
+                    if (element->nodes[i]->x < element->nodes[j]->x) {
                         Load load;
-                        load.nodes[0] = element->nodes[i + 1];
+                        load.nodes[0] = element->nodes[j];
                         load.nodes[1] = element->nodes[i];
                         load.nodes[2] = element->nodes[i + 4];
                         load.normalForce[0] = 1.0;
@@ -50,7 +51,7 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                     } else {
                         Load load;
                         load.nodes[0] = element->nodes[i];
-                        load.nodes[1] = element->nodes[i + 1];
+                        load.nodes[1] = element->nodes[j];
                         load.nodes[2] = element->nodes[i + 4];
                         load.normalForce[0] = 1.0;
                         load.normalForce[1] = 1.0;
@@ -59,12 +60,12 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                         loadCondition.push_back(load);
                     }
                 }
-                // // Lower bounds
+                // // Left bound
                 // if (std::fabs(element->nodes[i]->x + L / 2) < 1e-6 &&
-                //     std::fabs(element->nodes[i + 1]->x + L / 2) < 1e-6) {
-                //     if (element->nodes[i]->x < element->nodes[i + 1]->x) {
+                //     std::fabs(element->nodes[j]->x + L / 2) < 1e-6) {
+                //     if (element->nodes[i]->x < element->nodes[j]->x) {
                 //         Load load;
-                //         load.nodes[0] = element->nodes[i + 1];
+                //         load.nodes[0] = element->nodes[j];
                 //         load.nodes[1] = element->nodes[i];
                 //         load.nodes[2] = element->nodes[i + 4];
                 //         load.normalForce[0] = -1.0;
@@ -75,7 +76,7 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                 //     } else {
                 //         Load load;
                 //         load.nodes[0] = element->nodes[i];
-                //         load.nodes[1] = element->nodes[i + 1];
+                //         load.nodes[1] = element->nodes[j];
                 //         load.nodes[2] = element->nodes[i + 4];
                 //         load.normalForce[0] = -1.0;
                 //         load.normalForce[1] = -1.0;
@@ -84,13 +85,13 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                 //         loadCondition.push_back(load);
                 //     }
                 // }
-                // // Left bounds
+                // // Lower bound
                 // if (std::fabs(element->nodes[i]->y + B / 2) < 1e-6 &&
-                //     std::fabs(element->nodes[i + 1]->y + B / 2) < 1e-6) {
-                //     if (element->nodes[i]->y < element->nodes[i + 1]->y) {
+                //     std::fabs(element->nodes[j]->y + B / 2) < 1e-6) {
+                //     if (element->nodes[i]->y < element->nodes[j]->y) {
                 //         Load load;
                 //         load.nodes[0] = element->nodes[i];
-                //         load.nodes[1] = element->nodes[i + 1];
+                //         load.nodes[1] = element->nodes[j];
                 //         load.nodes[2] = element->nodes[i + 4];
                 //         load.normalForce[0] = -1.0;
                 //         load.normalForce[1] = -1.0;
@@ -99,7 +100,7 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                 //         loadCondition.push_back(load);
                 //     } else {
                 //         Load load;
-                //         load.nodes[0] = element->nodes[i + 1];
+                //         load.nodes[0] = element->nodes[j];
                 //         load.nodes[1] = element->nodes[i];
                 //         load.nodes[2] = element->nodes[i + 4];
                 //         load.normalForce[0] = -1.0;
