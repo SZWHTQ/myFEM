@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <iostream>
 #include <toml.hpp>
 #include <vector>
@@ -41,8 +42,13 @@ int main(int argc, char* argv[]) {
         Mesh mesh(Mesh::MeshType::serendipity, nodeCoord, elementNodeTags);
         std::cout << "Mesh created with " << mesh.Nodes.size() << " nodes and "
                   << mesh.Elements.size() << " elements" << std::endl;
-        nodeCoord.clear();
-        elementNodeTags.clear();
+
+        {
+            nodeCoord.clear();
+            std::vector<double>().swap(nodeCoord);
+            elementNodeTags.clear();
+            std::vector<size_t>().swap(elementNodeTags);
+        }
 
         // Set material
         std::cout << "Setting material..." << std::endl;
