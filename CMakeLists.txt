@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "~/Repository/VTK/latest/lib/cmake/vtk-9.3")
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/opt/homebrew/share/eigen3/cmake")
+# set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/opt/homebrew/share/eigen3/cmake")
 
 set(srcs)
 add_subdirectory("src")

@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
         auto&& boundaryCondition = apply_boundary(&mesh, 0, 0);
 
         // Solve
-        std::cout << "Solving ..." << std::endl;
+        std::cout << "Solving..." << std::endl;
         mesh.Solve(loadCondition, boundaryCondition);
 
         // Write output
