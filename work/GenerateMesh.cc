@@ -69,11 +69,11 @@ int generate_mesh(std::vector<double>& nodeCoord,
         // Set mesh options for second-order elements
         gmsh::option::setNumber("Mesh.ElementOrder", 2);
         // serendipity
-        gmsh::option::setNumber("Mesh.SecondOrderIncomplete", 1);
+        gmsh::option::setNumber("Mesh.SecondOrderIncomplete", isSerendipity);
         gmsh::option::setNumber("Mesh.RecombinationAlgorithm", 2);
         gmsh::option::setNumber("Mesh.RecombineAll", 1);
         // Set mesh algorithm
-        gmsh::option::setNumber("Mesh.Algorithm", 8);
+        gmsh::option::setNumber("Mesh.Algorithm", meshAlgorithm);
 
         // Generate mesh
         gmsh::model::mesh::generate(2);
