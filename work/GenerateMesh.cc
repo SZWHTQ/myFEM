@@ -17,12 +17,12 @@ int generate_mesh(std::vector<double>& nodeCoord,
 
         // Outer rectangle points
         std::vector<int> pointsTag;
-        pointsTag.push_back(gmsh::model::occ::addPoint(0, 0, 0, lc));
+        pointsTag.push_back(gmsh::model::occ::addPoint(0, 0, 0, lc / 4));
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, 0, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, B / 2, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(0, B / 2, 0, lc));
-        pointsTag.push_back(gmsh::model::occ::addPoint(a, 0, 0, lc / 1));
-        pointsTag.push_back(gmsh::model::occ::addPoint(0, b, 0, lc / 1));
+        pointsTag.push_back(gmsh::model::occ::addPoint(a, 0, 0, lc / 8));
+        pointsTag.push_back(gmsh::model::occ::addPoint(0, b, 0, lc / 8));
 
         // Outer rectangle lines
         std::vector<int> linesTag;
@@ -73,7 +73,7 @@ int generate_mesh(std::vector<double>& nodeCoord,
         gmsh::option::setNumber("Mesh.RecombinationAlgorithm", 2);
         gmsh::option::setNumber("Mesh.RecombineAll", 1);
         // Set mesh algorithm
-        gmsh::option::setNumber("Mesh.Algorithm", 11);
+        gmsh::option::setNumber("Mesh.Algorithm", 8);
 
         // Generate mesh
         gmsh::model::mesh::generate(2);
@@ -87,8 +87,7 @@ int generate_mesh(std::vector<double>& nodeCoord,
         // Retrieve the node coordinates
         std::vector<size_t> nodeTags;
         std::vector<double> parametricCoord;
-        gmsh::model::mesh::getNodes(nodeTags, nodeCoord, parametricCoord, -1,
-                                    -1);
+        gmsh::model::mesh::getNodes(nodeTags, nodeCoord, parametricCoord);
 
         // Retrieve the element nodes
         std::vector<size_t> elementTags;

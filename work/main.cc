@@ -22,15 +22,18 @@ int main() {
     std::vector<size_t> elementNodeTags;
     int err = generate_mesh(nodeCoord, elementNodeTags, L, B, a, b, lc);
     if (err != 0) {
-        return -1;
+        return err;
     }
+    std::cout << "Creating mesh..." << std::endl;
     Mesh mesh(Mesh::MeshType::serendipity, nodeCoord, elementNodeTags);
     std::cout << "Mesh created with " << mesh.Nodes.size() << " nodes and "
               << mesh.Elements.size() << " elements" << std::endl;
+    nodeCoord.clear();
+    elementNodeTags.clear();
 
     // Set material
     Elastic base(1, 0.3);
-    Elastic inclusion(1, 0.3);
+    Elastic inclusion(5, 0.2);
     set_material(&mesh, {&base, &inclusion}, a, b);
 
     // Apply boundary
