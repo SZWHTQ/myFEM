@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Setting material..." << std::endl;
         double E1 = settings["Material"]["Base"][0].value_or(1);
         double nu1 = settings["Material"]["Base"][1].value_or(0.3);
-        double E2 = settings["Material"]["Inclusion"][1].value_or(1);
+        double E2 = settings["Material"]["Inclusion"][0].value_or(1);
         double nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
         Elastic base(E1, nu1);
         Elastic inclusion(E2, nu2);
