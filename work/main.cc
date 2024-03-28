@@ -46,7 +46,7 @@ int main() {
     mesh.Solve(loadCondition, boundaryCondition);
 
     vtkManager vtk(mesh);
-    vtk.setData("Displacement", mesh);
+    vtk.setData(mesh);
     vtk.write("result.vtk");
 
     return 0;

@@ -42,11 +42,11 @@ int generate_mesh(std::vector<double>& nodeCoord,
 
         // Define the first and second half of the ellipse
         int ellipseArcTag = gmsh::model::occ::addEllipseArc(
-            pointsTag[5], pointsTag[0], pointsTag[4], pointsTag[4]);
+            pointsTag[4], pointsTag[0], pointsTag[4], pointsTag[5]);
         int ellipseBoundary1Tag =
-            gmsh::model::occ::addLine(pointsTag[4], pointsTag[0]);
+            gmsh::model::occ::addLine(pointsTag[5], pointsTag[0]);
         int ellipseBoundary2Tag =
-            gmsh::model::occ::addLine(pointsTag[0], pointsTag[5]);
+            gmsh::model::occ::addLine(pointsTag[0], pointsTag[4]);
 
         // Create a curve loop and plane surface
         int innerCurveLoopTag = gmsh::model::occ::addCurveLoop(

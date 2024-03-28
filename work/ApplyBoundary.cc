@@ -123,13 +123,13 @@ std::list<Boundary> apply_boundary(Mesh* mesh, double X, double Y) {
     for (auto&& node : mesh->Nodes) {
         if (std::fabs(node.x - X) < 1e-6) {
             Boundary boundary;
-            boundary.nodes = std::make_shared<Node>(node);
+            boundary.node = std::make_shared<Node>(node);
             boundary.fixed[0] = true;
             boundaryCondition.push_back(boundary);
         }
         if (std::fabs(node.y - Y) < 1e-6) {
             Boundary boundary;
-            boundary.nodes = std::make_shared<Node>(node);
+            boundary.node = std::make_shared<Node>(node);
             boundary.fixed[1] = true;
             boundaryCondition.push_back(boundary);
         }

@@ -13,7 +13,7 @@ class Load {
 
 class Boundary {
    public:
-    std::shared_ptr<Node> nodes;
+    std::shared_ptr<Node> node;
     std::vector<double> displacement{0, 0, 0};
     std::vector<bool> fixed{false, false, false}; 
 };

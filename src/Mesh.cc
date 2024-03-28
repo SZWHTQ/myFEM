@@ -114,7 +114,7 @@ Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
 }
 
 int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
-    Eigen::VectorXd Force(Nodes.size() * 2);
+    Force.resize(Nodes.size() * 2);
     Force.setZero();
     for (auto&& load : loads) {
         auto&& equivalentForce = Mesh::equivalentForce(&load);
@@ -129,11 +129,9 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
 
     // Apply boundary conditions
     for (auto&& boundary : boundaries) {
-        auto&& node = boundary.nodes;
-        auto&& fixed = boundary.fixed;
         for (size_t i = 0; i < 2; ++i) {
-            if (fixed[i]) {
-            size_t j = 2 * node->index + i;
+            if (boundary.fixed[i]) {
+                size_t j = 2 * boundary.node->index + i;
                 globalStiffnessMatrix(j, j) *= 1e15;
                 Force(j) = 0;
             }

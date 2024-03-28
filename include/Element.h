@@ -1,5 +1,6 @@
 #pragma once
 #include <Eigen/Eigen>
+#include <array>
 #include <memory>
 #include <string>
 // #include <tuple>
@@ -12,7 +13,7 @@ class Node {
     size_t index;
     double x, y, z;
 
-    Eigen::Vector3d displacement;
+    std::array<double, 3> displacement{0,0,0};
 
     Node() : index(0), x(0), y(0), z(0){};
     Node(double x_, double y_, double z_) : x(x_), y(y_), z(z_){};

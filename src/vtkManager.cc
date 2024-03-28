@@ -1,7 +1,9 @@
+#include <vtkCellData.h>
 #include <vtkFloatArray.h>
-#include <vtkManager.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
+
+#include "vtkManager.h"
 
 vtkManager::vtkManager(Mesh& mesh) {
     vtkNew<vtkPoints> Points;
@@ -19,16 +21,39 @@ vtkManager::vtkManager(Mesh& mesh) {
     }
 };
 
-void vtkManager::setData(std::string name, Mesh& mesh) {
-    vtkNew<vtkFloatArray> displacement;
-    displacement->SetNumberOfComponents(3);
-    displacement->SetName(name.c_str());
+void vtkManager::setData(Mesh& mesh) {
+    vtkNew<vtkFloatArray> Displacement;
+    Displacement->SetNumberOfComponents(3);
+    Displacement->SetName("Displacement");
 
     for (auto&& node : mesh.Nodes) {
-        displacement->InsertNextTuple3(
-            node.displacement(0), node.displacement(1), node.displacement(2));
+        Displacement->InsertNextTuple(node.displacement.data());
     }
-    Grid->GetPointData()->SetVectors(displacement);
+    Grid->GetPointData()->AddArray(Displacement);
+
+    vtkNew<vtkFloatArray> Force;
+    Force->SetNumberOfComponents(3);
+    Force->SetName("Force");
+    for (size_t i = 0; i < mesh.Force.size() / 2; ++i) {
+        Force->InsertNextTuple3(mesh.Force(i * 2), mesh.Force(i * 2 + 1), 0);
+    }
+    Grid->GetPointData()->AddArray(Force);
+
+    vtkNew<vtkFloatArray> Normal;
+    Normal->SetNumberOfComponents(3);
+    Normal->SetName("FaceNormal");
+    for (auto&& element : mesh.Elements) {
+        Eigen::Vector3d edge1{element->nodes[1]->x - element->nodes[0]->x,
+                              element->nodes[1]->y - element->nodes[0]->y,
+                              element->nodes[1]->z - element->nodes[0]->z};
+        Eigen::Vector3d edge2{element->nodes[2]->x - element->nodes[0]->x,
+                              element->nodes[2]->y - element->nodes[0]->y,
+                              element->nodes[2]->z - element->nodes[0]->z};
+        Eigen::Vector3d normal = edge1.cross(edge2);
+        normal.normalize();
+        Normal->InsertNextTuple(normal.data());
+    }
+    Grid->GetCellData()->AddArray(Normal);
 }
 
 void vtkManager::write(std::string fileName) {

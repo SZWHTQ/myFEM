@@ -12,6 +12,8 @@ class Mesh {
     bool planeStress;
     enum MeshType { serendipity } meshType;
 
+    Eigen::VectorXd Force;
+
     Mesh() {
         Nodes = std::vector<Node>();
         Elements = std::vector<Element*>();

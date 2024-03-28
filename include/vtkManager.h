@@ -17,6 +17,6 @@ class vtkManager {
     vtkManager(Mesh& mesh);
     ~vtkManager(){};
 
-    void setData(std::string name, Mesh& mesh);
+    void setData(Mesh& mesh);
     void write(std::string fileName);
 };
