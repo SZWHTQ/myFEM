@@ -4,7 +4,7 @@
 #include "ApplyBoundary.h"
 #include "Boundary.h"
 
-std::list<Load> apply_load(Mesh* mesh, double L, double B) {
+std::list<Load> apply_load(Mesh* mesh, double L, double B, double value) {
     std::list<Load> loadCondition;
     for (auto&& element : mesh->Elements) {
         if (element->elementName == "Serendipity") {
@@ -18,9 +18,9 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                         load.nodes[0] = element->nodes[j];
                         load.nodes[1] = element->nodes[i];
                         load.nodes[2] = element->nodes[i + 4];
-                        load.normalForce[0] = 1.0;
-                        load.normalForce[1] = 1.0;
-                        load.normalForce[2] = 1.0;
+                        load.normalForce[0] = value;
+                        load.normalForce[1] = value;
+                        load.normalForce[2] = value;
                         load.thickness = element->thickness;
                         loadCondition.push_back(load);
                     } else {
@@ -28,9 +28,9 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                         load.nodes[0] = element->nodes[i];
                         load.nodes[1] = element->nodes[j];
                         load.nodes[2] = element->nodes[i + 4];
-                        load.normalForce[0] = 1.0;
-                        load.normalForce[1] = 1.0;
-                        load.normalForce[2] = 1.0;
+                        load.normalForce[0] = value;
+                        load.normalForce[1] = value;
+                        load.normalForce[2] = value;
                         load.thickness = element->thickness;
                         loadCondition.push_back(load);
                     }
@@ -43,9 +43,9 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                         load.nodes[0] = element->nodes[j];
                         load.nodes[1] = element->nodes[i];
                         load.nodes[2] = element->nodes[i + 4];
-                        load.normalForce[0] = 1.0;
-                        load.normalForce[1] = 1.0;
-                        load.normalForce[2] = 1.0;
+                        load.normalForce[0] = value;
+                        load.normalForce[1] = value;
+                        load.normalForce[2] = value;
                         load.thickness = element->thickness;
                         loadCondition.push_back(load);
                     } else {
@@ -53,63 +53,13 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B) {
                         load.nodes[0] = element->nodes[i];
                         load.nodes[1] = element->nodes[j];
                         load.nodes[2] = element->nodes[i + 4];
-                        load.normalForce[0] = 1.0;
-                        load.normalForce[1] = 1.0;
-                        load.normalForce[2] = 1.0;
+                        load.normalForce[0] = value;
+                        load.normalForce[1] = value;
+                        load.normalForce[2] = value;
                         load.thickness = element->thickness;
                         loadCondition.push_back(load);
                     }
                 }
-                // // Left bound
-                // if (std::fabs(element->nodes[i]->x + L / 2) < 1e-6 &&
-                //     std::fabs(element->nodes[j]->x + L / 2) < 1e-6) {
-                //     if (element->nodes[i]->x < element->nodes[j]->x) {
-                //         Load load;
-                //         load.nodes[0] = element->nodes[j];
-                //         load.nodes[1] = element->nodes[i];
-                //         load.nodes[2] = element->nodes[i + 4];
-                //         load.normalForce[0] = -1.0;
-                //         load.normalForce[1] = -1.0;
-                //         load.normalForce[2] = -1.0;
-                //         load.thickness = element->thickness;
-                //         loadCondition.push_back(load);
-                //     } else {
-                //         Load load;
-                //         load.nodes[0] = element->nodes[i];
-                //         load.nodes[1] = element->nodes[j];
-                //         load.nodes[2] = element->nodes[i + 4];
-                //         load.normalForce[0] = -1.0;
-                //         load.normalForce[1] = -1.0;
-                //         load.normalForce[2] = -1.0;
-                //         load.thickness = element->thickness;
-                //         loadCondition.push_back(load);
-                //     }
-                // }
-                // // Lower bound
-                // if (std::fabs(element->nodes[i]->y + B / 2) < 1e-6 &&
-                //     std::fabs(element->nodes[j]->y + B / 2) < 1e-6) {
-                //     if (element->nodes[i]->y < element->nodes[j]->y) {
-                //         Load load;
-                //         load.nodes[0] = element->nodes[i];
-                //         load.nodes[1] = element->nodes[j];
-                //         load.nodes[2] = element->nodes[i + 4];
-                //         load.normalForce[0] = -1.0;
-                //         load.normalForce[1] = -1.0;
-                //         load.normalForce[2] = -1.0;
-                //         load.thickness = element->thickness;
-                //         loadCondition.push_back(load);
-                //     } else {
-                //         Load load;
-                //         load.nodes[0] = element->nodes[j];
-                //         load.nodes[1] = element->nodes[i];
-                //         load.nodes[2] = element->nodes[i + 4];
-                //         load.normalForce[0] = -1.0;
-                //         load.normalForce[1] = -1.0;
-                //         load.normalForce[2] = -1.0;
-                //         load.thickness = element->thickness;
-                //         loadCondition.push_back(load);
-                //     }
-                // }
             }
         } else {
             std::cout << "Element type not supported\n";

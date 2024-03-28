@@ -5,8 +5,8 @@
 
 int generate_mesh(std::vector<double>& nodeCoord,
                   std::vector<size_t>& elementNodeTags, double L, double B,
-                  double a, double b, double lc, bool isSerendipity = true,
-                  int meshAlgorithm = 8) {
+                  double a, double b, double lc, double refinementFactor,
+                  bool isSerendipity, int meshAlgorithm) {
     // Initialize the Gmsh library
     gmsh::initialize();
     gmsh::option::setNumber("General.Terminal", 0);
@@ -17,12 +17,12 @@ int generate_mesh(std::vector<double>& nodeCoord,
 
         // Outer rectangle points
         std::vector<int> pointsTag;
-        pointsTag.push_back(gmsh::model::occ::addPoint(0, 0, 0, lc / 4));
+        pointsTag.push_back(gmsh::model::occ::addPoint(0, 0, 0, lc / refinementFactor));
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, 0, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, B / 2, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(0, B / 2, 0, lc));
-        pointsTag.push_back(gmsh::model::occ::addPoint(a, 0, 0, lc / 8));
-        pointsTag.push_back(gmsh::model::occ::addPoint(0, b, 0, lc / 8));
+        pointsTag.push_back(gmsh::model::occ::addPoint(a, 0, 0, lc / refinementFactor));
+        pointsTag.push_back(gmsh::model::occ::addPoint(0, b, 0, lc / refinementFactor));
 
         // Outer rectangle lines
         std::vector<int> linesTag;
@@ -101,7 +101,7 @@ int generate_mesh(std::vector<double>& nodeCoord,
         // gmsh::fltk::run();
     } catch (const std::exception& e) {
         std::cerr << e.what();
-        return -1;
+        return -2;
     }
     // Finalize the Gmsh library
     gmsh::finalize();

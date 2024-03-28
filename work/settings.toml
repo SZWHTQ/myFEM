@@ -1,0 +1,22 @@
+title = "Plate with Inclusion"
+
+[Rectangle]
+L = 2
+B = 0.9
+
+[Ellipse]
+ksi = 3 # a = rectangle.B / ksi
+b = 0.1
+
+[Material]
+Base = [1, 0.3]
+Inclusion = [1, 0.2]
+
+[Mesh]
+size = 0.02
+refinementFactor = 8
+isSerendipity = true
+Algorithm = 8
+
+[Load]
+Value = 1
