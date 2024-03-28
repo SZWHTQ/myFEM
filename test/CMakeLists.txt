@@ -1,12 +1,12 @@
 include_directories(
-    "../work"
+    "${CMAKE_HOME_DIRECTORY}/work"
     "~/Repository/Gmsh/SDK/latest/include"
 )
 
 add_executable(
     meshTest
-    "../work/GenerateMesh.cc"
-    "meshTest.cc"
+    "${CMAKE_HOME_DIRECTORY}/work/GenerateMesh.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/meshTest.cc"
 )
 
 target_link_libraries(

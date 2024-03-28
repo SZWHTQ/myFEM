@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
         int Algorithm = settings["Mesh"]["Algorithm"].value_or(8);
 
         // Generate mesh
+        std::cout << "Creating mesh with Gmsh..." << std::endl;
         std::vector<double> nodeCoord;
         std::vector<size_t> elementNodeTags;
         int err = generate_mesh(nodeCoord, elementNodeTags, L, B, a, b, lc, rf,
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
         if (err != 0) {
             return err;
         }
-        std::cout << "Creating mesh..." << std::endl;
+        std::cout << "Converting mesh..." << std::endl;
         Mesh mesh(Mesh::MeshType::serendipity, nodeCoord, elementNodeTags);
         std::cout << "Mesh created with " << mesh.Nodes.size() << " nodes and "
                   << mesh.Elements.size() << " elements" << std::endl;
@@ -44,6 +45,7 @@ int main(int argc, char* argv[]) {
         elementNodeTags.clear();
 
         // Set material
+        std::cout << "Setting material..." << std::endl;
         double E1 = settings["Material"]["Base"][0].value_or(1);
         double nu1 = settings["Material"]["Base"][1].value_or(0.3);
         double E2 = settings["Material"]["Inclusion"][1].value_or(1);
@@ -53,18 +55,17 @@ int main(int argc, char* argv[]) {
         set_material(&mesh, {&base, &inclusion}, a, b);
 
         // Apply boundary
+        std::cout << "Applying boundary conditions..." << std::endl;
         double value = settings["Load"]["Value"].value_or(1);
         auto&& loadCondition = apply_load(&mesh, L, B, value);
         auto&& boundaryCondition = apply_boundary(&mesh, 0, 0);
 
-        // for (auto&& element : mesh.Elements) {
-        //     std::cout << "Element " << element->index
-        //               << " stiffness matrix:" << std::endl;
-        //     std::cout << element->stiffnessMatrix() << std::endl;
-        // }
-
+        // Solve
+        std::cout << "Solving ..." << std::endl;
         mesh.Solve(loadCondition, boundaryCondition);
 
+        // Write output
+        std::cout << "Writing vtk..." << std::endl;
         vtkManager vtk(mesh);
         vtk.setData(mesh);
         vtk.write("result.vtk");

@@ -1,14 +1,17 @@
+set(dir "${CMAKE_CURRENT_SOURCE_DIR}")
+
 include_directories(
     "~/Repository/Gmsh/SDK/latest/include"
-    "./"
+    "${CMAKE_HOME_DIRECTORY}/toml"
+    "${dir}"
 )
 
 add_executable(
     main
-    "./ApplyBoundary.cc"
-    "./GenerateMesh.cc"
-    "./main.cc"
-    "./SetMaterial.cc"
+    "${dir}/ApplyBoundary.cc"
+    "${dir}/GenerateMesh.cc"
+    "${dir}/main.cc"
+    "${dir}/SetMaterial.cc"
 )
 
 target_link_libraries(
