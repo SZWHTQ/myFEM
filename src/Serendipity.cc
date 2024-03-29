@@ -140,8 +140,6 @@ const Eigen::MatrixXd Serendipity::stiffnessMatrix() {
 }
 
 int Serendipity::calculateStrainStress() {
-    int gaussPointNum = 3;
-    auto& gauss = GaussIntegral::getGaussData(gaussPointNum);
     auto& D = elasticMatrix(planeStress);
     const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
