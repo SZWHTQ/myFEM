@@ -8,7 +8,7 @@
 vtkManager::vtkManager(Mesh& mesh) {
     vtkNew<vtkPoints> Points;
     for (auto&& node : mesh.Nodes) {
-        Points->InsertNextPoint(node.x, node.y, node.z);
+        Points->InsertNextPoint(node->x, node->y, node->z);
     }
     Grid->SetPoints(Points);
     for (auto&& element : mesh.Elements) {
@@ -27,7 +27,7 @@ void vtkManager::setData(Mesh& mesh) {
     Displacement->SetName("Displacement");
 
     for (auto&& node : mesh.Nodes) {
-        Displacement->InsertNextTuple(node.displacement.data());
+        Displacement->InsertNextTuple(node->Displacement.data());
     }
     Grid->GetPointData()->AddArray(Displacement);
 
@@ -54,6 +54,22 @@ void vtkManager::setData(Mesh& mesh) {
         Normal->InsertNextTuple(normal.data());
     }
     Grid->GetCellData()->AddArray(Normal);
+
+    vtkNew<vtkFloatArray> Strain;
+    Strain->SetNumberOfComponents(3);
+    Strain->SetName("Strain");
+    for (auto&& node : mesh.Nodes) {
+        Strain->InsertNextTuple(node->Strain.data());
+    }
+    Grid->GetPointData()->AddArray(Strain);
+
+    vtkNew<vtkFloatArray> Stress;
+    Stress->SetNumberOfComponents(3);
+    Stress->SetName("Stress");
+    for (auto&& node : mesh.Nodes) {
+        Stress->InsertNextTuple(node->Stress.data());
+    }
+    Grid->GetPointData()->AddArray(Stress);
 }
 
 void vtkManager::write(std::string fileName) {

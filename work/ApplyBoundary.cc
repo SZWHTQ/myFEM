@@ -71,15 +71,15 @@ std::list<Load> apply_load(Mesh* mesh, double L, double B, double value) {
 std::list<Boundary> apply_boundary(Mesh* mesh, double X, double Y) {
     std::list<Boundary> boundaryCondition;
     for (auto&& node : mesh->Nodes) {
-        if (std::fabs(node.x - X) < 1e-6) {
+        if (std::fabs(node->x - X) < 1e-6) {
             Boundary boundary;
-            boundary.node = std::make_shared<Node>(node);
+            boundary.node = node;
             boundary.fixed[0] = true;
             boundaryCondition.push_back(boundary);
         }
-        if (std::fabs(node.y - Y) < 1e-6) {
+        if (std::fabs(node->y - Y) < 1e-6) {
             Boundary boundary;
-            boundary.node = std::make_shared<Node>(node);
+            boundary.node = node;
             boundary.fixed[1] = true;
             boundaryCondition.push_back(boundary);
         }

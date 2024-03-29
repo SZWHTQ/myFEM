@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <vector>
 
 #include "Element.h"
@@ -6,7 +7,7 @@
 
 class Mesh {
    public:
-    std::vector<Node> Nodes;
+    std::vector<std::shared_ptr<Node>> Nodes;
     std::vector<Element*> Elements;
 
     bool planeStress;
@@ -15,7 +16,7 @@ class Mesh {
     Eigen::VectorXd Force;
 
     Mesh() {
-        Nodes = std::vector<Node>();
+        Nodes = std::vector<std::shared_ptr<Node>>();
         Elements = std::vector<Element*>();
     }
     Mesh(MeshType type, std::vector<double> nodeCoord,

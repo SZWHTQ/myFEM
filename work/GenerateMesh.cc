@@ -17,7 +17,7 @@ int generate_mesh(std::vector<double>& nodeCoord,
 
         // Outer rectangle points
         std::vector<int> pointsTag;
-        pointsTag.push_back(gmsh::model::occ::addPoint(0, 0, 0, lc / refinementFactor));
+        pointsTag.push_back(gmsh::model::occ::addPoint(0, 0, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, 0, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, B / 2, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(0, B / 2, 0, lc));

@@ -12,8 +12,8 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
            std::vector<size_t> elementNodeTags, bool planeStress_)
     : meshType(type), planeStress(planeStress_) {
     for (size_t i = 0; i < nodeCoord.size(); i += 3) {
-        Nodes.push_back(
-            Node(i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
+        Nodes.push_back(std::make_shared<Node>(
+            i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
     }
     // size_t minTag =
     //     *std::min_element(elementNodeTags.begin(), elementNodeTags.end());
@@ -24,8 +24,8 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
                  i += Serendipity::nodeNum) {
                 std::vector<std::shared_ptr<Node>> singleElementNodes;
                 for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
-                    singleElementNodes.push_back(std::make_shared<Node>(
-                        Nodes[elementNodeTags[i + j] - 1]));
+                    singleElementNodes.push_back(
+                        Nodes[elementNodeTags[i + j] - 1]);
                 }
                 Element* element = new Serendipity(
                     i / Serendipity::nodeNum, singleElementNodes, planeStress);
@@ -153,8 +153,12 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
     U = solver.solve(F);
 
     for (size_t i = 0; i < Nodes.size(); ++i) {
-        Nodes[i].displacement[0] = U.coeffRef(2 * i);
-        Nodes[i].displacement[1] = U.coeffRef(2 * i + 1);
+        Nodes[i]->Displacement[0] = U.coeffRef(2 * i);
+        Nodes[i]->Displacement[1] = U.coeffRef(2 * i + 1);
+    }
+
+    for (auto&& element : Elements) {
+        element->calculateStrainStress();
     }
     return 0;
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include <Eigen/Eigen>
-#include <array>
 #include <memory>
 #include <string>
 // #include <tuple>
@@ -13,7 +12,9 @@ class Node {
     size_t index;
     double x, y, z;
 
-    std::array<double, 3> displacement{0,0,0};
+    Eigen::Vector3d Displacement{Eigen::Vector3d::Zero()};
+    Eigen::Vector3d Strain{Eigen::Vector3d::Zero()};
+    Eigen::Vector3d Stress{Eigen::Vector3d::Zero()};
 
     Node() : index(0), x(0), y(0), z(0){};
     Node(double x_, double y_, double z_) : x(x_), y(y_), z(z_){};
@@ -54,6 +55,8 @@ class Element {
 
     // Stiffness matrix
     virtual const Eigen::MatrixXd stiffnessMatrix() = 0;
+
+    virtual int calculateStrainStress() = 0;
 
     std::string getElementName() { return elementName; };
 };

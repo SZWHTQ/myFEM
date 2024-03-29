@@ -7,7 +7,8 @@
 #include "Material.h"
 #include "Serendipity.h"
 
-Serendipity::Serendipity(const size_t index_, const std::vector<std::shared_ptr<Node>>& nodes_,
+Serendipity::Serendipity(const size_t index_,
+                         const std::vector<std::shared_ptr<Node>>& nodes_,
                          const bool planeStress_)
     : Element(index_, "Serendipity"), planeStress(planeStress_) {
     if (nodes_.size() == 8) {
@@ -136,4 +137,24 @@ const Eigen::MatrixXd Serendipity::stiffnessMatrix() {
     }
 
     return stiffnessMatrix;
+}
+
+int Serendipity::calculateStrainStress() {
+    int gaussPointNum = 3;
+    auto& gauss = GaussIntegral::getGaussData(gaussPointNum);
+    auto& D = elasticMatrix(planeStress);
+    const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
+    const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
+    Eigen::VectorXd displacementArray(nodeNum * 2);
+    for (int n = 0; n < nodeNum; ++n) {
+        auto& B = strainMatrix(Ksi[n], Eta[n]);
+        for (int i; i < nodeNum; ++i) {
+            displacementArray(2 * i) = nodes[i]->Displacement(1);
+            displacementArray(2 * i + 1) = nodes[i]->Displacement(2);
+        }
+        nodes[n]->Strain = B * displacementArray;
+        nodes[n]->Stress = D * nodes[n]->Strain;
+    }
+
+    return 0;
 }

@@ -1,0 +1,7 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/_build",
+    "cmake.generator": "Ninja",
+    "cmake.debugConfig": {
+        "args": ["${workspaceFolder}/work/settings.toml"],
+    }
+}
