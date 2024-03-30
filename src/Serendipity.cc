@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -139,20 +140,145 @@ const Eigen::MatrixXd Serendipity::stiffnessMatrix() {
     return stiffnessMatrix;
 }
 
+// int Serendipity::calculateStrainStress() {
+//     auto& D = elasticMatrix(planeStress);
+//     const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
+//     const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
+//     Eigen::VectorXd displacementArray(nodeNum * 2);
+//     for (int i = 0; i < nodeNum; ++i) {
+//         displacementArray(2 * i) = nodes[i]->Displacement(1);
+//         displacementArray(2 * i + 1) = nodes[i]->Displacement(2);
+//     }
+//     for (int n = 0; n < nodeNum; ++n) {
+//         auto& B = strainMatrix(Ksi[n], Eta[n]);
+//         nodes[n]->Strain = B * displacementArray;
+//         nodes[n]->Stress = D * nodes[n]->Strain;
+//     }
+
+//     return 0;
+// }
+
+// int Serendipity::calculateStrainStress() {
+//     Eigen::VectorXd displacementArray(nodeNum * 2);
+//     for (int i = 0; i < nodeNum; ++i) {
+//         displacementArray(2 * i) = nodes[i]->Displacement(1);
+//         displacementArray(2 * i + 1) = nodes[i]->Displacement(2);
+//     }
+
+//     // Calculate strain at gauss point
+//     int gaussPointNum = 3;
+//     const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
+
+//     std::vector<Eigen::Vector3d> strainAtGaussPoints(
+//         gaussPointNum * gaussPointNum, Eigen::Vector3d::Zero());
+//     strainAtGaussPoints[0] =
+//         strainMatrix(gaussData.abscissas[0], gaussData.abscissas[0]) *
+//         displacementArray;
+//     strainAtGaussPoints[1] =
+//         strainMatrix(gaussData.abscissas[1], gaussData.abscissas[0]) *
+//         displacementArray;
+//     strainAtGaussPoints[2] =
+//         strainMatrix(gaussData.abscissas[1], gaussData.abscissas[1]) *
+//         displacementArray;
+//     strainAtGaussPoints[3] =
+//         strainMatrix(gaussData.abscissas[0], gaussData.abscissas[1]) *
+//         displacementArray;
+
+//     // Calculate strain and stress at node
+//     auto& D = elasticMatrix(planeStress);
+//     const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};
+//     const std::vector<int> S = {-1, -1, 1, 1, -1, 0, 1, 0};
+//     for (int n = 0; n < nodeNum; ++n) {
+//         nodes[n]->Strain.setZero();
+//         double r = R[n] / (-gaussData.abscissas[0]),
+//                s = S[n] / (-gaussData.abscissas[0]);
+//         std::vector<double> N(8);
+//         N[0] = 0.25 * (1 - r) * (1 - s);
+//         N[1] = 0.25 * (1 + r) * (1 - s);
+//         N[2] = 0.25 * (1 + r) * (1 + s);
+//         N[3] = 0.25 * (1 - r) * (1 + s);
+//         nodes[n]->Strain += N[0] * strainAtGaussPoints[0];
+//         nodes[n]->Strain += N[1] * strainAtGaussPoints[1];
+//         nodes[n]->Strain += N[2] * strainAtGaussPoints[2];
+//         nodes[n]->Strain += N[3] * strainAtGaussPoints[3];
+
+//         nodes[n]->Stress = D * nodes[n]->Strain;
+//     }
+//     return 0;
+// }
+
 int Serendipity::calculateStrainStress() {
-    auto& D = elasticMatrix(planeStress);
-    const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
-    const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
     Eigen::VectorXd displacementArray(nodeNum * 2);
-    for (int n = 0; n < nodeNum; ++n) {
-        auto& B = strainMatrix(Ksi[n], Eta[n]);
-        for (int i; i < nodeNum; ++i) {
-            displacementArray(2 * i) = nodes[i]->Displacement(1);
-            displacementArray(2 * i + 1) = nodes[i]->Displacement(2);
-        }
-        nodes[n]->Strain = B * displacementArray;
-        nodes[n]->Stress = D * nodes[n]->Strain;
+    for (int i = 0; i < nodeNum; ++i) {
+        displacementArray(2 * i) = nodes[i]->Displacement(1);
+        displacementArray(2 * i + 1) = nodes[i]->Displacement(2);
     }
 
+    // Calculate strain at gauss point
+    int gaussPointNum = 3;
+    const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
+
+    std::vector<Eigen::Vector3d> strainAtGaussPoints(nodeNum,
+                                                     Eigen::Vector3d::Zero());
+    strainAtGaussPoints[0] =
+        strainMatrix(gaussData.abscissas[0], gaussData.abscissas[0]) *
+        displacementArray;
+    strainAtGaussPoints[1] =
+        strainMatrix(gaussData.abscissas[2], gaussData.abscissas[0]) *
+        displacementArray;
+    strainAtGaussPoints[2] =
+        strainMatrix(gaussData.abscissas[2], gaussData.abscissas[2]) *
+        displacementArray;
+    strainAtGaussPoints[3] =
+        strainMatrix(gaussData.abscissas[0], gaussData.abscissas[2]) *
+        displacementArray;
+    strainAtGaussPoints[4] =
+        strainMatrix(gaussData.abscissas[1], gaussData.abscissas[0]) *
+        displacementArray;
+    strainAtGaussPoints[5] =
+        strainMatrix(gaussData.abscissas[2], gaussData.abscissas[1]) *
+        displacementArray;
+    strainAtGaussPoints[6] =
+        strainMatrix(gaussData.abscissas[1], gaussData.abscissas[2]) *
+        displacementArray;
+    strainAtGaussPoints[7] =
+        strainMatrix(gaussData.abscissas[0], gaussData.abscissas[1]) *
+        displacementArray;
+
+    // Calculate strain and stress at node
+    auto& D = elasticMatrix(planeStress);
+    const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};
+    const std::vector<int> S = {-1, -1, 1, 1, -1, 0, 1, 0};
+    for (int n = 0; n < nodeNum; ++n) {
+        nodes[n]->Strain.setZero();
+        double r = R[n] / (-gaussData.abscissas[0]),
+               s = S[n] / (-gaussData.abscissas[0]);
+        std::vector<double> N(8);
+        N[0] = 0.25 * (1 - r) * (1 - s);
+        N[1] = 0.25 * (1 + r) * (1 - s);
+        N[2] = 0.25 * (1 + r) * (1 + s);
+        N[3] = 0.25 * (1 - r) * (1 + s);
+        N[4] = 0.5 * (1 - r * r) * (1 - s);
+        N[5] = 0.5 * (1 + r) * (1 - s * s);
+        N[6] = 0.5 * (1 - r * r) * (1 + s);
+        N[7] = 0.5 * (1 - r) * (1 - s * s);
+        nodes[n]->Strain +=
+            (N[0] - 0.5 * (N[4] + N[7])) * strainAtGaussPoints[0];
+        nodes[n]->Strain +=
+            (N[1] - 0.5 * (N[4] + N[5])) * strainAtGaussPoints[1];
+        nodes[n]->Strain +=
+            (N[2] - 0.5 * (N[5] + N[6])) * strainAtGaussPoints[2];
+        nodes[n]->Strain +=
+            (N[3] - 0.5 * (N[6] + N[7])) * strainAtGaussPoints[3];
+        nodes[n]->Strain += N[4] * strainAtGaussPoints[4];
+        nodes[n]->Strain += N[5] * strainAtGaussPoints[5];
+        nodes[n]->Strain += N[6] * strainAtGaussPoints[6];
+        nodes[n]->Strain += N[7] * strainAtGaussPoints[7];
+        if (n < 4) {
+            nodes[n]->Strain *= 0.25;
+        } else 
+
+        nodes[n]->Stress = D * nodes[n]->Strain;
+    }
     return 0;
 }
