@@ -82,10 +82,10 @@ int generate_mesh(std::vector<double>& nodeCoord,
 
         // Save mesh to file
 #if WRITE_INP
-        gmsh::write("rectangle_with_hole.msh");
+        gmsh::write("PlateWithInclusion.msh");
 #endif
 #if WRITE_MSH
-        gmsh::write("rectangle_with_hole.inp");
+        gmsh::write("PlateWithInclusion.inp");
 #endif
 
         // Retrieve the node coordinates

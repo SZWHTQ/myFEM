@@ -8,8 +8,10 @@
 class Material;
 
 class Node {
-   public:
+   private:
     size_t index;
+
+   public:
     double x, y, z;
 
     Eigen::Vector3d Displacement{Eigen::Vector3d::Zero()};
@@ -21,15 +23,18 @@ class Node {
     Node(size_t index_, double x_, double y_, double z_)
         : index(index_), x(x_), y(y_), z(z_){};
     ~Node(){};
+    int getIndex() { return index; };
+    void setIndex(int i) { index = i; };
 };
 
 class Element {
-   public:
+   private:
     size_t index;
-    std::vector<std::shared_ptr<Node>> nodes;
-    Material* material;
     std::string elementName;
 
+   public:
+    std::vector<std::shared_ptr<Node>> nodes;
+    Material* material;
     double thickness;
 
     Element(){};
@@ -60,4 +65,6 @@ class Element {
     virtual int calculateStrainStressGaussPoint() = 0;
 
     std::string getElementName() { return elementName; };
+    int getIndex() { return index; };
+    int setMaterial(Material* material_);
 };

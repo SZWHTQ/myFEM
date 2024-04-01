@@ -100,8 +100,8 @@ const Eigen::MatrixXd Serendipity::strainMatrix(double ksi, double eta) {
 }
 
 const Eigen::MatrixXd Serendipity::elasticMatrix(bool planeStress) {
-    double E = material->youngModulus;
-    double nu = material->poissonRatio;
+    double E = material->getElasticModulus();
+    double nu = material->getPoissonRatio();
 
     double A1, A2, A3;
     Eigen::MatrixXd elasticMatrix(3, 3);

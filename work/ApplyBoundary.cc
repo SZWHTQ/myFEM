@@ -7,7 +7,7 @@
 std::list<Load> apply_load(Mesh* mesh, double L, double B, double value) {
     std::list<Load> loadCondition;
     for (auto&& element : mesh->Elements) {
-        if (element->elementName == "Serendipity") {
+        if (element->getElementName() == "Serendipity") {
             for (int i = 0; i < 4; ++i) {
                 int j = (i + 1) % 4;
                 // Right bound

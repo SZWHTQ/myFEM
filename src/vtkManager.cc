@@ -14,7 +14,7 @@ vtkManager::vtkManager(Mesh& mesh) {
     for (auto&& element : mesh.Elements) {
         vtkNew<vtkQuadraticQuad> QuadraticQuad;
         for (int i = 0; i < element->nodes.size(); ++i) {
-            QuadraticQuad->GetPointIds()->SetId(i, element->nodes[i]->index);
+            QuadraticQuad->GetPointIds()->SetId(i, element->nodes[i]->getIndex());
         }
         Grid->InsertNextCell(QuadraticQuad->GetCellType(),
                              QuadraticQuad->GetPointIds());

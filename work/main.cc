@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
         double rf = settings["Mesh"]["refinementFactor"].value_or(8);
         bool isSerendipity = settings["Mesh"]["isSerendipity"].value_or(true);
         int Algorithm = settings["Mesh"]["Algorithm"].value_or(8);
+        std::string vtkFileName = settings["VTK"]["fileName"].value_or("result.vtk");
 
         // Generate mesh
         // std::cout << "Creating mesh with Gmsh..." << std::endl;
@@ -92,7 +93,7 @@ int main(int argc, char* argv[]) {
         timer.reset();
         vtkManager vtk(mesh);
         vtk.setData(mesh);
-        vtk.write("result.vtk");
+        vtk.write(vtkFileName);
         std::cout << "Vtk written in " << timer.elapsed() << " ms" << std::endl;
         std::cout << "Total time: " << t.elapsed() << " ms" << std::endl;
     } catch (const std::exception& e) {

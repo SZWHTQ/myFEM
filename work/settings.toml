@@ -19,3 +19,6 @@ Algorithm = 8
 
 [Load]
 Value = 1
+
+[VTK]
+fileName = "PlateWithInclusion.vtk"

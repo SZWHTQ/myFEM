@@ -103,17 +103,17 @@ Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
         auto&& ke = element->stiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
-                globalStiffnessMatrix(2 * element->nodes[i]->index,
-                                      2 * element->nodes[j]->index) +=
+                globalStiffnessMatrix(2 * element->nodes[i]->getIndex(),
+                                      2 * element->nodes[j]->getIndex()) +=
                     ke(2 * i, 2 * j);
-                globalStiffnessMatrix(2 * element->nodes[i]->index,
-                                      2 * element->nodes[j]->index + 1) +=
+                globalStiffnessMatrix(2 * element->nodes[i]->getIndex(),
+                                      2 * element->nodes[j]->getIndex() + 1) +=
                     ke(2 * i, 2 * j + 1);
-                globalStiffnessMatrix(2 * element->nodes[i]->index + 1,
-                                      2 * element->nodes[j]->index) +=
+                globalStiffnessMatrix(2 * element->nodes[i]->getIndex() + 1,
+                                      2 * element->nodes[j]->getIndex()) +=
                     ke(2 * i + 1, 2 * j);
-                globalStiffnessMatrix(2 * element->nodes[i]->index + 1,
-                                      2 * element->nodes[j]->index + 1) +=
+                globalStiffnessMatrix(2 * element->nodes[i]->getIndex() + 1,
+                                      2 * element->nodes[j]->getIndex() + 1) +=
                     ke(2 * i + 1, 2 * j + 1);
             }
         }
@@ -133,17 +133,17 @@ Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
         auto&& ke = element->stiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
-                globalStiffnessMatrix(2 * element->nodes[i]->index,
-                                      2 * element->nodes[j]->index) +=
+                globalStiffnessMatrix(2 * element->nodes[i]->getIndex(),
+                                      2 * element->nodes[j]->getIndex()) +=
                     ke(2 * i, 2 * j);
-                globalStiffnessMatrix(2 * element->nodes[i]->index,
-                                      2 * element->nodes[j]->index + 1) +=
+                globalStiffnessMatrix(2 * element->nodes[i]->getIndex(),
+                                      2 * element->nodes[j]->getIndex() + 1) +=
                     ke(2 * i, 2 * j + 1);
-                globalStiffnessMatrix(2 * element->nodes[i]->index + 1,
-                                      2 * element->nodes[j]->index) +=
+                globalStiffnessMatrix(2 * element->nodes[i]->getIndex() + 1,
+                                      2 * element->nodes[j]->getIndex()) +=
                     ke(2 * i + 1, 2 * j);
-                globalStiffnessMatrix(2 * element->nodes[i]->index + 1,
-                                      2 * element->nodes[j]->index + 1) +=
+                globalStiffnessMatrix(2 * element->nodes[i]->getIndex() + 1,
+                                      2 * element->nodes[j]->getIndex() + 1) +=
                     ke(2 * i + 1, 2 * j + 1);
             }
         }
@@ -163,8 +163,8 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
     for (auto&& load : loads) {
         auto&& equivalentForce = Mesh::equivalentForce(&load);
         for (size_t i = 0; i < 3; ++i) {
-            Force(2 * load.nodes[i]->index) += equivalentForce[2 * i];
-            Force(2 * load.nodes[i]->index + 1) += equivalentForce[2 * i + 1];
+            Force(2 * load.nodes[i]->getIndex()) += equivalentForce[2 * i];
+            Force(2 * load.nodes[i]->getIndex() + 1) += equivalentForce[2 * i + 1];
         }
     }
 
@@ -181,7 +181,7 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
     for (auto&& boundary : boundaries) {
         for (size_t i = 0; i < 2; ++i) {
             if (boundary.fixed[i]) {
-                size_t j = 2 * boundary.node->index + i;
+                size_t j = 2 * boundary.node->getIndex() + i;
                 globalStiffnessMatrix(j, j) *= 1e15;
                 Force(j) = 0;
             }

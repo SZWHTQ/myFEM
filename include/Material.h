@@ -1,9 +1,13 @@
 #pragma once
 class Material {
+   private:
+    double elasticModulus, poissonRatio;
+
    public:
-    double youngModulus, poissonRatio;
-    Material(double E_, double nu_) : youngModulus(E_), poissonRatio(nu_){};
+    Material(double E_, double nu_) : elasticModulus(E_), poissonRatio(nu_){};
     ~Material(){};
+    double getElasticModulus() { return elasticModulus; };
+    double getPoissonRatio() { return poissonRatio; };
 };
 
 class Elastic : public Material {
