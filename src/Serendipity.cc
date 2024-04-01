@@ -274,9 +274,6 @@ int Serendipity::calculateStrainStress() {
         nodes[n]->Strain += N[5] * strainAtGaussPoints[5];
         nodes[n]->Strain += N[6] * strainAtGaussPoints[6];
         nodes[n]->Strain += N[7] * strainAtGaussPoints[7];
-        if (n < 4) {
-            nodes[n]->Strain *= 0.25;
-        } else 
 
         nodes[n]->Stress = D * nodes[n]->Strain;
     }
