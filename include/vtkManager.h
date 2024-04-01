@@ -2,7 +2,7 @@
 #include <vtkPoints.h>
 #include <vtkQuadraticQuad.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridWriter.h>
+#include <vtkXMLUnstructuredGridWriter.h>
 
 #include <string>
 
@@ -11,12 +11,12 @@
 class vtkManager {
    public:
     vtkNew<vtkUnstructuredGrid> Grid;
-    vtkNew<vtkUnstructuredGridWriter> writer;
+    vtkNew<vtkXMLUnstructuredGridWriter> writer;
 
     vtkManager(){};
     vtkManager(Mesh& mesh);
     ~vtkManager(){};
 
     void setData(Mesh& mesh);
-    void write(std::string fileName);
+    void write(std::string fileName, bool isBinary = false);
 };

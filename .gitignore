@@ -3,7 +3,7 @@ _build
 .cache
 *.inp
 *.msh
-*.vtk
+*.vtu
 
 # Prerequisites
 *.d

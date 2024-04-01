@@ -14,7 +14,8 @@ vtkManager::vtkManager(Mesh& mesh) {
     for (auto&& element : mesh.Elements) {
         vtkNew<vtkQuadraticQuad> QuadraticQuad;
         for (int i = 0; i < element->nodes.size(); ++i) {
-            QuadraticQuad->GetPointIds()->SetId(i, element->nodes[i]->getIndex());
+            QuadraticQuad->GetPointIds()->SetId(i,
+                                                element->nodes[i]->getIndex());
         }
         Grid->InsertNextCell(QuadraticQuad->GetCellType(),
                              QuadraticQuad->GetPointIds());
@@ -72,8 +73,11 @@ void vtkManager::setData(Mesh& mesh) {
     Grid->GetPointData()->AddArray(Stress);
 }
 
-void vtkManager::write(std::string fileName) {
+void vtkManager::write(std::string fileName, bool isBinary) {
     writer->SetFileName(fileName.c_str());
     writer->SetInputData(Grid);
+    if (isBinary) {
+        writer->SetDataModeToBinary();
+    }
     writer->Write();
 }

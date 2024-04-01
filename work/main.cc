@@ -30,9 +30,8 @@ int main(int argc, char* argv[]) {
         double b = settings["Ellipse"]["b"].value_or(0.1);
         double lc = settings["Mesh"]["size"].value_or(0.02);
         double rf = settings["Mesh"]["refinementFactor"].value_or(8);
-        bool isSerendipity = settings["Mesh"]["isSerendipity"].value_or(true);
+        bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
         int Algorithm = settings["Mesh"]["Algorithm"].value_or(8);
-        std::string vtkFileName = settings["VTK"]["fileName"].value_or("result.vtk");
 
         // Generate mesh
         // std::cout << "Creating mesh with Gmsh..." << std::endl;
@@ -90,10 +89,13 @@ int main(int argc, char* argv[]) {
 
         // Write output
         // std::cout << "Writing vtk..." << std::endl;
+        std::string vtkFileName =
+            settings["VTK"]["fileName"].value_or("result.vtk");
+        bool isBinary = settings["VTK"]["Binary"].value_or(false);
         timer.reset();
         vtkManager vtk(mesh);
         vtk.setData(mesh);
-        vtk.write(vtkFileName);
+        vtk.write(vtkFileName, isBinary);
         std::cout << "Vtk written in " << timer.elapsed() << " ms" << std::endl;
         std::cout << "Total time: " << t.elapsed() << " ms" << std::endl;
     } catch (const std::exception& e) {

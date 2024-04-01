@@ -18,6 +18,7 @@ find_package(VTK COMPONENTS
     CommonCore
     IOCore
     IOLegacy
+    IOXML
     REQUIRED
 )
 if(VTK_FOUND)

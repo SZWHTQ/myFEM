@@ -21,4 +21,5 @@ Algorithm = 8
 Value = 1
 
 [VTK]
-fileName = "PlateWithInclusion.vtk"
+fileName = "PlateWithInclusion.vtu"
+Binary = true
