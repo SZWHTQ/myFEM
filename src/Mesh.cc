@@ -2,11 +2,17 @@
 // #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <vector>
 
 #include "Element.h"
 #include "Mesh.h"
 #include "Serendipity.h"
+#if VERBOSE
+#include "Timer.h"
+#endif
+#include "ThreadPool.h"
 
 Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
            std::vector<size_t> elementNodeTags, bool planeStress_)
@@ -91,7 +97,9 @@ const std::vector<double> Mesh::equivalentForce(Load* load) {
 Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
-    for (auto&& element : Elements) {
+
+    ThreadPool pool(std::thread::hardware_concurrency());
+    for (auto element : Elements) {
         auto&& ke = element->stiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
@@ -110,6 +118,42 @@ Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
             }
         }
     }
+
+    return globalStiffnessMatrix;
+}
+
+
+Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
+    Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
+    globalStiffnessMatrix.setZero();
+
+    std::mutex mtx;
+    auto thread_function = [&](Element* element) {
+        std::lock_guard<std::mutex> lock(mtx);
+        auto&& ke = element->stiffnessMatrix();
+        for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
+            for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
+                globalStiffnessMatrix(2 * element->nodes[i]->index,
+                                      2 * element->nodes[j]->index) +=
+                    ke(2 * i, 2 * j);
+                globalStiffnessMatrix(2 * element->nodes[i]->index,
+                                      2 * element->nodes[j]->index + 1) +=
+                    ke(2 * i, 2 * j + 1);
+                globalStiffnessMatrix(2 * element->nodes[i]->index + 1,
+                                      2 * element->nodes[j]->index) +=
+                    ke(2 * i + 1, 2 * j);
+                globalStiffnessMatrix(2 * element->nodes[i]->index + 1,
+                                      2 * element->nodes[j]->index + 1) +=
+                    ke(2 * i + 1, 2 * j + 1);
+            }
+        }
+    };
+    ThreadPool pool(std::thread::hardware_concurrency());
+    for (auto element : Elements) {
+        pool.enqueue(
+            [thread_function, element] { return thread_function(element); });
+    }
+
     return globalStiffnessMatrix;
 }
 
@@ -123,11 +167,17 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
             Force(2 * load.nodes[i]->index + 1) += equivalentForce[2 * i + 1];
         }
     }
+
+#if VERBOSE
+    Timer timer;
+#endif
     auto&& globalStiffnessMatrix = assembleStiffnessMatrix();
-    // std::cout << "Global Stiffness Matrix:\n";
-    // std::cout << globalStiffnessMatrix << std::endl;
+#if VERBOSE
+    std::cout << "  Stiffness matrix assembled in " << timer.elapsed() << " ms"
+              << std::endl;
 
     // Apply boundary conditions
+#endif
     for (auto&& boundary : boundaries) {
         for (size_t i = 0; i < 2; ++i) {
             if (boundary.fixed[i]) {
@@ -138,27 +188,44 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
         }
     }
 
+#if VERBOSE
+    timer.reset();
+#endif
     auto&& K = globalStiffnessMatrix.sparseView();
     auto&& F = Force.sparseView();
     Eigen::SparseVector<double> U;
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+#if VERBOSE
+    timer.reset();
+#endif
     solver.analyzePattern(K);
     solver.factorize(K);
+#if VERBOSE
+    std::cout << "  Analyzed pattern and factorized in " << timer.elapsed() << " ms" << std::endl;
+#endif
     if (solver.info() != Eigen::Success) {
         std::cerr << "LU decomposition failed" << std::endl;
         std::cerr << "Error code: " << solver.info() << std::endl;
         std::cerr << "Error message: " << solver.lastErrorMessage() << "\n";
         return -1;
     }
+#if VERBOSE
+    timer.reset();
+#endif
     U = solver.solve(F);
+#if VERBOSE
+    std::cout << "  Solver solved in " << timer.elapsed() << " ms" << std::endl;
+#endif
 
     for (size_t i = 0; i < Nodes.size(); ++i) {
-        Nodes[i]->Displacement[0] = U.coeffRef(2 * i);
-        Nodes[i]->Displacement[1] = U.coeffRef(2 * i + 1);
+        Nodes[i]->Displacement(0) = U.coeffRef(2 * i);
+        Nodes[i]->Displacement(1) = U.coeffRef(2 * i + 1);
     }
 
+
     for (auto&& element : Elements) {
-        element->calculateStrainStress();
+        element->calculateStrainStressGaussPoint();
     }
+
     return 0;
 }

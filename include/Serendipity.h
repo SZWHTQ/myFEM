@@ -30,6 +30,7 @@ class Serendipity : public Element {
     const Eigen::MatrixXd stiffnessMatrix() override;
 
     int calculateStrainStress() override;
+    int calculateStrainStressGaussPoint() override;
 
     ~Serendipity(){};
 };

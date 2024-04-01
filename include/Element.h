@@ -57,6 +57,7 @@ class Element {
     virtual const Eigen::MatrixXd stiffnessMatrix() = 0;
 
     virtual int calculateStrainStress() = 0;
+    virtual int calculateStrainStressGaussPoint() = 0;
 
     std::string getElementName() { return elementName; };
 };

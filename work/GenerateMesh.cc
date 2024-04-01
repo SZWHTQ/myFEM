@@ -81,8 +81,12 @@ int generate_mesh(std::vector<double>& nodeCoord,
         gmsh::model::mesh::removeDuplicateElements();
 
         // Save mesh to file
+#if WRITE_INP
         gmsh::write("rectangle_with_hole.msh");
+#endif
+#if WRITE_MSH
         gmsh::write("rectangle_with_hole.inp");
+#endif
 
         // Retrieve the node coordinates
         std::vector<size_t> nodeTags;

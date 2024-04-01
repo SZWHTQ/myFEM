@@ -3,7 +3,7 @@ _build
 .cache
 *.inp
 *.msh
-result.vtk
+*.vtk
 
 # Prerequisites
 *.d
