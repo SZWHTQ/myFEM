@@ -27,7 +27,8 @@ int main(int argc, char* argv[]) {
         double B = settings["Rectangle"]["B"].value_or(0.9);
         double ksi = settings["Ellipse"]["ksi"].value_or(3);
         double a = B / ksi;
-        double b = settings["Ellipse"]["b"].value_or(0.1);
+        double a_b = settings["Ellipse"]["a_b"].value_or(1. / 3);
+        double b = a / a_b;
         double lc = settings["Mesh"]["size"].value_or(0.02);
         double rf = settings["Mesh"]["refinementFactor"].value_or(8);
         bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
