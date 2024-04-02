@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+#include "GenerateMesh.h"
+
 int generate_mesh(std::vector<double>& nodeCoord,
                   std::vector<size_t>& elementNodeTags, double L, double B,
                   double a, double b, double lc, double refinementFactor,
@@ -21,8 +23,10 @@ int generate_mesh(std::vector<double>& nodeCoord,
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, 0, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, B / 2, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(0, B / 2, 0, lc));
-        pointsTag.push_back(gmsh::model::occ::addPoint(a, 0, 0, lc / refinementFactor));
-        pointsTag.push_back(gmsh::model::occ::addPoint(0, b, 0, lc / refinementFactor));
+        pointsTag.push_back(
+            gmsh::model::occ::addPoint(a, 0, 0, lc / refinementFactor));
+        pointsTag.push_back(
+            gmsh::model::occ::addPoint(0, b, 0, lc / refinementFactor));
 
         // Outer rectangle lines
         std::vector<int> linesTag;

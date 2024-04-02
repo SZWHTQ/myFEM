@@ -5,16 +5,16 @@ L = 2
 B = 0.9
 
 [Ellipse]
-ksi = 10 # a = rectangle.B / ksi
-a_b = 0.33333  # b = a / a_b
+ksi = 3 # a = rectangle.B / ksi
+a_b = 3  # b = a / a_b
 
 [Material]
 Base = [1, 0.3]      # [E, nu]
 Inclusion = [1, 0.2]
 
 [Mesh]
-size = 0.1
-refinementFactor = 100
+size = 0.025
+refinementFactor = 200
 Algorithm = 8
 
 [Load]

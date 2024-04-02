@@ -36,7 +36,7 @@ void vtkManager::setData(Mesh& mesh) {
     Force->SetNumberOfComponents(3);
     Force->SetName("Force");
     for (size_t i = 0; i < mesh.Force.size() / 2; ++i) {
-        Force->InsertNextTuple3(mesh.Force(i * 2), mesh.Force(i * 2 + 1), 0);
+        Force->InsertNextTuple3(mesh.Force.coeff(i * 2), mesh.Force.coeff(i * 2 + 1), 0);
     }
     Grid->GetPointData()->AddArray(Force);
 

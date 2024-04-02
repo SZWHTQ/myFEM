@@ -122,6 +122,35 @@ Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
     return globalStiffnessMatrix;
 }
 
+Eigen::SparseMatrix<double> Mesh::sparseAssembleStiffnessMatrix() {
+    Eigen::SparseMatrix<double> globalStiffnessMatrix(Nodes.size() * 2,
+                                                      Nodes.size() * 2);
+    std::vector<Eigen::Triplet<double>> triplets;
+    triplets.reserve(Elements.size() * 4 * Serendipity::nodeNum * Serendipity::nodeNum);
+    for (auto element : Elements) {
+        auto&& ke = element->stiffnessMatrix();
+        for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
+            for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
+                triplets.push_back({2 * element->nodes[i]->getIndex(),
+                                    2 * element->nodes[j]->getIndex(),
+                                    ke(2 * i, 2 * j)});
+                triplets.push_back({2 * element->nodes[i]->getIndex(),
+                                    2 * element->nodes[j]->getIndex() + 1,
+                                    ke(2 * i, 2 * j + 1)});
+                triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
+                                    2 * element->nodes[j]->getIndex(),
+                                    ke(2 * i + 1, 2 * j)});
+                triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
+                                    2 * element->nodes[j]->getIndex() + 1,
+                                    ke(2 * i + 1, 2 * j + 1)});
+            }
+        }
+    }
+
+    globalStiffnessMatrix.setFromTriplets(triplets.begin(), triplets.end());
+
+    return globalStiffnessMatrix;
+}
 
 Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
@@ -163,36 +192,60 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
     for (auto&& load : loads) {
         auto&& equivalentForce = Mesh::equivalentForce(&load);
         for (size_t i = 0; i < 3; ++i) {
-            Force(2 * load.nodes[i]->getIndex()) += equivalentForce[2 * i];
-            Force(2 * load.nodes[i]->getIndex() + 1) += equivalentForce[2 * i + 1];
+            Force.coeffRef(2 * load.nodes[i]->getIndex()) +=
+                equivalentForce[2 * i];
+            Force.coeffRef(2 * load.nodes[i]->getIndex() + 1) +=
+                equivalentForce[2 * i + 1];
         }
     }
 
 #if VERBOSE
     Timer timer;
 #endif
-    auto&& globalStiffnessMatrix = assembleStiffnessMatrix();
+    auto&& K = sparseAssembleStiffnessMatrix();
 #if VERBOSE
     std::cout << "  Stiffness matrix assembled in " << timer.elapsed() << " ms"
               << std::endl;
 
     // Apply boundary conditions
+    timer.reset();
 #endif
+    Eigen::VectorXd List1 = Eigen::VectorXd::Ones(Nodes.size() * 2);
+    Eigen::VectorXd List2 = Eigen::VectorXd::Zero(Nodes.size() * 2);
     for (auto&& boundary : boundaries) {
         for (size_t i = 0; i < 2; ++i) {
             if (boundary.fixed[i]) {
                 size_t j = 2 * boundary.node->getIndex() + i;
-                globalStiffnessMatrix(j, j) *= 1e15;
-                Force(j) = 0;
+                List1(j) = 0;
+                List2(j) = 1;
+                Force.coeffRef(j) = 0;
             }
         }
     }
+    {
+        Eigen::SparseMatrix<double> diagonalMatrix1;
+        Eigen::SparseMatrix<double> diagonalMatrix2;
+        diagonalMatrix1 = List1.asDiagonal();
+        diagonalMatrix2 = List2.asDiagonal();
+        K = diagonalMatrix1 * K * diagonalMatrix1 + diagonalMatrix2;
+    }
+    /*
+        for (auto&& boundary : boundaries) {
+            for (size_t i = 0; i < 2; ++i) {
+                if (boundary.fixed[i]) {
+                    size_t j = 2 * boundary.node->getIndex() + i;
+                    globalStiffnessMatrix(j, j) *= 1e50;
+                    Force(j) = 0;
+                }
+            }
+        }
+     */
 
 #if VERBOSE
-    timer.reset();
+    std::cout << "  Boundary conditions applied in " << timer.elapsed() << " ms"
+              << std::endl;
 #endif
-    auto&& K = globalStiffnessMatrix.sparseView();
-    auto&& F = Force.sparseView();
+    // auto&& K = globalStiffnessMatrix.sparseView();
     Eigen::SparseVector<double> U;
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
 #if VERBOSE
@@ -201,7 +254,8 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
     solver.analyzePattern(K);
     solver.factorize(K);
 #if VERBOSE
-    std::cout << "  Analyzed pattern and factorized in " << timer.elapsed() << " ms" << std::endl;
+    std::cout << "  Analyzed pattern and factorized in " << timer.elapsed()
+              << " ms" << std::endl;
 #endif
     if (solver.info() != Eigen::Success) {
         std::cerr << "LU decomposition failed" << std::endl;
@@ -212,16 +266,15 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
 #if VERBOSE
     timer.reset();
 #endif
-    U = solver.solve(F);
+    U = solver.solve(Force);
 #if VERBOSE
     std::cout << "  Solver solved in " << timer.elapsed() << " ms" << std::endl;
 #endif
 
     for (size_t i = 0; i < Nodes.size(); ++i) {
-        Nodes[i]->Displacement(0) = U.coeffRef(2 * i);
-        Nodes[i]->Displacement(1) = U.coeffRef(2 * i + 1);
+        Nodes[i]->Displacement(0) = U.coeff(2 * i);
+        Nodes[i]->Displacement(1) = U.coeff(2 * i + 1);
     }
-
 
     for (auto&& element : Elements) {
         element->calculateStrainStressGaussPoint();

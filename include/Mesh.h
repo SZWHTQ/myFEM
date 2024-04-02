@@ -15,7 +15,7 @@ class Mesh {
     bool planeStress;
     enum MeshType { serendipity } meshType;
 
-    Eigen::VectorXd Force;
+    Eigen::SparseVector<double> Force;
 
     Mesh() {
         Nodes = std::vector<std::shared_ptr<Node>>();
@@ -25,6 +25,7 @@ class Mesh {
          std::vector<size_t> elementNodeTags, bool planeStress = true);
 
     Eigen::MatrixXd assembleStiffnessMatrix();
+    Eigen::SparseMatrix<double> sparseAssembleStiffnessMatrix();
     Eigen::MatrixXd parallelAssembleStiffnessMatrix();
     static const std::vector<double> equivalentForce(Load* load);
 

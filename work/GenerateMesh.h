@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#define WRITE_INP 0
+#define WRITE_INP 1
 #define WRITE_MSH 0
 
 int generate_mesh(std::vector<double>& nodeCoord,
