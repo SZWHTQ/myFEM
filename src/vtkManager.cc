@@ -78,6 +78,8 @@ void vtkManager::write(std::string fileName, bool isBinary) {
     writer->SetInputData(Grid);
     if (isBinary) {
         writer->SetDataModeToBinary();
+    } else {
+        writer->SetDataModeToAscii();
     }
     writer->Write();
 }
