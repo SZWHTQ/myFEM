@@ -2,7 +2,7 @@
 ## For some homework
 
 ### Depends on
-1. [Gmsh](https://gmsh.info/)
+1. [Gmsh>=4.12.0](https://gmsh.info/)
 2. [tomlplusplus](https://github.com/marzer/tomlplusplus)
 3. [Eigen](https://eigen.tuxfamily.org/)
 4. [VTK](https://vtk.org/)
