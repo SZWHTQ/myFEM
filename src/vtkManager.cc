@@ -2,6 +2,7 @@
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
+#include "Material.h"
 
 #include "vtkManager.h"
 
@@ -71,6 +72,28 @@ void vtkManager::setData(Mesh& mesh) {
         Stress->InsertNextTuple(node->Stress.data());
     }
     Grid->GetPointData()->AddArray(Stress);
+
+    vtkNew<vtkFloatArray> Material;
+    Material->SetNumberOfComponents(1);
+    Material->SetName("Material");
+    for (auto&& element : mesh.Elements) {
+        Material->InsertNextValue(element->material->getIndex());
+    }
+    Grid->GetCellData()->AddArray(Material);
+
+    double totalStrainEnergy = 0;
+    double elementStrainEnergy = 0;
+    vtkNew<vtkFloatArray> strainEnergy;
+    strainEnergy->SetNumberOfComponents(1);
+    strainEnergy->SetName("StrainEnergy");
+    for (auto&& element : mesh.Elements) {
+        elementStrainEnergy = element->getStrainEnergy();
+        strainEnergy->InsertNextValue(elementStrainEnergy);
+        totalStrainEnergy += elementStrainEnergy;
+    }
+    Grid->GetCellData()->AddArray(strainEnergy);
+    std::cout << "Total strain energy: " << totalStrainEnergy << " J" << std::endl;
+
 }
 
 void vtkManager::write(std::string fileName, bool isBinary) {

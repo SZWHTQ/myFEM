@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 
 #include "Element.h"
 
@@ -28,6 +29,12 @@ class Serendipity : public Element {
     const Eigen::MatrixXd getElasticMatrix(bool planeStress = true) override;
 
     const Eigen::MatrixXd getStiffnessMatrix() override;
+
+    const std::vector<Eigen::VectorXd> getGaussPointsStrain() override;
+
+    const std::vector<Eigen::VectorXd> getGaussPointsStress() override;
+
+    const double getStrainEnergy() override;
 
     int calculateStrainStress() override;
     int calculateStrainStressGaussPoint() override;

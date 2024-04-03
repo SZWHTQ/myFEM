@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
         double nu1 = settings["Material"]["Base"][1].value_or(0.3);
         double E2 = settings["Material"]["Inclusion"][0].value_or(1);
         double nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
-        Elastic base(E1, nu1);
-        Elastic inclusion(E2, nu2);
+        Elastic base(1, E1, nu1);
+        Elastic inclusion(2, E2, nu2);
         set_material(&mesh, {&base, &inclusion}, a, b);
 
         // Apply boundary

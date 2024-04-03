@@ -61,6 +61,15 @@ class Element {
     // Stiffness matrix
     virtual const Eigen::MatrixXd getStiffnessMatrix() = 0;
 
+    // Gauss Strain
+    virtual const std::vector<Eigen::VectorXd> getGaussPointsStrain() = 0;
+
+    // Gauss Stress
+    virtual const std::vector<Eigen::VectorXd> getGaussPointsStress() = 0;
+
+    // Strain energy
+    virtual const double getStrainEnergy() = 0;
+
     virtual int calculateStrainStress() = 0;
     virtual int calculateStrainStressGaussPoint() = 0;
 

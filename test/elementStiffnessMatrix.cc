@@ -17,7 +17,7 @@ int main() {
     nodes.push_back(std::make_shared<Node>(6, -0.25, 2.75));
     nodes.push_back(std::make_shared<Node>(7, -1.25, 0.75));
 
-    Elastic material(1, 0.3);
+    Elastic material(1, 1, 0.3);
 
     std::shared_ptr<Element> counterClockWise =
         std::make_shared<Serendipity>(0, nodes);
