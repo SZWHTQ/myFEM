@@ -92,7 +92,7 @@ void vtkManager::setData(Mesh& mesh) {
         totalStrainEnergy += elementStrainEnergy;
     }
     Grid->GetCellData()->AddArray(strainEnergy);
-    std::cout << "Total strain energy: " << totalStrainEnergy << " J" << std::endl;
+    std::cout << "Total strain energy: " << totalStrainEnergy << "J" << std::endl;
 
 }
 

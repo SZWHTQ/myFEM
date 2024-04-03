@@ -13,8 +13,8 @@ Base = [1, 0.3]      # [E, nu]
 Inclusion = [1, 0.2]
 
 [Mesh]
-size = 0.1
-refinementFactor = 10
+size = 0.025
+refinementFactor = 200
 Algorithm = 8
 
 [Load]

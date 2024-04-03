@@ -270,31 +270,48 @@ int Serendipity::calculateStrainStressGaussPoint() {
 
     // Calculate strain and stress at node
     auto& D = getElasticMatrix(planeStress);
+    Eigen::MatrixXd interpolationMatrix(nodeNum, nodeNum);
+    interpolationMatrix.setZero();
     const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> S = {-1, -1, 1, 1, -1, 0, 1, 0};
     for (int n = 0; n < nodeNum; ++n) {
         nodes[n]->Strain.setZero();
         double r = R[n] / (-gaussData.abscissas[0]),
                s = S[n] / (-gaussData.abscissas[0]);
-        std::vector<double> N(8);
-        N[0] = 0.25 * (1 - r) * (1 - s);
-        N[1] = 0.25 * (1 + r) * (1 - s);
-        N[2] = 0.25 * (1 + r) * (1 + s);
-        N[3] = 0.25 * (1 - r) * (1 + s);
-        N[4] = 0.5 * (1 - r * r) * (1 - s);
-        N[5] = 0.5 * (1 + r) * (1 - s * s);
-        N[6] = 0.5 * (1 - r * r) * (1 + s);
-        N[7] = 0.5 * (1 - r) * (1 - s * s);
-        nodes[n]->Strain += (N[0] - 0.5 * (N[4] + N[7])) * strainGp[0];
-        nodes[n]->Strain += (N[1] - 0.5 * (N[4] + N[5])) * strainGp[1];
-        nodes[n]->Strain += (N[2] - 0.5 * (N[5] + N[6])) * strainGp[2];
-        nodes[n]->Strain += (N[3] - 0.5 * (N[6] + N[7])) * strainGp[3];
-        nodes[n]->Strain += N[4] * strainGp[4];
-        nodes[n]->Strain += N[5] * strainGp[5];
-        nodes[n]->Strain += N[6] * strainGp[6];
-        nodes[n]->Strain += N[7] * strainGp[7];
 
-        nodes[n]->Stress = D * nodes[n]->Strain;
+        interpolationMatrix(n, 4) = 0.5 * (1 - r * r) * (1 - s);
+        interpolationMatrix(n, 5) = 0.5 * (1 + r) * (1 - s * s);
+        interpolationMatrix(n, 6) = 0.5 * (1 - r * r) * (1 + s);
+        interpolationMatrix(n, 7) = 0.5 * (1 - r) * (1 - s * s);
+        interpolationMatrix(n, 0) =
+            0.25 * (1 - r) * (1 - s) -
+            0.5 * (interpolationMatrix(n, 4) + interpolationMatrix(n, 7));
+        interpolationMatrix(n, 1) =
+            0.25 * (1 + r) * (1 - s) -
+            0.5 * (interpolationMatrix(n, 4) + interpolationMatrix(n, 5));
+        interpolationMatrix(n, 2) =
+            0.25 * (1 + r) * (1 + s) -
+            0.5 * (interpolationMatrix(n, 5) + interpolationMatrix(n, 6));
+        interpolationMatrix(n, 3) =
+            0.25 * (1 - r) * (1 + s) -
+            0.5 * (interpolationMatrix(n, 6) + interpolationMatrix(n, 7));
     }
+
+    auto& solver = interpolationMatrix.colPivHouseholderQr();
+    Eigen::VectorXd strain(nodeNum);
+    for (int d = 0; d < 3; ++d) {
+        for (int i = 0; i < nodeNum; ++i) {
+            strain(i) = strainGp[i](d);
+        }
+        Eigen::VectorXd strainAtNode = solver.solve(strain);
+        for (int i = 0; i < nodeNum; ++i) {
+            nodes[i]->Strain(d) = strainAtNode(i);
+        }
+    }
+
+    for (int i = 0; i < nodeNum; ++i) {
+        nodes[i]->Stress = D * nodes[i]->Strain;
+    }
+
     return 0;
 }
