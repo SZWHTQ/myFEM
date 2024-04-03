@@ -7,8 +7,6 @@ Element::Element(const size_t index_, const std::string elementName_)
       thickness(1.0),
       material(nullptr){};
 
-Element::~Element() { delete material; }
-
 int Element::setMaterial(Material* material) {
     if (material == nullptr) {
         return 1;

@@ -24,3 +24,18 @@ add_test(
     NAME meshTest
     COMMAND meshTest
 )
+
+add_executable(
+    elementKTest
+    "${CMAKE_HOME_DIRECTORY}/test/elementStiffnessMatrix.cc"
+)
+
+target_link_libraries(
+    elementKTest
+    ${PROJECT_NAME}
+)
+
+add_test(
+    NAME elementKTest
+    COMMAND elementKTest
+)

@@ -1,5 +1,6 @@
 #include <Eigen/SparseLU>
 // #include <algorithm>
+#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -100,7 +101,7 @@ Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
 
     ThreadPool pool(std::thread::hardware_concurrency());
     for (auto element : Elements) {
-        auto&& ke = element->stiffnessMatrix();
+        auto&& ke = element->getStiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
                 globalStiffnessMatrix(2 * element->nodes[i]->getIndex(),
@@ -126,23 +127,26 @@ Eigen::SparseMatrix<double> Mesh::sparseAssembleStiffnessMatrix() {
     Eigen::SparseMatrix<double> globalStiffnessMatrix(Nodes.size() * 2,
                                                       Nodes.size() * 2);
     std::vector<Eigen::Triplet<double>> triplets;
-    triplets.reserve(Elements.size() * 4 * Serendipity::nodeNum * Serendipity::nodeNum);
+    triplets.reserve(Elements.size() * 4 * Serendipity::nodeNum *
+                     Serendipity::nodeNum);
     for (auto element : Elements) {
-        auto&& ke = element->stiffnessMatrix();
+        auto&& ke = element->getStiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
-                triplets.push_back({2 * element->nodes[i]->getIndex(),
-                                    2 * element->nodes[j]->getIndex(),
-                                    ke(2 * i, 2 * j)});
-                triplets.push_back({2 * element->nodes[i]->getIndex(),
-                                    2 * element->nodes[j]->getIndex() + 1,
-                                    ke(2 * i, 2 * j + 1)});
-                triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
-                                    2 * element->nodes[j]->getIndex(),
-                                    ke(2 * i + 1, 2 * j)});
-                triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
-                                    2 * element->nodes[j]->getIndex() + 1,
-                                    ke(2 * i + 1, 2 * j + 1)});
+                triplets.push_back(Eigen::Triplet<double>(
+                    2 * element->nodes[i]->getIndex(),
+                    2 * element->nodes[j]->getIndex(), ke(2 * i, 2 * j)));
+                triplets.push_back(Eigen::Triplet<double>(
+                    2 * element->nodes[i]->getIndex(),
+                    2 * element->nodes[j]->getIndex() + 1,
+                    ke(2 * i, 2 * j + 1)));
+                triplets.push_back(Eigen::Triplet<double>(
+                    2 * element->nodes[i]->getIndex() + 1,
+                    2 * element->nodes[j]->getIndex(), ke(2 * i + 1, 2 * j)));
+                triplets.push_back(Eigen::Triplet<double>(
+                    2 * element->nodes[i]->getIndex() + 1,
+                    2 * element->nodes[j]->getIndex() + 1,
+                    ke(2 * i + 1, 2 * j + 1)));
             }
         }
     }
@@ -157,9 +161,9 @@ Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
     globalStiffnessMatrix.setZero();
 
     std::mutex mtx;
-    auto thread_function = [&](Element* element) {
+    auto task = [&](Element* element) {
         std::lock_guard<std::mutex> lock(mtx);
-        auto&& ke = element->stiffnessMatrix();
+        auto&& ke = element->getStiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
                 globalStiffnessMatrix(2 * element->nodes[i]->getIndex(),
@@ -177,14 +181,54 @@ Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
             }
         }
     };
+
     ThreadPool pool(std::thread::hardware_concurrency());
     for (auto element : Elements) {
-        pool.enqueue(
-            [thread_function, element] { return thread_function(element); });
+        pool.enqueue([&task, &element] { return task(element); });
     }
 
     return globalStiffnessMatrix;
 }
+
+// Eigen::SparseMatrix<double> Mesh::parallelSparseAssembleStiffnessMatrix() {
+//     Eigen::SparseMatrix<double> globalStiffnessMatrix(Nodes.size() * 2,
+//                                                       Nodes.size() * 2);
+//     std::vector<Eigen::Triplet<double>> triplets;
+//     triplets.reserve(Elements.size() * 4 * Serendipity::nodeNum *
+//                      Serendipity::nodeNum);
+
+//     std::mutex mtx;
+//     auto threadTask = [&](Element* element) {
+//         auto&& ke = element->stiffnessMatrix();
+//         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
+//             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
+//                 std::lock_guard<std::mutex> lock(mtx);
+//                 triplets.push_back({2 * element->nodes[i]->getIndex(),
+//                                     2 * element->nodes[j]->getIndex(),
+//                                     ke(2 * i, 2 * j)});
+//                 triplets.push_back({2 * element->nodes[i]->getIndex(),
+//                                     2 * element->nodes[j]->getIndex() + 1,
+//                                     ke(2 * i, 2 * j + 1)});
+//                 triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
+//                                     2 * element->nodes[j]->getIndex(),
+//                                     ke(2 * i + 1, 2 * j)});
+//                 triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
+//                                     2 * element->nodes[j]->getIndex() + 1,
+//                                     ke(2 * i + 1, 2 * j + 1)});
+//             }
+//         }
+//     };
+
+//     ThreadPool pool(std::thread::hardware_concurrency());
+//     for (auto element : Elements) {
+//         pool.enqueue([&threadTask, &element] { return threadTask(element);
+//         });
+//     }
+
+//     globalStiffnessMatrix.setFromTriplets(triplets.begin(), triplets.end());
+
+//     return globalStiffnessMatrix;
+// }
 
 int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
     Force.resize(Nodes.size() * 2);

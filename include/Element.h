@@ -39,27 +39,27 @@ class Element {
 
     Element(){};
     explicit Element(const size_t index_, const std::string elementName_);
-    virtual ~Element();
+    virtual ~Element(){};
 
     // Derivative of shape function with respect to local coordinates
     virtual const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
-    shapeFuncLocalDerivative(double ksi, double eta) = 0;
+    getShapeFuncLocalDerivative(double ksi, double eta) = 0;
 
     // Derivative of shape function with respect to global coordinates
     virtual const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
-    shapeFuncDerivative(double ksi, double eta) = 0;
+    getShapeFuncDerivative(double ksi, double eta) = 0;
 
     // Jacobian matrix
-    virtual const Eigen::MatrixXd Jacobian(double ksi, double eta) = 0;
+    virtual const Eigen::MatrixXd getJacobian(double ksi, double eta) = 0;
 
     // Strain matrix
-    virtual const Eigen::MatrixXd strainMatrix(double ksi, double eta) = 0;
+    virtual const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) = 0;
 
     // Elastic matrix
-    virtual const Eigen::MatrixXd elasticMatrix(bool planeStress = true) = 0;
+    virtual const Eigen::MatrixXd getElasticMatrix(bool planeStress = true) = 0;
 
     // Stiffness matrix
-    virtual const Eigen::MatrixXd stiffnessMatrix() = 0;
+    virtual const Eigen::MatrixXd getStiffnessMatrix() = 0;
 
     virtual int calculateStrainStress() = 0;
     virtual int calculateStrainStressGaussPoint() = 0;

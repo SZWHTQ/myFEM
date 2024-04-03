@@ -27,6 +27,7 @@ class Mesh {
     Eigen::MatrixXd assembleStiffnessMatrix();
     Eigen::SparseMatrix<double> sparseAssembleStiffnessMatrix();
     Eigen::MatrixXd parallelAssembleStiffnessMatrix();
+    Eigen::SparseMatrix<double> parallelSparseAssembleStiffnessMatrix();
     static const std::vector<double> equivalentForce(Load* load);
 
     int Solve(std::list<Load>& loads, std::list<Boundary>& boundaries);

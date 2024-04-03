@@ -15,19 +15,19 @@ class Serendipity : public Element {
     Serendipity(const size_t index_, const std::vector<std::shared_ptr<Node>>& nodes_,
                 const bool planeStress_ = true);
 
-    const std::tuple<Eigen::VectorXd, Eigen::VectorXd> shapeFuncLocalDerivative(
+    const std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncLocalDerivative(
         double ksi, double eta) override;
 
-    const std::tuple<Eigen::VectorXd, Eigen::VectorXd> shapeFuncDerivative(
+    const std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncDerivative(
         double ksi, double eta) override;
 
-    const Eigen::MatrixXd Jacobian(double ksi, double eta) override;
+    const Eigen::MatrixXd getJacobian(double ksi, double eta) override;
 
-    const Eigen::MatrixXd strainMatrix(double ksi, double eta) override;
+    const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) override;
 
-    const Eigen::MatrixXd elasticMatrix(bool planeStress = true) override;
+    const Eigen::MatrixXd getElasticMatrix(bool planeStress = true) override;
 
-    const Eigen::MatrixXd stiffnessMatrix() override;
+    const Eigen::MatrixXd getStiffnessMatrix() override;
 
     int calculateStrainStress() override;
     int calculateStrainStressGaussPoint() override;
