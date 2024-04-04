@@ -275,7 +275,6 @@ int Serendipity::calculateStrainStressGaussPoint() {
     const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> S = {-1, -1, 1, 1, -1, 0, 1, 0};
     for (int n = 0; n < nodeNum; ++n) {
-        nodes[n]->Strain.setZero();
         double r = R[n] / (-gaussData.abscissas[0]),
                s = S[n] / (-gaussData.abscissas[0]);
 

@@ -51,7 +51,8 @@ int main(int argc, char* argv[]) {
         // Convert mesh
         // std::cout << "Converting mesh..." << std::endl;
         timer.reset();
-        Mesh mesh(Mesh::MeshType::serendipity, nodeCoord, elementNodeTags);
+        Mesh mesh(nodeCoord,
+                  {std::pair(Mesh::MeshType::serendipity, elementNodeTags)});
         // std::cout << "Mesh created with " << mesh.Nodes.size() << " nodes and
         // "
         //           << mesh.Elements.size() << " elements" << std::endl;

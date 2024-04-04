@@ -18,30 +18,65 @@
 Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
            std::vector<size_t> elementNodeTags, bool planeStress_)
     : meshType(type), planeStress(planeStress_) {
+    Nodes.reserve(nodeCoord.size() / 3);
     for (size_t i = 0; i < nodeCoord.size(); i += 3) {
         Nodes.push_back(std::make_shared<Node>(
             i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
     }
-    // size_t minTag =
-    //     *std::min_element(elementNodeTags.begin(), elementNodeTags.end());
-    // std::cout << "Min tag: " << minTag << std::endl;
+
     switch (meshType) {
         case MeshType::serendipity:
             for (size_t i = 0; i < elementNodeTags.size();
                  i += Serendipity::nodeNum) {
                 std::vector<std::shared_ptr<Node>> singleElementNodes;
+                singleElementNodes.reserve(Serendipity::nodeNum);
                 for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
-                    singleElementNodes.push_back(
+                    singleElementNodes.emplace_back(
                         Nodes[elementNodeTags[i + j] - 1]);
                 }
                 Element* element = new Serendipity(
                     i / Serendipity::nodeNum, singleElementNodes, planeStress);
-                Elements.push_back(element);
+                Elements.emplace_back(element);
             }
             break;
         default:
             std::cerr << "Mesh type not implemented" << std::endl;
             break;
+    }
+}
+
+Mesh::Mesh(std::vector<double> nodeCoord,
+           std::vector<std::pair<MeshType, std::vector<size_t>>>
+               elementTypeAndNodeTags,
+           bool planeStress_)
+    : planeStress(planeStress_) {
+    Nodes.reserve(nodeCoord.size() / 3);
+    for (size_t i = 0; i < nodeCoord.size(); i += 3) {
+        Nodes.push_back(std::make_shared<Node>(
+            i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
+    }
+
+    for (auto&& [type, elementNodeTags] : elementTypeAndNodeTags) {
+        switch (type) {
+            case MeshType::serendipity:
+                for (size_t i = 0; i < elementNodeTags.size();
+                     i += Serendipity::nodeNum) {
+                    std::vector<std::shared_ptr<Node>> singleElementNodes;
+                    singleElementNodes.reserve(Serendipity::nodeNum);
+                    for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
+                        singleElementNodes.emplace_back(
+                            Nodes[elementNodeTags[i + j] - 1]);
+                    }
+                    Element* element =
+                        new Serendipity(i / Serendipity::nodeNum,
+                                        singleElementNodes, planeStress);
+                    Elements.emplace_back(element);
+                }
+                break;
+            default:
+                std::cerr << "Mesh type not implemented" << std::endl;
+                break;
+        }
     }
 }
 
@@ -133,20 +168,18 @@ Eigen::SparseMatrix<double> Mesh::sparseAssembleStiffnessMatrix() {
         auto&& ke = element->getStiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
-                triplets.push_back(Eigen::Triplet<double>(
-                    2 * element->nodes[i]->getIndex(),
-                    2 * element->nodes[j]->getIndex(), ke(2 * i, 2 * j)));
-                triplets.push_back(Eigen::Triplet<double>(
-                    2 * element->nodes[i]->getIndex(),
-                    2 * element->nodes[j]->getIndex() + 1,
-                    ke(2 * i, 2 * j + 1)));
-                triplets.push_back(Eigen::Triplet<double>(
-                    2 * element->nodes[i]->getIndex() + 1,
-                    2 * element->nodes[j]->getIndex(), ke(2 * i + 1, 2 * j)));
-                triplets.push_back(Eigen::Triplet<double>(
-                    2 * element->nodes[i]->getIndex() + 1,
-                    2 * element->nodes[j]->getIndex() + 1,
-                    ke(2 * i + 1, 2 * j + 1)));
+                triplets.emplace_back(2 * element->nodes[i]->getIndex(),
+                                      2 * element->nodes[j]->getIndex(),
+                                      ke(2 * i, 2 * j));
+                triplets.emplace_back(2 * element->nodes[i]->getIndex(),
+                                      2 * element->nodes[j]->getIndex() + 1,
+                                      ke(2 * i, 2 * j + 1));
+                triplets.emplace_back(2 * element->nodes[i]->getIndex() + 1,
+                                      2 * element->nodes[j]->getIndex(),
+                                      ke(2 * i + 1, 2 * j));
+                triplets.emplace_back(2 * element->nodes[i]->getIndex() + 1,
+                                      2 * element->nodes[j]->getIndex() + 1,
+                                      ke(2 * i + 1, 2 * j + 1));
             }
         }
     }
@@ -189,47 +222,47 @@ Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
 
     return globalStiffnessMatrix;
 }
+/*
+Eigen::SparseMatrix<double> Mesh::parallelSparseAssembleStiffnessMatrix() {
+    Eigen::SparseMatrix<double> globalStiffnessMatrix(Nodes.size() * 2,
+                                                      Nodes.size() * 2);
+    std::vector<Eigen::Triplet<double>> triplets;
+    triplets.reserve(Elements.size() * 4 * Serendipity::nodeNum *
+                     Serendipity::nodeNum);
 
-// Eigen::SparseMatrix<double> Mesh::parallelSparseAssembleStiffnessMatrix() {
-//     Eigen::SparseMatrix<double> globalStiffnessMatrix(Nodes.size() * 2,
-//                                                       Nodes.size() * 2);
-//     std::vector<Eigen::Triplet<double>> triplets;
-//     triplets.reserve(Elements.size() * 4 * Serendipity::nodeNum *
-//                      Serendipity::nodeNum);
+    std::mutex mtx;
+    auto threadTask = [&](Element* element) {
+        auto&& ke = element->stiffnessMatrix();
+        for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
+            for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
+                std::lock_guard<std::mutex> lock(mtx);
+                triplets.push_back({2 * element->nodes[i]->getIndex(),
+                                    2 * element->nodes[j]->getIndex(),
+                                    ke(2 * i, 2 * j)});
+                triplets.push_back({2 * element->nodes[i]->getIndex(),
+                                    2 * element->nodes[j]->getIndex() + 1,
+                                    ke(2 * i, 2 * j + 1)});
+                triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
+                                    2 * element->nodes[j]->getIndex(),
+                                    ke(2 * i + 1, 2 * j)});
+                triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
+                                    2 * element->nodes[j]->getIndex() + 1,
+                                    ke(2 * i + 1, 2 * j + 1)});
+            }
+        }
+    };
 
-//     std::mutex mtx;
-//     auto threadTask = [&](Element* element) {
-//         auto&& ke = element->stiffnessMatrix();
-//         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
-//             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
-//                 std::lock_guard<std::mutex> lock(mtx);
-//                 triplets.push_back({2 * element->nodes[i]->getIndex(),
-//                                     2 * element->nodes[j]->getIndex(),
-//                                     ke(2 * i, 2 * j)});
-//                 triplets.push_back({2 * element->nodes[i]->getIndex(),
-//                                     2 * element->nodes[j]->getIndex() + 1,
-//                                     ke(2 * i, 2 * j + 1)});
-//                 triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
-//                                     2 * element->nodes[j]->getIndex(),
-//                                     ke(2 * i + 1, 2 * j)});
-//                 triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
-//                                     2 * element->nodes[j]->getIndex() + 1,
-//                                     ke(2 * i + 1, 2 * j + 1)});
-//             }
-//         }
-//     };
+    ThreadPool pool(std::thread::hardware_concurrency());
+    for (auto element : Elements) {
+        pool.enqueue([&threadTask, &element] { return threadTask(element);
+        });
+    }
 
-//     ThreadPool pool(std::thread::hardware_concurrency());
-//     for (auto element : Elements) {
-//         pool.enqueue([&threadTask, &element] { return threadTask(element);
-//         });
-//     }
+    globalStiffnessMatrix.setFromTriplets(triplets.begin(), triplets.end());
 
-//     globalStiffnessMatrix.setFromTriplets(triplets.begin(), triplets.end());
-
-//     return globalStiffnessMatrix;
-// }
-
+    return globalStiffnessMatrix;
+}
+ */
 int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
     Force.resize(Nodes.size() * 2);
     Force.setZero();
