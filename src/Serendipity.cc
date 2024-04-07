@@ -19,6 +19,25 @@ Serendipity::Serendipity(const size_t index_,
     }
 }
 
+
+// get the area of the element via gauss integral
+const double Serendipity::getArea() {
+    double area = 0;
+    int gaussPointNum = 3;
+    const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
+    const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
+    const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
+    double strainEnergy = 0;
+    for (int i = 0; i < ksiId.size(); ++i) {
+        auto& J = getJacobian(gaussData.abscissas[ksiId[i]],
+                              gaussData.abscissas[etaId[i]]);
+        double detJ = J.determinant();
+        area +=
+            detJ * gaussData.weights[ksiId[i]] * gaussData.weights[etaId[i]];
+    }
+    return area;
+}
+
 const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
 Serendipity::getShapeFuncLocalDerivative(double ksi, double eta) {
     Eigen::VectorXd shapeFunction_ksi(8), shapeFunction_eta(8);

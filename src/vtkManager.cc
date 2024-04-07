@@ -81,6 +81,14 @@ void vtkManager::setData(Mesh& mesh) {
     }
     Grid->GetCellData()->AddArray(Material);
 
+    vtkNew<vtkFloatArray> AreaArray;
+    AreaArray->SetNumberOfComponents(1);
+    AreaArray->SetName("Area");
+    for (auto&& element : mesh.Elements) {
+        AreaArray->InsertNextValue(element->getArea());
+    }
+    Grid->GetCellData()->AddArray(AreaArray);
+
     double totalStrainEnergy = 0;
     double elementStrainEnergy = 0;
     vtkNew<vtkFloatArray> strainEnergy;

@@ -41,6 +41,9 @@ class Element {
     explicit Element(const size_t index_, const std::string elementName_);
     virtual ~Element(){};
 
+    // Area of element
+    virtual const double getArea() = 0;
+
     // Derivative of shape function with respect to local coordinates
     virtual const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
     getShapeFuncLocalDerivative(double ksi, double eta) = 0;
@@ -70,6 +73,7 @@ class Element {
     // Strain energy
     virtual const double getStrainEnergy() = 0;
 
+    // Calculate strain and stress
     virtual int calculateStrainStress() = 0;
     virtual int calculateStrainStressGaussPoint() = 0;
 
