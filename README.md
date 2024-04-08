@@ -11,5 +11,5 @@
 1. Rectangle Serendipity 2D
 
 ### Result
-![This Project](image/StressXX.png){:height="500px" width="800px"}
-![COMSOL](image/COMSOL_StressXX.png){:height="500px" width="800px"}
+![This Project](image/StressXX.png)
+![COMSOL](image/COMSOL_StressXX.png)
