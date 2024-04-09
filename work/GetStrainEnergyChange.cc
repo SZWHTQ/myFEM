@@ -1,7 +1,7 @@
 #include <gmsh.h>
 
 #include <cstddef>
-#include <iostream>
+
 #include <memory>
 #include <vector>
 
@@ -77,7 +77,7 @@ double getStrainEnergyChange(Mesh* mesh, Mesh* meshNoInclusion,
 
     for (auto& element : meshNoInclusion->Elements) {
         size_t elementIndex = element->getIndex();
-        if (mesh->Elements[elementIndex]->material->getIndex() == 1) {
+        if (element->material->getIndex() == 1) {
             for (int i = 0; i < 4; ++i) {
                 int j = (i + 1) % 4;
                 auto& n1 = element->nodes[i];
