@@ -4,6 +4,7 @@ _build
 *.inp
 *.msh
 *.vtu
+.DS_store
 
 # Prerequisites
 *.d

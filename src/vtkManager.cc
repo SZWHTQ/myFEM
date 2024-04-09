@@ -2,8 +2,8 @@
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
-#include "Material.h"
 
+#include "Material.h"
 #include "vtkManager.h"
 
 vtkManager::vtkManager(Mesh& mesh) {
@@ -37,7 +37,8 @@ void vtkManager::setData(Mesh& mesh) {
     Force->SetNumberOfComponents(3);
     Force->SetName("Force");
     for (size_t i = 0; i < mesh.Force.size() / 2; ++i) {
-        Force->InsertNextTuple3(mesh.Force.coeff(i * 2), mesh.Force.coeff(i * 2 + 1), 0);
+        Force->InsertNextTuple3(mesh.Force.coeff(i * 2),
+                                mesh.Force.coeff(i * 2 + 1), 0);
     }
     Grid->GetPointData()->AddArray(Force);
 
@@ -89,19 +90,13 @@ void vtkManager::setData(Mesh& mesh) {
     }
     Grid->GetCellData()->AddArray(AreaArray);
 
-    double totalStrainEnergy = 0;
-    double elementStrainEnergy = 0;
     vtkNew<vtkFloatArray> strainEnergy;
     strainEnergy->SetNumberOfComponents(1);
     strainEnergy->SetName("StrainEnergy");
     for (auto&& element : mesh.Elements) {
-        elementStrainEnergy = element->getStrainEnergy();
-        strainEnergy->InsertNextValue(elementStrainEnergy);
-        totalStrainEnergy += elementStrainEnergy;
+        strainEnergy->InsertNextValue(element->getStrainEnergy());
     }
     Grid->GetCellData()->AddArray(strainEnergy);
-    std::cout << "Total strain energy: " << totalStrainEnergy << "J" << std::endl;
-
 }
 
 void vtkManager::write(std::string fileName, bool isBinary) {

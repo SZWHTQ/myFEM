@@ -64,7 +64,7 @@ int generate_mesh(std::vector<double>& nodeCoord,
         // Synchronize the model
         gmsh::model::occ::synchronize();
 
-        gmsh::model::addPhysicalGroup(2, {1}, 1, "Base");
+        gmsh::model::addPhysicalGroup(2, {1}, 1, "Matrix");
         gmsh::model::addPhysicalGroup(2, {2}, 2, "Inclusion");
         // gmsh::model::occ::removeAllDuplicates();
 

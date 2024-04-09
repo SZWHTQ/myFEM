@@ -30,7 +30,7 @@ void set_material(Mesh* mesh, std::vector<Material*> materials, double a,
             //           << std::endl;
         } else {
             element->material = materials[0];
-            // std::cout << "Element " << element->index << " is in the base"
+            // std::cout << "Element " << element->index << " is in the matrix"
             //           << std::endl;
         }
     }
