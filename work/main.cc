@@ -6,7 +6,7 @@
 
 #include "ApplyBoundary.h"
 #include "GenerateMesh.h"
-#include "GetStrainEngergy.h"
+#include "GetStrainEnergyChange.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "SetMaterial.h"
@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
         double rf = settings["Mesh"]["refinementFactor"].value_or(8);
         bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
         int Algorithm = settings["Mesh"]["Algorithm"].value_or(8);
+        bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
 
         // Generate mesh
         Timer t, timer;
@@ -54,18 +55,10 @@ int main(int argc, char* argv[]) {
         timer.reset();
         Mesh mesh(nodeCoord,
                   {std::pair(Mesh::MeshType::serendipity, elementNodeTags)},
-                  boundaryNodeTags);
+                  boundaryNodeTags, isPlaneStress);
         std::cout << "Mesh converted in " << timer.elapsed() << " ms"
                   << " with " << mesh.Nodes.size() << " nodes and "
                   << mesh.Elements.size() << " elements" << std::endl;
-
-        // Clear memory
-        {
-            nodeCoord.clear();
-            std::vector<double>().swap(nodeCoord);
-            elementNodeTags.clear();
-            std::vector<size_t>().swap(elementNodeTags);
-        }
 
         // Set material
         double E1 = settings["Material"]["Matrix"][0].value_or(1);
@@ -108,25 +101,63 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        std::cout << "Matrix strain energy: " << matrixStrainEnergy << "J"
+        std::cout << std::fixed << std::setprecision(-1);
+        std::cout << "Matrix strain energy: " << matrixStrainEnergy
                   << std::endl;
-        std::cout << "Inclusion strain energy: " << inclusionStrainEnergy << "J"
+        std::cout << "Inclusion strain energy: " << inclusionStrainEnergy
                   << std::endl;
+        std::cout << std::fixed << std::setprecision(2);
 
-        timer.reset();
         Mesh meshNoInclusion(
             nodeCoord,
             {std::pair(Mesh::MeshType::serendipity, elementNodeTags)},
-            boundaryNodeTags);
-        std::cout << "Mesh converted in " << timer.elapsed() << " ms"
-                  << " with " << mesh.Nodes.size() << " nodes and "
-                  << mesh.Elements.size() << " elements" << std::endl;
-        auto temp = matrix;
+            boundaryNodeTags, isPlaneStress);
+        Material temp(2, matrix.getElasticModulus(), matrix.getPoissonRatio());
         set_material(&meshNoInclusion, {&matrix, &temp}, a, b);
         meshNoInclusion.Solve(loadCondition, boundaryCondition);
 
-        getStrainEnergy(&mesh);
+        double matrixStrainEnergyNoInclusion = 0,
+               inclusionStrainEnergyNoInclusion = 0;
+        for (auto& element : meshNoInclusion.Elements) {
+            if (element->material->getIndex() == 1) {
+                matrixStrainEnergyNoInclusion += element->getStrainEnergy();
+            } else if (element->material->getIndex() == 2) {
+                inclusionStrainEnergyNoInclusion += element->getStrainEnergy();
+            } else {
+                std::cerr << "Wrong material index" << std::endl;
+            }
+        }
 
+        std::cout << std::fixed << std::setprecision(-1);
+        std::cout << "Matrix strain energy: " << matrixStrainEnergyNoInclusion
+                  << std::endl;
+        std::cout << "Inclusion strain energy: "
+                  << inclusionStrainEnergyNoInclusion << std::endl;
+
+        // Strain Energy change
+        std::cout << "Matrix Strain energy change: "
+                  << matrixStrainEnergyNoInclusion - matrixStrainEnergy
+                  << std::endl;
+        std::cout << "Inclusion Strain energy change: "
+                  << inclusionStrainEnergyNoInclusion - inclusionStrainEnergy
+                  << std::endl;
+        std::cout << "Strain energy change: "
+                  << matrixStrainEnergyNoInclusion - matrixStrainEnergy +
+                         inclusionStrainEnergyNoInclusion -
+                         inclusionStrainEnergy
+                  << std::endl;
+        auto deltaU =
+            getStrainEnergyChange(&mesh, &meshNoInclusion, &matrix, &inclusion);
+        std::cout << "Strain energy change: " << deltaU << std::endl;
+        std::cout << std::fixed << std::setprecision(2);
+
+        // Clear memory
+        {
+            nodeCoord.clear();
+            std::vector<double>().swap(nodeCoord);
+            elementNodeTags.clear();
+            std::vector<size_t>().swap(elementNodeTags);
+        }
     } catch (const std::exception& e) {
         std::cerr << e.what();
         return -1;

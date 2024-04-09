@@ -70,11 +70,12 @@ int generate_mesh(std::vector<double>& nodeCoord,
         gmsh::model::addPhysicalGroup(2, {2}, INCLUSION_SURFACE_TAG,
                                       "Inclusion Surface");
 
+        linesTag.push_back(ellipseArcTag);
         linesTag.push_back(ellipseBoundary1Tag);
         linesTag.push_back(ellipseBoundary2Tag);
         gmsh::model::addPhysicalGroup(1, linesTag, BOUNDARY_TAG, "Boundary");
-        gmsh::model::addPhysicalGroup(1, {ellipseArcTag}, INTERFACE_TAG,
-                                      "Interface");
+        gmsh::model::addPhysicalGroup(1, {linesTag[4], ellipseArcTag},
+                                      INTERFACE_TAG, "Interface");
         gmsh::model::addPhysicalGroup(0, pointsTag, VERTEX_TAG,
                                       "Matrix Vertex");
 
@@ -119,27 +120,31 @@ int generate_mesh(std::vector<double>& nodeCoord,
         //     gmsh::model::mesh::getElementType("Triangle", 2, isSerendipity);
 
         // Retrieve the boundary nodes
-        // // Vertex
-        // std::vector<int> vertexTags;
-        // gmsh::model::getEntitiesForPhysicalGroup(0, VERTEX_TAG, vertexTags);
-        // boundaryNodeTags.insert(boundaryNodeTags.end(), vertexTags.begin(),
-        //                         vertexTags.end());
-        // Boundary
-        std::vector<int> lineTags;
-        gmsh::model::getEntitiesForPhysicalGroup(1, INTERFACE_TAG, lineTags);
-        std::cout << "lineTags.size() = " << lineTags.size() << std::endl;
-        for (const auto& line : lineTags) {
-            std::vector<size_t> nodeTags;
-            std::vector<double> nodeCoords;
-            std::vector<double> parametricCoords;
+        {
+            // Vertex
+            // std::vector<int> vertexTags;
+            // gmsh::model::getEntitiesForPhysicalGroup(0, VERTEX_TAG,
+            // vertexTags); boundaryNodeTags.insert(boundaryNodeTags.end(),
+            // vertexTags.begin(),
+            //                         vertexTags.end());
+            // Boundary
+            std::vector<int> lines;
+            gmsh::model::getEntitiesForPhysicalGroup(1, INTERFACE_TAG, lines);
+            for (const auto& line : lines) {
+                std::vector<size_t> nodeTags_;
+                std::vector<double> nodeCoords_;
+                std::vector<double> parametricCoords_;
 
-            // Get nodes on the line
-            gmsh::model::mesh::getNodes(nodeTags, nodeCoords, parametricCoords,
-                                        1, line);
+                // Get nodes on the line
+                gmsh::model::mesh::getNodes(nodeTags_, nodeCoords_,
+                                            parametricCoords_, 1, line);
 
-            // Append boundary node coordinates to the output vector
-            boundaryNodeTags.insert(boundaryNodeTags.end(), nodeTags.begin(),
-                                    nodeTags.end());
+                // Append boundary node coordinates to the output vector
+                boundaryNodeTags.insert(boundaryNodeTags.end(),
+                                        nodeTags_.begin(), nodeTags_.end());
+            }
+            boundaryNodeTags.push_back(pointsTag[4]);
+            boundaryNodeTags.push_back(pointsTag[5]);
         }
         // gmsh::fltk::run();
     } catch (const std::exception& e) {

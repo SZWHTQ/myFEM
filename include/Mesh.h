@@ -9,6 +9,7 @@
 
 class Mesh {
    public:
+    size_t nodeNum;
     std::vector<std::shared_ptr<Node>> Nodes;
     std::vector<Element*> Elements;
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <Eigen/Eigen>
+#include <cstddef>
 #include <memory>
 #include <string>
 // #include <tuple>
@@ -24,7 +25,7 @@ class Node {
     Node(size_t index_, double x_, double y_, double z_)
         : index(index_), x(x_), y(y_), z(z_){};
     ~Node(){};
-    int getIndex() { return index; };
+    size_t getIndex() { return index; };
     void setIndex(int i) { index = i; };
 };
 

@@ -1,21 +1,22 @@
 title = "Plate with Inclusion"
 
 [Rectangle]
-L = 2
-B = 0.9
+L = 5
+B = 5
 
 [Ellipse]
-ksi = 3 # a = rectangle.B / ksi
-a_b = 3  # b = a / a_b
+ksi = 5 # a = rectangle.B / ksi
+a_b = 1  # b = a / a_b
 
 [Material]
 Matrix = [1, 0.3]      # [E, nu]
-Inclusion = [1, 0.3]
+Inclusion = [2, 0.3]
 
 [Mesh]
-size = 0.025
-refinementFactor = 1
+size = 0.1
+refinementFactor = 20
 Algorithm = 8
+planeStress = false
 
 [Load]
 Value = 1
