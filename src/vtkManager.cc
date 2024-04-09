@@ -2,6 +2,7 @@
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
+#include <vtkQuadraticQuad.h>
 
 #include "Material.h"
 #include "vtkManager.h"
@@ -23,7 +24,7 @@ vtkManager::vtkManager(Mesh& mesh) {
     }
 };
 
-void vtkManager::setData(Mesh& mesh) {
+void vtkManager::setMeshData(Mesh& mesh) {
     vtkNew<vtkFloatArray> Displacement;
     Displacement->SetNumberOfComponents(3);
     Displacement->SetName("Displacement");
@@ -97,6 +98,15 @@ void vtkManager::setData(Mesh& mesh) {
         strainEnergy->InsertNextValue(element->getStrainEnergy());
     }
     Grid->GetCellData()->AddArray(strainEnergy);
+
+    vtkNew<vtkIntArray> Boundary;
+    Boundary->SetNumberOfComponents(1);
+    Boundary->SetName("Boundary");
+    for (auto&& node : mesh.Nodes) {
+        Boundary->InsertNextValue(node->isBoundary);
+    }
+    Grid->GetPointData()->AddArray(Boundary);
+
 }
 
 void vtkManager::write(std::string fileName, bool isBinary) {

@@ -1,6 +1,5 @@
 #pragma once
 #include <vtkPoints.h>
-#include <vtkQuadraticQuad.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
@@ -17,6 +16,6 @@ class vtkManager {
     vtkManager(Mesh& mesh);
     ~vtkManager(){};
 
-    void setData(Mesh& mesh);
+    void setMeshData(Mesh& mesh);
     void write(std::string fileName, bool isBinary = false);
 };

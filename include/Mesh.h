@@ -22,11 +22,12 @@ class Mesh {
         Elements = std::vector<Element*>();
     }
     Mesh(MeshType type, std::vector<double> nodeCoord,
-         std::vector<size_t> elementNodeTags, bool planeStress = true);
+         std::vector<size_t> elementNodeTags,
+         std::vector<size_t> boundaryNodeTags, bool planeStress = true);
     Mesh(std::vector<double> nodeCoord,
          std::vector<std::pair<MeshType, std::vector<size_t>>>
              elementTypeAndNodeTags,
-         bool planeStress = true);
+         std::vector<size_t> boundaryNodeTags, bool planeStress = true);
 
     Eigen::MatrixXd assembleStiffnessMatrix();
     Eigen::SparseMatrix<double> sparseAssembleStiffnessMatrix();

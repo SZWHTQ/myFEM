@@ -6,7 +6,8 @@
 #include "GenerateMesh.h"
 
 int generate_mesh(std::vector<double>& nodeCoord,
-                  std::vector<size_t>& elementNodeTags, double L, double B,
+                  std::vector<size_t>& elementNodeTags,
+                  std::vector<size_t>& boundaryNodeTags, double L, double B,
                   double a, double b, double lc, double refinementFactor,
                   bool isSerendipity, int meshAlgorithm) {
     // Initialize the Gmsh library
@@ -64,11 +65,22 @@ int generate_mesh(std::vector<double>& nodeCoord,
         // Synchronize the model
         gmsh::model::occ::synchronize();
 
-        gmsh::model::addPhysicalGroup(2, {1}, 1, "Matrix");
-        gmsh::model::addPhysicalGroup(2, {2}, 2, "Inclusion");
+        gmsh::model::addPhysicalGroup(2, {1}, MATRIX_SURFACE_TAG,
+                                      "Matrix Surface");
+        gmsh::model::addPhysicalGroup(2, {2}, INCLUSION_SURFACE_TAG,
+                                      "Inclusion Surface");
+
+        linesTag.push_back(ellipseBoundary1Tag);
+        linesTag.push_back(ellipseBoundary2Tag);
+        gmsh::model::addPhysicalGroup(1, linesTag, BOUNDARY_TAG, "Boundary");
+        gmsh::model::addPhysicalGroup(1, {ellipseArcTag}, INTERFACE_TAG,
+                                      "Interface");
+        gmsh::model::addPhysicalGroup(0, pointsTag, VERTEX_TAG,
+                                      "Matrix Vertex");
+
         // gmsh::model::occ::removeAllDuplicates();
 
-        gmsh::option::setNumber("Geometry.AutoCoherence", 1);
+        // gmsh::option::setNumber("Geometry.AutoCoherence", 1);
 
         // Set mesh options for second-order elements
         gmsh::option::setNumber("Mesh.ElementOrder", 2);
@@ -82,7 +94,7 @@ int generate_mesh(std::vector<double>& nodeCoord,
         // Generate mesh
         gmsh::model::mesh::generate(2);
         gmsh::model::mesh::removeDuplicateNodes();
-        gmsh::model::mesh::removeDuplicateElements();
+        // gmsh::model::mesh::removeDuplicateElements();
 
         // Save mesh to file
 #if WRITE_INP
@@ -103,16 +115,39 @@ int generate_mesh(std::vector<double>& nodeCoord,
             gmsh::model::mesh::getElementType("Quadrangle", 2, isSerendipity);
         gmsh::model::mesh::getElementsByType(serendipityTag, elementTags,
                                              elementNodeTags);
-        int triangleTag =
-            gmsh::model::mesh::getElementType("Triangle", 2, isSerendipity);
+        // int triangleTag =
+        //     gmsh::model::mesh::getElementType("Triangle", 2, isSerendipity);
 
+        // Retrieve the boundary nodes
+        // // Vertex
+        // std::vector<int> vertexTags;
+        // gmsh::model::getEntitiesForPhysicalGroup(0, VERTEX_TAG, vertexTags);
+        // boundaryNodeTags.insert(boundaryNodeTags.end(), vertexTags.begin(),
+        //                         vertexTags.end());
+        // Boundary
+        std::vector<int> lineTags;
+        gmsh::model::getEntitiesForPhysicalGroup(1, INTERFACE_TAG, lineTags);
+        std::cout << "lineTags.size() = " << lineTags.size() << std::endl;
+        for (const auto& line : lineTags) {
+            std::vector<size_t> nodeTags;
+            std::vector<double> nodeCoords;
+            std::vector<double> parametricCoords;
+
+            // Get nodes on the line
+            gmsh::model::mesh::getNodes(nodeTags, nodeCoords, parametricCoords,
+                                        1, line);
+
+            // Append boundary node coordinates to the output vector
+            boundaryNodeTags.insert(boundaryNodeTags.end(), nodeTags.begin(),
+                                    nodeTags.end());
+        }
         // gmsh::fltk::run();
     } catch (const std::exception& e) {
         std::cerr << e.what();
         return -2;
     }
-    // Finalize the Gmsh library
-    gmsh::finalize();
+    // // Finalize the Gmsh library
+    // gmsh::finalize();
 
     return 0;
 }

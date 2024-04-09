@@ -1,11 +1,12 @@
-#include <cstddef>
-#include <iomanip>
+#include <gmsh.h>
+
 #include <iostream>
 #include <toml.hpp>
 #include <vector>
 
 #include "ApplyBoundary.h"
 #include "GenerateMesh.h"
+#include "GetStrainEngergy.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "SetMaterial.h"
@@ -38,8 +39,10 @@ int main(int argc, char* argv[]) {
         Timer t, timer;
         std::vector<double> nodeCoord;
         std::vector<size_t> elementNodeTags;
-        int err = generate_mesh(nodeCoord, elementNodeTags, L, B, a, b, lc, rf,
-                                isSerendipity, Algorithm);
+        std::vector<size_t> boundaryNodeTags;
+
+        int err = generate_mesh(nodeCoord, elementNodeTags, boundaryNodeTags, L,
+                                B, a, b, lc, rf, isSerendipity, Algorithm);
         if (err != 0) {
             return err;
         }
@@ -50,7 +53,8 @@ int main(int argc, char* argv[]) {
         // Convert mesh
         timer.reset();
         Mesh mesh(nodeCoord,
-                  {std::pair(Mesh::MeshType::serendipity, elementNodeTags)});
+                  {std::pair(Mesh::MeshType::serendipity, elementNodeTags)},
+                  boundaryNodeTags);
         std::cout << "Mesh converted in " << timer.elapsed() << " ms"
                   << " with " << mesh.Nodes.size() << " nodes and "
                   << mesh.Elements.size() << " elements" << std::endl;
@@ -88,7 +92,7 @@ int main(int argc, char* argv[]) {
         bool isBinary = settings["VTK"]["Binary"].value_or(false);
         timer.reset();
         vtkManager vtk(mesh);
-        vtk.setData(mesh);
+        vtk.setMeshData(mesh);
         vtk.write(vtkFileName, isBinary);
         std::cout << "Vtk written in " << timer.elapsed() << " ms" << std::endl;
         std::cout << "Total time: " << t.elapsed() << " ms" << std::endl;
@@ -103,15 +107,32 @@ int main(int argc, char* argv[]) {
                 std::cerr << "Wrong material index" << std::endl;
             }
         }
+
         std::cout << "Matrix strain energy: " << matrixStrainEnergy << "J"
                   << std::endl;
         std::cout << "Inclusion strain energy: " << inclusionStrainEnergy << "J"
                   << std::endl;
 
+        timer.reset();
+        Mesh meshNoInclusion(
+            nodeCoord,
+            {std::pair(Mesh::MeshType::serendipity, elementNodeTags)},
+            boundaryNodeTags);
+        std::cout << "Mesh converted in " << timer.elapsed() << " ms"
+                  << " with " << mesh.Nodes.size() << " nodes and "
+                  << mesh.Elements.size() << " elements" << std::endl;
+        auto temp = matrix;
+        set_material(&meshNoInclusion, {&matrix, &temp}, a, b);
+        meshNoInclusion.Solve(loadCondition, boundaryCondition);
+
+        getStrainEnergy(&mesh);
+
     } catch (const std::exception& e) {
         std::cerr << e.what();
         return -1;
     }
+
+    gmsh::finalize();
 
     return 0;
 }

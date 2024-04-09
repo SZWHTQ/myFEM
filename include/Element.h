@@ -13,6 +13,7 @@ class Node {
 
    public:
     double x, y, z;
+    bool isBoundary = false;
 
     Eigen::Vector3d Displacement{Eigen::Vector3d::Zero()};
     Eigen::Vector3d Strain{Eigen::Vector3d::Zero()};

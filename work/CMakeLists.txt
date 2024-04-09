@@ -10,6 +10,7 @@ add_executable(
     main
     "${dir}/ApplyBoundary.cc"
     "${dir}/GenerateMesh.cc"
+    "${dir}/GetStrainEnergy.cc"
     "${dir}/main.cc"
     "${dir}/SetMaterial.cc"
 )

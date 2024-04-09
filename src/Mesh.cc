@@ -16,12 +16,18 @@
 #include "ThreadPool.h"
 
 Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
-           std::vector<size_t> elementNodeTags, bool planeStress_)
+           std::vector<size_t> elementNodeTags,
+           std::vector<size_t> boundaryNodeTags, bool planeStress_)
     : meshType(type), planeStress(planeStress_) {
     Nodes.reserve(nodeCoord.size() / 3);
     for (size_t i = 0; i < nodeCoord.size(); i += 3) {
+        size_t id = i / 3;
         Nodes.push_back(std::make_shared<Node>(
-            i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
+            id, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
+    }
+
+    for (int i = 0; i < boundaryNodeTags.size(); ++i) {
+        Nodes[boundaryNodeTags[i]]->isBoundary = true;
     }
 
     switch (meshType) {
@@ -48,12 +54,16 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
 Mesh::Mesh(std::vector<double> nodeCoord,
            std::vector<std::pair<MeshType, std::vector<size_t>>>
                elementTypeAndNodeTags,
-           bool planeStress_)
+           std::vector<size_t> boundaryNodeTags, bool planeStress_)
     : planeStress(planeStress_) {
     Nodes.reserve(nodeCoord.size() / 3);
     for (size_t i = 0; i < nodeCoord.size(); i += 3) {
         Nodes.push_back(std::make_shared<Node>(
             i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
+    }
+
+    for (int i = 0; i < boundaryNodeTags.size(); ++i) {
+        Nodes[boundaryNodeTags[i] - 1]->isBoundary = true;
     }
 
     for (auto&& [type, elementNodeTags] : elementTypeAndNodeTags) {
