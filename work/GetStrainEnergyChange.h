@@ -6,4 +6,5 @@
 #include "Mesh.h"
 
 double getStrainEnergyChange(Mesh* mesh, Mesh* meshNoInclusion,
-                             Material* matrix, Material* inclusion);
+                             Material* matrix, Material* inclusion,
+                             bool isPlaneStress = true);

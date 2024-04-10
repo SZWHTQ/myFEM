@@ -1,7 +1,6 @@
 #include <gmsh.h>
 
 #include <cstddef>
-
 #include <memory>
 #include <vector>
 
@@ -61,15 +60,22 @@ Eigen::Vector2d getDisplacement(std::shared_ptr<Node> node1,
 }
 
 double getStrainEnergyChange(Mesh* mesh, Mesh* meshNoInclusion,
-                             Material* matrix, Material* inclusion) {
+                             Material* matrix, Material* inclusion,
+                             bool isPlaneStress) {
     double deltaU = 0;
     double lambda1 =
         1 -
         ((1 + matrix->getPoissonRatio()) * inclusion->getElasticModulus()) /
             ((1 + inclusion->getPoissonRatio()) / matrix->getElasticModulus());
+
+    double temp = 1;
+    if (!isPlaneStress) {
+        temp = 1 + matrix->getPoissonRatio();
+    }
+
     double lambda2 =
-        ((inclusion->getPoissonRatio() - matrix->getPoissonRatio()) *
-         (1 + matrix->getPoissonRatio()) * inclusion->getElasticModulus()) /
+        ((inclusion->getPoissonRatio() - matrix->getPoissonRatio()) * temp *
+         inclusion->getElasticModulus()) /
         ((1 + inclusion->getPoissonRatio()) *
          (1 - 2 * inclusion->getPoissonRatio()) * matrix->getElasticModulus());
     // double lambda1 = 1;

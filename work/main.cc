@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 
         // Solve
         timer.reset();
-        mesh.Solve(loadCondition, boundaryCondition);
+        mesh.Solve(loadCondition, boundaryCondition, true);
         std::cout << "Mesh solved in " << timer.elapsed() << " ms" << std::endl;
 
         // Write output
@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
         vtk.write(vtkFileName, isBinary);
         std::cout << "Vtk written in " << timer.elapsed() << " ms" << std::endl;
         std::cout << "Total time: " << t.elapsed() << " ms" << std::endl;
+        std::cout << "\n";
 
         double matrixStrainEnergy = 0, inclusionStrainEnergy = 0;
         for (auto& element : mesh.Elements) {
@@ -102,9 +103,10 @@ int main(int argc, char* argv[]) {
         }
 
         std::cout << std::fixed << std::setprecision(-1);
-        std::cout << "Matrix strain energy: " << matrixStrainEnergy
+        std::cout << "Matrix with inclusion:" << std::endl;
+        std::cout << "  Matrix strain energy: " << matrixStrainEnergy
                   << std::endl;
-        std::cout << "Inclusion strain energy: " << inclusionStrainEnergy
+        std::cout << "  Inclusion strain energy: " << inclusionStrainEnergy
                   << std::endl;
         std::cout << std::fixed << std::setprecision(2);
 
@@ -115,6 +117,9 @@ int main(int argc, char* argv[]) {
         Material temp(2, matrix.getElasticModulus(), matrix.getPoissonRatio());
         set_material(&meshNoInclusion, {&matrix, &temp}, a, b);
         meshNoInclusion.Solve(loadCondition, boundaryCondition);
+        vtkManager vtkNoInclusion(meshNoInclusion);
+        vtkNoInclusion.setMeshData(meshNoInclusion);
+        vtkNoInclusion.write("PlateNoInclusion.vtu", isBinary);
 
         double matrixStrainEnergyNoInclusion = 0,
                inclusionStrainEnergyNoInclusion = 0;
@@ -129,9 +134,10 @@ int main(int argc, char* argv[]) {
         }
 
         std::cout << std::fixed << std::setprecision(-1);
-        std::cout << "Matrix strain energy: " << matrixStrainEnergyNoInclusion
+        std::cout << "Matrix no inclusion:" << std::endl;
+        std::cout << "  Matrix strain energy: " << matrixStrainEnergyNoInclusion
                   << std::endl;
-        std::cout << "Inclusion strain energy: "
+        std::cout << "  Inclusion strain energy: "
                   << inclusionStrainEnergyNoInclusion << std::endl;
 
         // Strain Energy change
@@ -141,15 +147,18 @@ int main(int argc, char* argv[]) {
         std::cout << "Inclusion Strain energy change: "
                   << inclusionStrainEnergyNoInclusion - inclusionStrainEnergy
                   << std::endl;
-        std::cout << "Strain energy change: "
-                  << matrixStrainEnergyNoInclusion - matrixStrainEnergy +
-                         inclusionStrainEnergyNoInclusion -
-                         inclusionStrainEnergy
-                  << std::endl;
-        auto deltaU =
-            getStrainEnergyChange(&mesh, &meshNoInclusion, &matrix, &inclusion);
+        double deltaEnergy =
+            matrixStrainEnergyNoInclusion - matrixStrainEnergy +
+            inclusionStrainEnergyNoInclusion - inclusionStrainEnergy;
+        std::cout << "Strain energy change: " << deltaEnergy << std::endl;
+        auto deltaU = getStrainEnergyChange(&mesh, &meshNoInclusion, &matrix,
+                                            &inclusion, isPlaneStress);
         std::cout << "Strain energy change: " << deltaU << std::endl;
         std::cout << std::fixed << std::setprecision(2);
+
+        std::cout << "Relative error: "
+                  << std::abs(deltaU - deltaEnergy) / deltaEnergy * 100 << "%"
+                  << std::endl;
 
         // Clear memory
         {

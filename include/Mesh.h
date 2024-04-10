@@ -5,8 +5,6 @@
 #include "Boundary.h"
 #include "Element.h"
 
-#define VERBOSE 1
-
 class Mesh {
    public:
     size_t nodeNum;
@@ -36,7 +34,8 @@ class Mesh {
     Eigen::SparseMatrix<double> parallelSparseAssembleStiffnessMatrix();
     static const std::vector<double> equivalentForce(Load* load);
 
-    int Solve(std::list<Load>& loads, std::list<Boundary>& boundaries);
+    int Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
+              bool verbose = false);
 };
 
 struct pair_hash {

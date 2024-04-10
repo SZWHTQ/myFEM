@@ -6,10 +6,10 @@ B = 5
 
 [Ellipse]
 ksi = 5 # a = rectangle.B / ksi
-a_b = 1  # b = a / a_b
+a_b = 1 # b = a / a_b
 
 [Material]
-Matrix = [1, 0.3]      # [E, nu]
+Matrix = [1, 0.3]    # [E, nu]
 Inclusion = [2, 0.3]
 
 [Mesh]

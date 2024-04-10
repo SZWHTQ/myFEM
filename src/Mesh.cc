@@ -10,10 +10,8 @@
 #include "Element.h"
 #include "Mesh.h"
 #include "Serendipity.h"
-#if VERBOSE
-#include "Timer.h"
-#endif
 #include "ThreadPool.h"
+#include "Timer.h"
 
 size_t Serendipity::nodeNum = 8;
 
@@ -275,7 +273,8 @@ Eigen::SparseMatrix<double> Mesh::parallelSparseAssembleStiffnessMatrix() {
     return globalStiffnessMatrix;
 }
  */
-int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
+int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
+                bool verbose) {
     Force.resize(Nodes.size() * 2);
     Force.setZero();
     for (auto&& load : loads) {
@@ -288,17 +287,18 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
         }
     }
 
-#if VERBOSE
     Timer timer;
-#endif
-    auto&& K = sparseAssembleStiffnessMatrix();
-#if VERBOSE
-    std::cout << "  Stiffness matrix assembled in " << timer.elapsed() << " ms"
-              << std::endl;
 
-    // Apply boundary conditions
-    timer.reset();
-#endif
+    auto&& K = sparseAssembleStiffnessMatrix();
+
+    if (verbose) {
+        std::cout << "  Stiffness matrix assembled in " << timer.elapsed()
+                  << " ms" << std::endl;
+
+        // Apply boundary conditions
+        timer.reset();
+    }
+
     Eigen::VectorXd List1 = Eigen::VectorXd::Ones(Nodes.size() * 2);
     Eigen::VectorXd List2 = Eigen::VectorXd::Zero(Nodes.size() * 2);
     for (auto&& boundary : boundaries) {
@@ -330,35 +330,43 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries) {
         }
      */
 
-#if VERBOSE
-    std::cout << "  Boundary conditions applied in " << timer.elapsed() << " ms"
-              << std::endl;
-#endif
+    if (verbose) {
+        std::cout << "  Boundary conditions applied in " << timer.elapsed()
+                  << " ms" << std::endl;
+    }
+
     // auto&& K = globalStiffnessMatrix.sparseView();
     Eigen::SparseVector<double> U;
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-#if VERBOSE
-    timer.reset();
-#endif
+
+    if (verbose) {
+        timer.reset();
+    }
+
     solver.analyzePattern(K);
     solver.factorize(K);
-#if VERBOSE
-    std::cout << "  Analyzed pattern and factorized in " << timer.elapsed()
-              << " ms" << std::endl;
-#endif
+
+    if (verbose) {
+        std::cout << "  Analyzed pattern and factorized in " << timer.elapsed()
+                  << " ms" << std::endl;
+    }
+
     if (solver.info() != Eigen::Success) {
         std::cerr << "LU decomposition failed" << std::endl;
         std::cerr << "Error code: " << solver.info() << std::endl;
         std::cerr << "Error message: " << solver.lastErrorMessage() << "\n";
         return -1;
     }
-#if VERBOSE
-    timer.reset();
-#endif
+
+    if (verbose) {
+        timer.reset();
+    }
+
     U = solver.solve(Force);
-#if VERBOSE
-    std::cout << "  Solver solved in " << timer.elapsed() << " ms" << std::endl;
-#endif
+    if (verbose) {
+        std::cout << "  Solver solved in " << timer.elapsed() << " ms"
+                  << std::endl;
+    }
 
     for (size_t i = 0; i < Nodes.size(); ++i) {
         Nodes[i]->Displacement(0) = U.coeff(2 * i);
