@@ -80,6 +80,6 @@ class Element {
     virtual int calculateStrainStressGaussPoint() = 0;
 
     std::string getElementName() { return elementName; };
-    int getIndex() { return index; };
-    int setMaterial(Material* material_);
+    size_t getIndex() { return index; };
+    size_t setMaterial(Material* material_);
 };

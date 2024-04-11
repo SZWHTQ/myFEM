@@ -1,7 +1,14 @@
 set(dir "${CMAKE_CURRENT_SOURCE_DIR}")
 
+# Check system
+if(WIN32)
+    set(GMSH_DIR "D:/ProgramFiles/gmsh/SDK")
+else()
+    set(GMSH_DIR "~/Repository/Gmsh/SDK/latest")
+endif()
+
 include_directories(
-    "~/Repository/Gmsh/SDK/latest/include"
+    "${GMSH_DIR}/include"
     "${CMAKE_HOME_DIRECTORY}/toml"
     "${dir}"
 )
@@ -24,5 +31,5 @@ target_link_libraries(
 target_link_directories(
     main
     PUBLIC
-    "~/Repository/Gmsh/SDK/latest/lib"
+    "${GMSH_DIR}/lib"
 )

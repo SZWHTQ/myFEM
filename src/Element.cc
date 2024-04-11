@@ -4,10 +4,10 @@
 Element::Element(const size_t index_, const std::string elementName_)
     : index(index_),
       elementName(elementName_),
-      thickness(1.0),
-      material(nullptr){};
+      material(nullptr),
+      thickness(1.0){};
 
-int Element::setMaterial(Material* material) {
+size_t Element::setMaterial(Material* material) {
     if (material == nullptr) {
         return 1;
     }
