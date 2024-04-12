@@ -21,17 +21,25 @@ bool inTheEllipse(double x, double y, double a, double b) {
 }
 
 void set_material(Mesh* mesh, std::vector<Material*> materials, double a,
-                 double b) {
+                  double b) {
     for (auto&& element : mesh->Elements) {
         auto&& center = get_element_center(element);
         if (inTheEllipse(center[0], center[1], a, b)) {
             element->material = materials[1];
-            // std::cout << "Element " << element->index << " is in the inclusion"
+            // std::cout << "Element " << element->index << " is in the
+            // inclusion"
             //           << std::endl;
         } else {
             element->material = materials[0];
             // std::cout << "Element " << element->index << " is in the matrix"
             //           << std::endl;
         }
+    }
+}
+
+void set_material(Mesh* mesh, std::vector<Material*> materials,
+                  std::vector<size_t> elementMaterialTags) {
+    for (size_t i = 0; i < mesh->Elements.size(); ++i) {
+        mesh->Elements[i]->material = materials[elementMaterialTags[i]];
     }
 }

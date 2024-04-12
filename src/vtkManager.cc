@@ -15,7 +15,7 @@ vtkManager::vtkManager(Mesh& mesh) {
     Grid->SetPoints(Points);
     for (auto&& element : mesh.Elements) {
         vtkNew<vtkQuadraticQuad> QuadraticQuad;
-        for (int i = 0; i < element->nodes.size(); ++i) {
+        for (size_t i = 0; i < element->nodes.size(); ++i) {
             QuadraticQuad->GetPointIds()->SetId(i,
                                                 element->nodes[i]->getIndex());
         }

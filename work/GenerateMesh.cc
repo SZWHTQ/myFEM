@@ -7,13 +7,24 @@
 
 int generate_mesh(std::vector<double>& nodeCoord,
                   std::vector<size_t>& elementNodeTags,
-                  std::vector<size_t>& boundaryNodeTags, double L, double B,
-                  double a, double b, double lc, double refinementFactor,
-                  bool isSerendipity, int meshAlgorithm) {
+                  std::vector<size_t>& elementMaterialTags,
+                  std::vector<size_t>& interfaceNodeTags,
+                  toml::table settings) {
+    // Define geometry
+    double L = settings["Rectangle"]["L"].value_or(2);
+    double B = settings["Rectangle"]["B"].value_or(0.9);
+    double a = B / settings["Ellipse"]["ksi"].value_or(3.0);
+    double b = a / settings["Ellipse"]["a_b"].value_or(1. / 3);
+    double lc = settings["Mesh"]["size"].value_or(0.02);
+    double rf = settings["Mesh"]["refinementFactor"].value_or(8);
+    int Algorithm = settings["Mesh"]["Algorithm"].value_or(8);
+    bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
+    bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
+    bool convertToSquare = settings["Mesh"]["convertToSquare"].value_or(false);
+
     // Initialize the Gmsh library
     gmsh::initialize();
     gmsh::option::setNumber("General.Terminal", 0);
-    // gmsh::option::setNumber("Geometry.OCCKernel", 1);
     try {
         // Start a new model
         gmsh::model::add("RectangleWithHole");
@@ -24,38 +35,88 @@ int generate_mesh(std::vector<double>& nodeCoord,
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, 0, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(L / 2, B / 2, 0, lc));
         pointsTag.push_back(gmsh::model::occ::addPoint(0, B / 2, 0, lc));
-        pointsTag.push_back(
-            gmsh::model::occ::addPoint(a, 0, 0, lc / refinementFactor));
-        pointsTag.push_back(
-            gmsh::model::occ::addPoint(0, b, 0, lc / refinementFactor));
-
-        // Outer rectangle lines
-        std::vector<int> linesTag;
-        linesTag.push_back(
-            gmsh::model::occ::addLine(pointsTag[4], pointsTag[1]));
-        linesTag.push_back(
-            gmsh::model::occ::addLine(pointsTag[1], pointsTag[2]));
-        linesTag.push_back(
-            gmsh::model::occ::addLine(pointsTag[2], pointsTag[3]));
-        linesTag.push_back(
-            gmsh::model::occ::addLine(pointsTag[3], pointsTag[5]));
-        linesTag.push_back(gmsh::model::occ::addEllipseArc(
-            pointsTag[5], pointsTag[0], pointsTag[4], pointsTag[4]));
 
         // Outer loop (line loop)
-        int outerCurveLoop = gmsh::model::occ::addCurveLoop(linesTag);
+        std::vector<int> linesTag;
+        std::vector<int> interfaceCurveTags = {pointsTag[4]};
+        int boundary1Tag = 0;
+        int boundary2Tag = 0;
+        int outerCurveLoop = 0;
+        int innerCurveLoopTag = 0;
+        if (convertToSquare) {
+            double squareLength = std::sqrt(M_PI * a * b) * 0.5;
+            pointsTag.push_back(
+                gmsh::model::occ::addPoint(squareLength, 0, 0, lc / rf));
+            pointsTag.push_back(
+                gmsh::model::occ::addPoint(0, squareLength, 0, lc / rf));
+            pointsTag.push_back(gmsh::model::occ::addPoint(
+                squareLength, squareLength, 0, lc / rf));
 
-        // Define the first and second half of the ellipse
-        int ellipseArcTag = gmsh::model::occ::addEllipseArc(
-            pointsTag[4], pointsTag[0], pointsTag[4], pointsTag[5]);
-        int ellipseBoundary1Tag =
-            gmsh::model::occ::addLine(pointsTag[5], pointsTag[0]);
-        int ellipseBoundary2Tag =
-            gmsh::model::occ::addLine(pointsTag[0], pointsTag[4]);
+            // Outer loop (line loop)
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[4], pointsTag[1]));
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[1], pointsTag[2]));
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[2], pointsTag[3]));
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[3], pointsTag[5]));
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[5], pointsTag[6]));
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[6], pointsTag[4]));
+            outerCurveLoop = gmsh::model::occ::addCurveLoop(linesTag);
 
-        // Create a curve loop and plane surface
-        int innerCurveLoopTag = gmsh::model::occ::addCurveLoop(
-            {ellipseArcTag, ellipseBoundary1Tag, ellipseBoundary2Tag});
+            // Inner loop (line loop)
+            int interfaceLine1Tag = gmsh::model::occ::addLine(
+                pointsTag[4], pointsTag[6]);  // interfaceCurve
+            int interfaceLine2Tag = gmsh::model::occ::addLine(
+                pointsTag[6], pointsTag[5]);  // interfaceCurve
+            boundary1Tag =
+                gmsh::model::occ::addLine(pointsTag[5], pointsTag[0]);
+            boundary2Tag =
+                gmsh::model::occ::addLine(pointsTag[0], pointsTag[4]);
+
+            // Create a curve loop
+            innerCurveLoopTag = gmsh::model::occ::addCurveLoop(
+                {interfaceLine1Tag, interfaceLine2Tag, boundary1Tag,
+                 boundary2Tag});
+
+            // Interface curve
+            interfaceCurveTags = {linesTag[4], linesTag[5], interfaceLine1Tag,
+                                  interfaceLine2Tag};
+        } else {
+            pointsTag.push_back(gmsh::model::occ::addPoint(a, 0, 0, lc / rf));
+            pointsTag.push_back(gmsh::model::occ::addPoint(0, b, 0, lc / rf));
+
+            // Outer loop (line loop)
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[4], pointsTag[1]));
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[1], pointsTag[2]));
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[2], pointsTag[3]));
+            linesTag.push_back(
+                gmsh::model::occ::addLine(pointsTag[3], pointsTag[5]));
+            linesTag.push_back(gmsh::model::occ::addEllipseArc(
+                pointsTag[5], pointsTag[0], pointsTag[4], pointsTag[4]));
+            outerCurveLoop = gmsh::model::occ::addCurveLoop(linesTag);
+
+            // Inner loop (line loop)
+            int ellipseArcTag = gmsh::model::occ::addEllipseArc(
+                pointsTag[4], pointsTag[0], pointsTag[4], pointsTag[5]);
+            boundary1Tag =
+                gmsh::model::occ::addLine(pointsTag[5], pointsTag[0]);
+            boundary2Tag =
+                gmsh::model::occ::addLine(pointsTag[0], pointsTag[4]);
+
+            // Create a curve loop
+            innerCurveLoopTag = gmsh::model::occ::addCurveLoop(
+                {ellipseArcTag, boundary1Tag, boundary2Tag});
+
+            // Interface curve
+            interfaceCurveTags = {linesTag[4], ellipseArcTag};
+        }
 
         // Plane surface with inclusion
         gmsh::model::occ::addPlaneSurface({outerCurveLoop}, 1);
@@ -70,14 +131,8 @@ int generate_mesh(std::vector<double>& nodeCoord,
         gmsh::model::addPhysicalGroup(2, {2}, INCLUSION_SURFACE_TAG,
                                       "Inclusion Surface");
 
-        linesTag.push_back(ellipseArcTag);
-        linesTag.push_back(ellipseBoundary1Tag);
-        linesTag.push_back(ellipseBoundary2Tag);
-        gmsh::model::addPhysicalGroup(1, linesTag, BOUNDARY_TAG, "Boundary");
-        gmsh::model::addPhysicalGroup(1, {linesTag[4], ellipseArcTag},
-                                      INTERFACE_TAG, "Interface");
-        gmsh::model::addPhysicalGroup(0, pointsTag, VERTEX_TAG,
-                                      "Matrix Vertex");
+        gmsh::model::addPhysicalGroup(1, interfaceCurveTags, INTERFACE_TAG,
+                                      "Interface");
 
         // gmsh::model::occ::removeAllDuplicates();
 
@@ -90,7 +145,7 @@ int generate_mesh(std::vector<double>& nodeCoord,
         gmsh::option::setNumber("Mesh.RecombinationAlgorithm", 2);
         gmsh::option::setNumber("Mesh.RecombineAll", 1);
         // Set mesh algorithm
-        gmsh::option::setNumber("Mesh.Algorithm", meshAlgorithm);
+        gmsh::option::setNumber("Mesh.Algorithm", Algorithm);
 
         // Generate mesh
         gmsh::model::mesh::generate(2);
@@ -116,18 +171,48 @@ int generate_mesh(std::vector<double>& nodeCoord,
             gmsh::model::mesh::getElementType("Quadrangle", 2, isSerendipity);
         gmsh::model::mesh::getElementsByType(serendipityTag, elementTags,
                                              elementNodeTags);
-        // int triangleTag =
-        //     gmsh::model::mesh::getElementType("Triangle", 2, isSerendipity);
 
-        // Retrieve the boundary nodes
+        // Retrieve the element materials by physical group
         {
-            // Vertex
-            // std::vector<int> vertexTags;
-            // gmsh::model::getEntitiesForPhysicalGroup(0, VERTEX_TAG,
-            // vertexTags); boundaryNodeTags.insert(boundaryNodeTags.end(),
-            // vertexTags.begin(),
-            //                         vertexTags.end());
-            // Boundary
+            elementMaterialTags.resize(elementTags.size());
+            std::vector<size_t> eTags;
+            std::vector<size_t> nTags;
+            // matrix
+            std::vector<int> surfaces;
+            gmsh::vectorpair dimTags;
+            gmsh::model::getEntities(dimTags, 2);
+            gmsh::model::getEntitiesForPhysicalGroup(2, MATRIX_SURFACE_TAG,
+                                                     surfaces);
+            bool isFirst = true;
+            size_t startTag = 0;
+            for (const auto& s : surfaces) {
+                gmsh::model::mesh::getElementsByType(serendipityTag, eTags,
+                                                     nTags, s);
+                if (isFirst) {
+                    isFirst = false;
+                    startTag = eTags[0];
+                }
+                for (size_t i = 0; i < eTags.size(); ++i) {
+                    elementMaterialTags[eTags[i] - startTag] = 0;
+                }
+            }
+
+            // inclusion
+            surfaces.clear();
+            gmsh::model::getEntitiesForPhysicalGroup(2, INCLUSION_SURFACE_TAG,
+                                                     surfaces);
+            for (const auto& s : surfaces) {
+                gmsh::model::mesh::getElementsByType(serendipityTag, eTags,
+                                                     nTags, s);
+                for (size_t i = 0; i < eTags.size(); ++i) {
+                    elementMaterialTags[eTags[i] - startTag] = 1;
+                }
+            }
+        }
+
+        // Retrieve the interface nodes
+        {
+            // interface
             std::vector<int> lines;
             gmsh::model::getEntitiesForPhysicalGroup(1, INTERFACE_TAG, lines);
             for (const auto& line : lines) {
@@ -140,11 +225,14 @@ int generate_mesh(std::vector<double>& nodeCoord,
                                             parametricCoords_, 1, line);
 
                 // Append boundary node coordinates to the output vector
-                boundaryNodeTags.insert(boundaryNodeTags.end(),
-                                        nodeTags_.begin(), nodeTags_.end());
+                interfaceNodeTags.insert(interfaceNodeTags.end(),
+                                         nodeTags_.begin(), nodeTags_.end());
             }
-            boundaryNodeTags.push_back(pointsTag[4]);
-            boundaryNodeTags.push_back(pointsTag[5]);
+            interfaceNodeTags.push_back(pointsTag[4]);
+            interfaceNodeTags.push_back(pointsTag[5]);
+            if (convertToSquare) {
+                interfaceNodeTags.push_back(pointsTag[6]);
+            }
         }
         // gmsh::fltk::run();
     } catch (const std::exception& e) {

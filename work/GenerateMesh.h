@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "toml.hpp"
+
 #define WRITE_INP 1
 #define WRITE_MSH 1
 
@@ -13,6 +15,12 @@
 
 int generate_mesh(std::vector<double>& nodeCoord,
                   std::vector<size_t>& elementNodeTags,
-                  std::vector<size_t>& boundaryNodeTags, double L, double B,
+                  std::vector<size_t>& interfaceNodeTags, double L, double B,
                   double a, double b, double lc, double refinementFactor = 1,
-                  bool isSerendipity = true, int meshAlgorithm = 8);
+                  bool isSerendipity = true, int meshAlgorithm = 8,
+                  bool convertToSquare = false);
+
+int generate_mesh(std::vector<double>& nodeCoord,
+                  std::vector<size_t>& elementNodeTags,
+                  std::vector<size_t>& elementMaterialTags,
+                  std::vector<size_t>& interfaceNodeTags, toml::table settings);

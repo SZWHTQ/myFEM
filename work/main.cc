@@ -1,7 +1,6 @@
 #include <gmsh.h>
 
 #include <iostream>
-#include <toml.hpp>
 #include <vector>
 
 #include "ApplyBoundary.h"
@@ -11,6 +10,7 @@
 #include "Mesh.h"
 #include "SetMaterial.h"
 #include "Timer.h"
+#include "toml.hpp"
 #include "vtkManager.h"
 
 int main(int argc, char* argv[]) {
@@ -26,24 +26,19 @@ int main(int argc, char* argv[]) {
         // Define geometry
         double L = settings["Rectangle"]["L"].value_or(2);
         double B = settings["Rectangle"]["B"].value_or(0.9);
-        double ksi = settings["Ellipse"]["ksi"].value_or(3);
-        double a = B / ksi;
-        double a_b = settings["Ellipse"]["a_b"].value_or(1. / 3);
-        double b = a / a_b;
-        double lc = settings["Mesh"]["size"].value_or(0.02);
-        double rf = settings["Mesh"]["refinementFactor"].value_or(8);
-        bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
-        int Algorithm = settings["Mesh"]["Algorithm"].value_or(8);
+        double a = B / settings["Ellipse"]["ksi"].value_or(3.0);
+        double b = a / settings["Ellipse"]["a_b"].value_or(1. / 3);
         bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
 
         // Generate mesh
         Timer t, timer;
         std::vector<double> nodeCoord;
         std::vector<size_t> elementNodeTags;
+        std::vector<size_t> elementMaterialTags;
         std::vector<size_t> boundaryNodeTags;
 
-        int err = generate_mesh(nodeCoord, elementNodeTags, boundaryNodeTags, L,
-                                B, a, b, lc, rf, isSerendipity, Algorithm);
+        int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
+                                boundaryNodeTags, settings);
         if (err != 0) {
             return err;
         }
@@ -67,7 +62,8 @@ int main(int argc, char* argv[]) {
         double nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
         Elastic matrix(1, E1, nu1);
         Elastic inclusion(2, E2, nu2);
-        set_material(&mesh, {&matrix, &inclusion}, a, b);
+        // set_material(&mesh, {&matrix, &inclusion}, a, b);
+        set_material(&mesh, {&matrix, &inclusion}, elementMaterialTags);
 
         // Apply boundary
         double value = settings["Load"]["Value"].value_or(1);
@@ -98,7 +94,9 @@ int main(int argc, char* argv[]) {
             } else if (element->material->getIndex() == 2) {
                 inclusionStrainEnergy += element->getStrainEnergy();
             } else {
-                std::cerr << "Wrong material index" << std::endl;
+                std::cerr << "Wrong material index: "
+                          << element->material->getIndex() << " at "
+                          << element->getIndex() << std::endl;
             }
         }
 
@@ -115,7 +113,7 @@ int main(int argc, char* argv[]) {
             {std::pair(Mesh::MeshType::serendipity, elementNodeTags)},
             boundaryNodeTags, isPlaneStress);
         Material temp(2, matrix.getElasticModulus(), matrix.getPoissonRatio());
-        set_material(&meshNoInclusion, {&matrix, &temp}, a, b);
+        set_material(&meshNoInclusion, {&matrix, &temp}, elementMaterialTags);
         meshNoInclusion.Solve(loadCondition, boundaryCondition);
         vtkManager vtkNoInclusion(meshNoInclusion);
         vtkNoInclusion.setMeshData(meshNoInclusion);
@@ -129,7 +127,9 @@ int main(int argc, char* argv[]) {
             } else if (element->material->getIndex() == 2) {
                 inclusionStrainEnergyNoInclusion += element->getStrainEnergy();
             } else {
-                std::cerr << "Wrong material index" << std::endl;
+                std::cerr << "Wrong material index: "
+                          << element->material->getIndex() << " at "
+                          << element->getIndex() << std::endl;
             }
         }
 

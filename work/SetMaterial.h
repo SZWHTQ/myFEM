@@ -8,3 +8,6 @@ std::vector<double> get_element_center(Element* element);
 
 void set_material(Mesh* mesh, std::vector<Material*> materials, double a,
                   double b);
+
+void set_material(Mesh* mesh, std::vector<Material*> materials,
+                  std::vector<size_t> elementMaterialTags);
