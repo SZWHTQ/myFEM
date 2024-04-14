@@ -22,8 +22,6 @@ int generate_mesh(std::vector<double>& nodeCoord,
     bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
     bool convertToSquare = settings["Mesh"]["convertToSquare"].value_or(false);
 
-    // Initialize the Gmsh library
-    gmsh::initialize();
     gmsh::option::setNumber("General.Terminal", 0);
     try {
         // Start a new model

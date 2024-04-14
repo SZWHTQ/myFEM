@@ -10,11 +10,11 @@ a_b = 1 # b = a / a_b
 
 [Material]
 Matrix = [1, 0.3]    # [E, nu]
-Inclusion = [1, 0.2]
+Inclusion = [2, 0.2]
 
 [Mesh]
 size = 0.1
-refinementFactor = 20
+refinementFactor = 100
 Algorithm = 8
 planeStress = false
 convertToSquare = false

@@ -37,6 +37,8 @@ int main(int argc, char* argv[]) {
         std::vector<size_t> elementMaterialTags;
         std::vector<size_t> boundaryNodeTags;
 
+        // Initialize the Gmsh library
+        gmsh::initialize();
         int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
                                 boundaryNodeTags, settings);
         if (err != 0) {
@@ -167,12 +169,13 @@ int main(int argc, char* argv[]) {
             elementNodeTags.clear();
             std::vector<size_t>().swap(elementNodeTags);
         }
+
+        // Finalize the Gmsh library
+        gmsh::finalize();
+
     } catch (const std::exception& e) {
         std::cerr << e.what();
         return -1;
     }
-
-    gmsh::finalize();
-
     return 0;
 }
