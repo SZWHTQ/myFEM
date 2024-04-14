@@ -106,7 +106,7 @@ const Eigen::MatrixXd Serendipity::getStrainMatrix(double ksi, double eta) {
     return strainMatrix;
 }
 
-const Eigen::MatrixXd Serendipity::getElasticMatrix(bool planeStress) {
+const Eigen::MatrixXd Serendipity::getElasticMatrix() {
     double E = material->getElasticModulus();
     double nu = material->getPoissonRatio();
 
@@ -150,7 +150,7 @@ const Eigen::MatrixXd Serendipity::getStiffnessMatrix() {
 }
 
 int Serendipity::calculateStrainStress() {
-    auto& D = getElasticMatrix(planeStress);
+    auto& D = getElasticMatrix();
     const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
     Eigen::VectorXd displacementArray(nodeNum * 2);
@@ -243,7 +243,7 @@ const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStrain() {
 }
 
 const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStress() {
-    auto& D = getElasticMatrix(planeStress);
+    auto& D = getElasticMatrix();
     auto& strainGp = getGaussPointsStrain();
 
     std::vector<Eigen::VectorXd> gaussStress(strainGp.size(),
@@ -288,7 +288,7 @@ int Serendipity::calculateStrainStressGaussPoint() {
     const auto& strainGp = getGaussPointsStrain();
 
     // Calculate strain and stress at node
-    auto& D = getElasticMatrix(planeStress);
+    auto& D = getElasticMatrix();
     Eigen::MatrixXd interpolationMatrix(nodeNum, nodeNum);
     interpolationMatrix.setZero();
     const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};

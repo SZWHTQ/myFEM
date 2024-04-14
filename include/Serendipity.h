@@ -28,7 +28,7 @@ class Serendipity : public Element {
 
     const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) override;
 
-    const Eigen::MatrixXd getElasticMatrix(bool planeStress = true) override;
+    const Eigen::MatrixXd getElasticMatrix() override;
 
     const Eigen::MatrixXd getStiffnessMatrix() override;
 

@@ -61,7 +61,7 @@ class Element {
     virtual const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) = 0;
 
     // Elastic matrix
-    virtual const Eigen::MatrixXd getElasticMatrix(bool planeStress = true) = 0;
+    virtual const Eigen::MatrixXd getElasticMatrix() = 0;
 
     // Stiffness matrix
     virtual const Eigen::MatrixXd getStiffnessMatrix() = 0;

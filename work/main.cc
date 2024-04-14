@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
         std::cout << std::fixed << std::setprecision(2);
 
         std::cout << "Relative error: "
-                  << std::abs(deltaU - deltaEnergy) / deltaEnergy * 100 << "%"
+                  << std::abs(deltaU - deltaEnergy) / deltaU * 100 << "%"
                   << std::endl;
 
         // Clear memory
