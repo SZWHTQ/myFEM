@@ -58,9 +58,9 @@ int main(int argc, char* argv[]) {
                   << mesh.Elements.size() << " elements" << std::endl;
 
         // Set material
-        double E1 = settings["Material"]["Matrix"][0].value_or(1);
+        double E1 = settings["Material"]["Matrix"][0].value_or(1.0);
         double nu1 = settings["Material"]["Matrix"][1].value_or(0.3);
-        double E2 = settings["Material"]["Inclusion"][0].value_or(1);
+        double E2 = settings["Material"]["Inclusion"][0].value_or(1.0);
         double nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
         Elastic matrix(1, E1, nu1);
         Elastic inclusion(2, E2, nu2);
@@ -152,10 +152,10 @@ int main(int argc, char* argv[]) {
         double deltaEnergy =
             matrixStrainEnergyNoInclusion - matrixStrainEnergy +
             inclusionStrainEnergyNoInclusion - inclusionStrainEnergy;
-        std::cout << "Strain energy change: " << deltaEnergy << std::endl;
+        std::cout << "Strain energy change: " << deltaEnergy * 4 << std::endl;
         auto deltaU = getStrainEnergyChange(&mesh, &meshNoInclusion, &matrix,
                                             &inclusion, isPlaneStress);
-        std::cout << "Strain energy change: " << deltaU << std::endl;
+        std::cout << "Strain energy change: " << deltaU * 4 << std::endl;
         std::cout << std::fixed << std::setprecision(2);
 
         std::cout << "Relative error: "

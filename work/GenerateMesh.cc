@@ -15,12 +15,13 @@ int generate_mesh(std::vector<double>& nodeCoord,
     double B = settings["Rectangle"]["B"].value_or(0.9);
     double a = B / settings["Ellipse"]["ksi"].value_or(3.0);
     double b = a / settings["Ellipse"]["a_b"].value_or(1. / 3);
+    bool convertToSquare =
+        settings["Ellipse"]["convertToSquare"].value_or(false);
     double lc = settings["Mesh"]["size"].value_or(0.02);
     double rf = settings["Mesh"]["refinementFactor"].value_or(8);
     int Algorithm = settings["Mesh"]["Algorithm"].value_or(8);
     bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
     bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
-    bool convertToSquare = settings["Mesh"]["convertToSquare"].value_or(false);
 
     gmsh::option::setNumber("General.Terminal", 0);
     try {
