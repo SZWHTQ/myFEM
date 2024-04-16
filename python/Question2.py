@@ -1,40 +1,51 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from WorkerLibraryWrapper import WorkerLibraryWrapper
-from Circle import theoretical
+from libraryWrapper import WorkerLibraryWrapper
+from Analytical import cylindricalInclusion
 
 
 def main():
-    Es = np.array([1e-15, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    W = WorkerLibraryWrapper()
+    inclusionModuli = np.array([1e-15, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     numerical = np.array([])
-    analytical = np.array([theoretical(E_i=E_i) for E_i in Es])
-    for E in tqdm(Es):
-        W.inclusiveModulus = E
-        result = W.worker()
+    analytical = np.array([])
+    wrapper = WorkerLibraryWrapper()
+    wrapper.verbose = False
+    for E in tqdm(inclusionModuli):
+        wrapper.inclusionModulus = E
+        result = wrapper.worker()
         numerical = np.append(numerical, result)
+        analytical = np.append(
+            analytical,
+            cylindricalInclusion(
+                E_m=wrapper.matrixModulus,
+                nu_m=wrapper.matrixPoisson,
+                E_i=wrapper.inclusionModulus,
+                nu_i=wrapper.inclusionPoisson,
+            ),
+        )
     # Plot
     plt.rcParams["font.size"] = 24
     plt.figure(figsize=(10, 8))
     plt.gca().set_aspect("equal", adjustable="box")
+    params = {
+        "markersize": 12,
+        "markeredgewidth": 2,
+        "markerfacecolor": "none",
+    }
     plt.plot(
-        Es,
+        inclusionModuli,
         analytical,
         label="Analytical",
         marker="o",
-        markersize=12,
-        markeredgewidth=2,
-        markerfacecolor="none",
+        **params,
     )
     plt.plot(
-        Es,
+        inclusionModuli,
         numerical,
         label="Numerical",
         marker="x",
-        markersize=12,
-        markeredgewidth=2,
-        markerfacecolor="none",
+        **params,
     )
     # Labels
     plt.xlabel(r"$E_I/E_M$")

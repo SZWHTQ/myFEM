@@ -2,7 +2,7 @@ title = "Plate with Inclusion"
 
 [Rectangle]
 L = 10
-B = 5
+B = 10
 
 [Ellipse]
 ksi = 10 # a = rectangle.B / ksi

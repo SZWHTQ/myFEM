@@ -4,8 +4,8 @@
 
 #include "toml.hpp"
 
-#define WRITE_INP 1
-#define WRITE_MSH 1
+#define WRITE_INP 0
+#define WRITE_MSH 0
 
 #define VERTEX_TAG 1
 #define BOUNDARY_TAG 2

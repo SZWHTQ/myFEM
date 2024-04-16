@@ -16,36 +16,33 @@
 #include "Mesh.h"
 #include "SetMaterial.h"
 #include "Timer.h"
-#include "toml.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-EXPORT double worker(const char* tomlFilePath,
-                     const double inclusionElasticModulus, const double ksi,
-                     const double a_b, const bool verbose) {
+EXPORT double worker(const double L, const double B, const double ksi,
+                     const double a_b, const double loadValue,
+                     const double matrixElasticModulus,
+                     const double matrixPoissonRatio,
+                     const double inclusionElasticModulus,
+                     const double inclusionPoissonRatio, const double meshSize,
+                     const double refinementFactor, const int meshAlgorithm,
+                     const bool isSerendipity, const bool convertToSquare,
+                     const bool isPlaneStress, const bool verbose) {
     try {
-        auto settings = toml::parse_file(tomlFilePath);
         // Define geometry
-        double L = settings["Rectangle"]["L"].value_or(2);
-        double B = settings["Rectangle"]["B"].value_or(0.9);
         double a = B / ksi;
         double b = a / a_b;
-        bool convertToSquare =
-            settings["Ellipse"]["convertToSquare"].value_or(false);
-        double lc = settings["Mesh"]["size"].value_or(0.02);
-        double refinementFactor =
-            settings["Mesh"]["refinementFactor"].value_or(8);
-        int meshAlgorithm = settings["Mesh"]["Algorithm"].value_or(8);
-        bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
-        bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
         if (verbose) {
-            std::cout << "L: " << L << std::endl;
-            std::cout << "B: " << B << std::endl;
-            std::cout << "a: " << a << std::endl;
-            std::cout << "b: " << b << std::endl;
-            std::cout << "lc: " << lc << std::endl;
-            std::cout << "refinementFactor: " << refinementFactor << std::endl;
+            std::cout << "L: " << L << " B: " << B << std::endl;
+            std::cout << "a: " << a << " b: " << b << std::endl;
+            std::cout << "matrix elastic modulus: " << matrixElasticModulus
+                      << " matrix poisson ratio: " << matrixPoissonRatio
+                      << std::endl;
+            std::cout << "inclusion elastic modulus: "
+                      << inclusionElasticModulus
+                      << " inclusion poisson ratio: " << inclusionPoissonRatio
+                      << std::endl;
         }
 
         // Generate mesh
@@ -57,10 +54,10 @@ EXPORT double worker(const char* tomlFilePath,
 
         // Initialize the Gmsh library
         gmsh::initialize();
-        int err =
-            generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
-                          interfaceNodeTags, L, B, a, b, lc, refinementFactor,
-                          isSerendipity, meshAlgorithm, convertToSquare);
+        int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
+                                interfaceNodeTags, L, B, a, b, meshSize,
+                                refinementFactor, isSerendipity, meshAlgorithm,
+                                convertToSquare);
         if (err != 0) {
             return err;
         }
@@ -84,18 +81,13 @@ EXPORT double worker(const char* tomlFilePath,
         }
 
         // Set material
-        double E1 = settings["Material"]["Matrix"][0].value_or(1.0);
-        double nu1 = settings["Material"]["Matrix"][1].value_or(0.3);
-        double E2 = inclusionElasticModulus;
-        double nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
-        Elastic matrix(1, E1, nu1);
-        Elastic inclusion(2, E2, nu2);
+        Elastic matrix(1, matrixElasticModulus, matrixPoissonRatio);
+        Elastic inclusion(2, inclusionElasticModulus, inclusionPoissonRatio);
         // set_material(&mesh, {&matrix, &inclusion}, a, b);
         set_material(&mesh, {&matrix, &inclusion}, elementMaterialTags);
 
         // Apply boundary
-        double value = settings["Load"]["Value"].value_or(1);
-        auto&& loadCondition = apply_load(&mesh, L, B, value);
+        auto&& loadCondition = apply_load(&mesh, L, B, loadValue);
         auto&& boundaryCondition = apply_boundary(&mesh, 0, 0);
 
         // Solve

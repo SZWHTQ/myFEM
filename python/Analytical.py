@@ -8,9 +8,7 @@ def getLame(E, nu):
     return lam, mu
 
 
-def theoretical(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2):
-    sigma = 1
-    a = 1
+def cylindricalInclusion(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2, sigma=1, a=1):
     _, mu_m = getLame(E_m, nu_m)
     _, mu_i = getLame(E_i, nu_i)
     u_r = sigma * a * (1 - nu_m) / mu_m * (1 - 2 * nu_i) / (1 - 2 * nu_i + mu_i / mu_m)
@@ -30,7 +28,7 @@ def theoretical(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2):
 
 def main():
     E = [1e-15, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    Y1 = [theoretical(E_i=E_i) for E_i in E]
+    Y1 = [cylindricalInclusion(E_i=E_i) for E_i in E]
     Y2 = [
         -5.930960,
         -0.568125,
