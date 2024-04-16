@@ -13,23 +13,38 @@ include_directories(
     "${dir}"
 )
 
-add_executable(
-    main
+add_library(
+    work
+    SHARED
     "${dir}/ApplyBoundary.cc"
     "${dir}/GenerateMesh.cc"
     "${dir}/GetStrainEnergyChange.cc"
-    "${dir}/main.cc"
     "${dir}/SetMaterial.cc"
+    "${dir}/work.cc"
 )
-
 target_link_libraries(
-    main
-    ${PROJECT_NAME}
+    work
     gmsh
+    ${PROJECT_NAME}
 )
 
 target_link_directories(
-    main
+    work
     PUBLIC
     "${GMSH_DIR}/lib"
 )
+
+if(WIN32)
+    target_compile_definitions(work PRIVATE "EXAMPLE_EXPORTS")
+endif()
+
+set_target_properties(work PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "work"
+    POSITION_INDEPENDENT_CODE TRUE
+    VISIBILITY_INLINES_HIDDEN ON
+    # CXX_VISIBILITY_PRESET hidden
+)
+target_compile_options(work PRIVATE "-fdeclspec")
+
+add_subdirectory("single")

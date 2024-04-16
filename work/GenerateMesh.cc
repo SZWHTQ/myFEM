@@ -18,11 +18,23 @@ int generate_mesh(std::vector<double>& nodeCoord,
     bool convertToSquare =
         settings["Ellipse"]["convertToSquare"].value_or(false);
     double lc = settings["Mesh"]["size"].value_or(0.02);
-    double rf = settings["Mesh"]["refinementFactor"].value_or(8);
-    int Algorithm = settings["Mesh"]["Algorithm"].value_or(8);
+    double refinementFactor = settings["Mesh"]["refinementFactor"].value_or(8);
+    int meshAlgorithm = settings["Mesh"]["Algorithm"].value_or(8);
     bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
     bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
 
+    int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
+                            interfaceNodeTags, L, B, a, b, lc, refinementFactor,
+                            isSerendipity, meshAlgorithm, convertToSquare);
+    return err;
+}
+
+int generate_mesh(std::vector<double>& nodeCoord,
+                  std::vector<size_t>& elementNodeTags,
+                  std::vector<size_t>& elementMaterialTags,
+                  std::vector<size_t>& interfaceNodeTags, double L, double B,
+                  double a, double b, double lc, double refinementFactor,
+                  bool isSerendipity, int meshAlgorithm, bool convertToSquare) {
     gmsh::option::setNumber("General.Terminal", 0);
     try {
         // Start a new model
@@ -44,12 +56,12 @@ int generate_mesh(std::vector<double>& nodeCoord,
         int innerCurveLoopTag = 0;
         if (convertToSquare) {
             double squareLength = std::sqrt(M_PI * a * b) * 0.5;
-            pointsTag.push_back(
-                gmsh::model::occ::addPoint(squareLength, 0, 0, lc / rf));
-            pointsTag.push_back(
-                gmsh::model::occ::addPoint(0, squareLength, 0, lc / rf));
             pointsTag.push_back(gmsh::model::occ::addPoint(
-                squareLength, squareLength, 0, lc / rf));
+                squareLength, 0, 0, lc / refinementFactor));
+            pointsTag.push_back(gmsh::model::occ::addPoint(
+                0, squareLength, 0, lc / refinementFactor));
+            pointsTag.push_back(gmsh::model::occ::addPoint(
+                squareLength, squareLength, 0, lc / refinementFactor));
 
             // Outer loop (line loop)
             linesTag.push_back(
@@ -85,8 +97,10 @@ int generate_mesh(std::vector<double>& nodeCoord,
             interfaceCurveTags = {linesTag[4], linesTag[5], interfaceLine1Tag,
                                   interfaceLine2Tag};
         } else {
-            pointsTag.push_back(gmsh::model::occ::addPoint(a, 0, 0, lc / rf));
-            pointsTag.push_back(gmsh::model::occ::addPoint(0, b, 0, lc / rf));
+            pointsTag.push_back(
+                gmsh::model::occ::addPoint(a, 0, 0, lc / refinementFactor));
+            pointsTag.push_back(
+                gmsh::model::occ::addPoint(0, b, 0, lc / refinementFactor));
 
             // Outer loop (line loop)
             linesTag.push_back(
@@ -144,7 +158,7 @@ int generate_mesh(std::vector<double>& nodeCoord,
         gmsh::option::setNumber("Mesh.RecombinationAlgorithm", 2);
         gmsh::option::setNumber("Mesh.RecombineAll", 1);
         // Set mesh algorithm
-        gmsh::option::setNumber("Mesh.Algorithm", Algorithm);
+        gmsh::option::setNumber("Mesh.Algorithm", meshAlgorithm);
 
         // Generate mesh
         gmsh::model::mesh::generate(2);
