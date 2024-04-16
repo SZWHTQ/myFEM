@@ -4,6 +4,7 @@ _build
 *.inp
 *.msh
 *.vtu
+__pycache__
 .DS_store
 
 # Prerequisites

@@ -5,12 +5,12 @@ include_directories(
 )
 
 add_executable(
-    single
+    main
     "${dir}/GetStrainEnergyChange.cc"
     "${dir}/main.cc"
 )
 
 target_link_libraries(
-    single
+    main
     work
 )

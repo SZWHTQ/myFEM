@@ -1,3 +1,9 @@
+#ifdef _WIN32
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT __attribute__((visibility("default")))
+#endif
+
 #include <gmsh.h>
 
 #include <iostream>
@@ -11,15 +17,13 @@
 #include "SetMaterial.h"
 #include "Timer.h"
 #include "toml.hpp"
-#include "work.h"
 
+#ifdef __cplusplus
 extern "C" {
-EXPORT double work(const char* tomlFilePath,
-                   const double inclusionElasticModulus, const double ksi,
-                   const double a_b, const bool verbose) {
-    std::cout << inclusionElasticModulus << std::endl;
-    std::cout << ksi << std::endl;
-    std::cout << a_b << std::endl;
+#endif
+EXPORT double worker(const char* tomlFilePath,
+                     const double inclusionElasticModulus, const double ksi,
+                     const double a_b, const bool verbose) {
     try {
         auto settings = toml::parse_file(tomlFilePath);
         // Define geometry
@@ -35,6 +39,14 @@ EXPORT double work(const char* tomlFilePath,
         int meshAlgorithm = settings["Mesh"]["Algorithm"].value_or(8);
         bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
         bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
+        if (verbose) {
+            std::cout << "L: " << L << std::endl;
+            std::cout << "B: " << B << std::endl;
+            std::cout << "a: " << a << std::endl;
+            std::cout << "b: " << b << std::endl;
+            std::cout << "lc: " << lc << std::endl;
+            std::cout << "refinementFactor: " << refinementFactor << std::endl;
+        }
 
         // Generate mesh
         Timer t, timer;
@@ -133,4 +145,6 @@ EXPORT double work(const char* tomlFilePath,
         return -1;
     }
 }
+#ifdef __cplusplus
 }
+#endif

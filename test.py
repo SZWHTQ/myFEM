@@ -2,11 +2,11 @@ import ctypes
 
 # 加载动态库
 lib = ctypes.CDLL(
-    "/Users/tengqing/Repository/myFEM/build/work/work.dylib"
+    "./build/work/worker.dylib"
 )
 
 # 函数参数类型设置
-lib.work.argtypes = [
+lib.worker.argtypes = [
     ctypes.c_char_p,  # Path to the toml file
     ctypes.c_double,  # Elastic modulus of inclusion
     ctypes.c_double,  # ksi
@@ -15,9 +15,9 @@ lib.work.argtypes = [
 ]
 
 # 函数返回类型设置
-lib.work.restype = ctypes.c_double
+lib.worker.restype = ctypes.c_double
 
 # 调用函数
-tomlFilePath = "settings.toml".encode("utf-8")
-result = lib.work(tomlFilePath, 1e-15, 10.0, 3.0, True)
+tomlFilePath = "work/settings.toml".encode("utf-8")
+result = lib.worker(tomlFilePath, 1e-15, 10.0, 1.0, False)
 print(f"Strain energy change: {result:.6f}")
