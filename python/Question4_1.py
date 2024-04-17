@@ -14,8 +14,9 @@ def getCurve(Ksi, inclusionModulus):
     wrapper = WorkerLibraryWrapper()
     wrapper.inclusionModulus = inclusionModulus
     wrapper.a_b = 3
-    wrapper.meshSize = 0.5
-    wrapper.refinementFactor = 20
+    wrapper.meshSize = 0.1
+    wrapper.refinementFactor = 200
+    wrapper.convertToSquare = True
     # wrapper.verbose = True
     for xi in Ksi:
         wrapper.ksi = xi
@@ -59,16 +60,16 @@ def main():
     ax.set_xlabel(r"$\xi$")
     ax.set_ylabel(r"$\Delta U$")
     xLimit = [2.5, 19.5]
-    yLimit = [-70, 10]
+    yLimit = [-32.5, 10]
     xRange = [3, 20]
-    yRange = [-70, 11]
+    yRange = [-30, 11]
     ax.set_xlim(*xLimit)
     ax.set_ylim(*yLimit)
     ax.set_xticks(np.arange(*xRange, 2))
-    ax.set_yticks(np.arange(*yRange, 10))
+    ax.set_yticks(np.arange(*yRange, 5))
     ax.minorticks_on()
     ax.set_xticks(np.arange(*xRange, 1), minor=True)
-    ax.set_yticks(np.arange(*yRange, 5), minor=True)
+    ax.set_yticks(np.arange(*yRange, 2.5), minor=True)
     
     ax.grid(True, which="both", linestyle="--", linewidth=0.5)
     ax.legend(loc="lower right")

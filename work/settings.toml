@@ -7,7 +7,7 @@ B = 10
 [Ellipse]
 ksi = 10 # a = rectangle.B / ksi
 a_b = 1 # b = a / a_b
-convertToSquare = false
+convertToSquare = true
 
 [Material]
 Matrix = [1, 0.3]    # [E, nu]
@@ -15,7 +15,7 @@ Inclusion = [2, 0.2]
 
 [Mesh]
 size = 0.1
-refinementFactor = 10
+refinementFactor = 200
 Algorithm = 8
 planeStress = false
 

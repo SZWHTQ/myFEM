@@ -1,4 +1,5 @@
-"""Question3_1.py, a/b=3"""
+"""Question3_1.py, a/b=1/3"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -13,9 +14,10 @@ def getCurve(Ksi, inclusionModulus):
     result = np.array([])
     wrapper = WorkerLibraryWrapper()
     wrapper.inclusionModulus = inclusionModulus
-    wrapper.a_b = 3
+    wrapper.a_b = 1 / 3
     wrapper.meshSize = 0.5
     wrapper.refinementFactor = 20
+    wrapper.convertToSquare = True
     # wrapper.verbose = True
     for xi in Ksi:
         wrapper.ksi = xi
@@ -37,7 +39,7 @@ def main():
     colors = ["red", "green", "blue", "black"]
     lineStyles = ["--", "-.", ":"]
 
-    Ksi = np.arange(3, 20, 1, dtype=np.float64)
+    Ksi = np.arange(7, 24, 1, dtype=np.float64)
     inclusionModulus = np.arange(0, 11, 1, dtype=np.float64)
     inclusionModulus[0] = 1e-15
     Curves = []
@@ -58,10 +60,10 @@ def main():
     # Set the first y-axis label and scale
     ax.set_xlabel(r"$\xi$")
     ax.set_ylabel(r"$\Delta U$")
-    xLimit = [2.5, 19.5]
-    yLimit = [-70, 10]
-    xRange = [3, 20]
-    yRange = [-70, 11]
+    xLimit = [6.5, 23.5]
+    yLimit = [-65, 15]
+    xRange = [7, 24]
+    yRange = [-60, 11]
     ax.set_xlim(*xLimit)
     ax.set_ylim(*yLimit)
     ax.set_xticks(np.arange(*xRange, 2))
@@ -69,7 +71,7 @@ def main():
     ax.minorticks_on()
     ax.set_xticks(np.arange(*xRange, 1), minor=True)
     ax.set_yticks(np.arange(*yRange, 5), minor=True)
-    
+
     ax.grid(True, which="both", linestyle="--", linewidth=0.5)
     ax.legend(loc="lower right")
     # Set legend font size
@@ -82,7 +84,7 @@ def main():
         width="50%",
         height="50%",
         loc="lower left",
-        bbox_to_anchor=(0.2, 0.05, 1, 1),
+        bbox_to_anchor=(0.3, 0.05, 1, 1),
         bbox_transform=ax.transAxes,
     )
 
@@ -96,10 +98,10 @@ def main():
             linestyle=lineStyles[i % len(lineStyles)],
         )
 
-    xLimitIns = [2.9, 5.1]
-    yLimitIns = [0.5, 7.5]
-    xRangeIns = [3, 5.1]
-    yRangeIns = [0, 8]
+    xLimitIns = [6.9, 9.1]
+    yLimitIns = [1.9, 12.1]
+    xRangeIns = [7, 9.1]
+    yRangeIns = [2, 12]
 
     # 绘制方框，标注出原图中对应子图的区域
     # 这里的(2, -10)是子图的左下角坐标，(6-2, 20-(-10))是宽度和高度
@@ -118,7 +120,7 @@ def main():
     ax.annotate(
         "",
         xy=(
-            xLimit[0] + (xLimit[1] - xLimit[0]) * 0.22,
+            xLimit[0] + (xLimit[1] - xLimit[0]) * 0.32,
             yLimit[0] + (yLimit[1] - yLimit[0]) * 0.57,
         ),
         xytext=(xRangeIns[1], yRangeIns[0]),
