@@ -41,7 +41,7 @@ class WorkerLibraryWrapper:
         self.isPlaneStress = False
         self.verbose = False
 
-    def worker(self) -> float:
+    def run(self) -> float:
         return self.lib.worker(
             self.L,
             self.B,

@@ -11,11 +11,11 @@ convertToSquare = false
 
 [Material]
 Matrix = [1, 0.3]    # [E, nu]
-Inclusion = [1, 0.2]
+Inclusion = [1e6, 0.2]
 
 [Mesh]
-size = 0.2
-refinementFactor = 1
+size = 3
+refinementFactor = 10
 Algorithm = 8
 planeStress = false
 
