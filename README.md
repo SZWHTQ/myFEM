@@ -2,13 +2,13 @@
 For some homework
 
 ### Element Implementation
-1. Rectangle Serendipity 2D
+- Rectangle Serendipity 2D
 
 ### Depends on
-- [Gmsh](https://gmsh.info/)>=4.12.0
-- [tomlplusplus](https://github.com/marzer/tomlplusplus)
-- [Eigen](https://eigen.tuxfamily.org/)
-- [VTK](https://vtk.org/)
+1. [Gmsh](https://gmsh.info/)>=4.12.0
+2. [tomlplusplus](https://github.com/marzer/tomlplusplus)
+3. [Eigen](https://eigen.tuxfamily.org/)
+4. [VTK](https://vtk.org/)
 
 ### Build
 Configure the project with CMake
