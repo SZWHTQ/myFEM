@@ -3,7 +3,7 @@ import sys
 
 
 class WorkerLibraryWrapper:
-    def __init__(self, libName="./worker"):
+    def __init__(self, libName="./library/build/Release/worker"):
         # Get system name
         system = sys.platform
         # Check if windows

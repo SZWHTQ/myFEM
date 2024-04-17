@@ -6,14 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "~/Repository/VTK/latest/lib/cmake/vtk-9.3")
-# set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/opt/homebrew/share/eigen3/cmake")
-
 set(srcs)
-add_subdirectory("src")
-include_directories(
-    "include"
-)
+add_subdirectory(src)
 
 find_package(VTK COMPONENTS
     CommonCore
@@ -22,6 +16,7 @@ find_package(VTK COMPONENTS
     IOXML
     REQUIRED
 )
+
 if(VTK_FOUND)
     message(STATUS "VTK found: version ${VTK_VERSION}")
 else()
@@ -29,9 +24,9 @@ else()
 endif()
 
 find_package(Eigen3)
+
 if(Eigen3_FOUND)
     message(STATUS "Eigen3 found: version ${Eigen3_VERSION}")
-    include_directories(${EIGEN3_INCLUDE_DIR})
 else()
     message(FATAL_ERROR "Eigen3 not found")
 endif()
@@ -46,12 +41,21 @@ target_link_libraries(
     ${VTK_LIBRARIES}
 )
 
+target_include_directories(
+    ${PROJECT_NAME}
+    PUBLIC
+    ${EIGEN3_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/toml
+    ${CMAKE_SOURCE_DIR}/include
+)
+
 set_target_properties(
     ${PROJECT_NAME}
     PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_subdirectory("work")
+add_subdirectory(work)
 
-add_subdirectory("test")
+enable_testing()
+add_subdirectory(test)

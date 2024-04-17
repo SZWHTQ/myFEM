@@ -1,19 +1,23 @@
 #include <cmath>
 #include <iostream>
 
+#include <gmsh.h>
+
 #include "GenerateMesh.h"
 
 int main() {
     std::vector<double> nodeCoord;
     std::vector<size_t> elementNodeTags;
+    std::vector<size_t> elementMaterialTags;
     std::vector<size_t> boundaryNodeTags;
     double L = 2;
     double B = 0.9;
     double a = 0.3;
     double b = 0.1;
     double lc = 0.2;
-    int val = generate_mesh(nodeCoord, elementNodeTags, boundaryNodeTags, L, B,
-                            a, b, lc);
+    gmsh::initialize();
+    int val = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
+                            boundaryNodeTags, L, B, a, b, lc);
     if (val != 0) {
         return -1;
     }

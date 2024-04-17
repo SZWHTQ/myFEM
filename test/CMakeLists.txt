@@ -5,44 +5,45 @@ else()
     set(GMSH_DIR "~/Repository/Gmsh/SDK/latest")
 endif()
 
-include_directories(
-    "${CMAKE_HOME_DIRECTORY}/work"
-    "${GMSH_DIR}/include"
-)
-
-# add_executable(
-#     meshTest
-#     "${CMAKE_HOME_DIRECTORY}/work/GenerateMesh.cc"
-#     "${CMAKE_CURRENT_SOURCE_DIR}/meshTest.cc"
-# )
-
-# target_link_libraries(
-#     meshTest
-#     gmsh
-# )
-
-# target_link_directories(
-#     meshTest
-#     PUBLIC
-#     "${GMSH_DIR}/lib"
-# )
-
-# add_test(
-#     NAME meshTest
-#     COMMAND meshTest
-# )
-
+## Add test
+# Add test for the mesh generation
 add_executable(
-    elementKTest
-    "${CMAKE_HOME_DIRECTORY}/test/elementStiffnessMatrix.cc"
+    meshGenerationTest
+    ${CMAKE_SOURCE_DIR}/work/GenerateMesh.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/meshTest.cc
 )
-
 target_link_libraries(
-    elementKTest
+    meshGenerationTest
+    PRIVATE
+    gmsh
     ${PROJECT_NAME}
 )
-
+target_link_directories(
+    meshGenerationTest
+    PRIVATE
+    ${GMSH_DIR}/lib
+)
+target_include_directories(
+    meshGenerationTest
+    PRIVATE
+    ${GMSH_DIR}/include
+    ${CMAKE_SOURCE_DIR}/work
+)
 add_test(
-    NAME elementKTest
-    COMMAND elementKTest
+    NAME meshGeneration
+    COMMAND meshGenerationTest
+)
+
+# Add test for the element stiffness matrix
+add_executable(
+    elementStiffnessMatrixTest
+    ${CMAKE_SOURCE_DIR}/test/elementStiffnessMatrix.cc
+)
+target_link_libraries(
+    elementStiffnessMatrixTest
+    ${PROJECT_NAME}
+)
+add_test(
+    NAME elementStiffnessMatrix
+    COMMAND elementStiffnessMatrixTest
 )

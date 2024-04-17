@@ -32,13 +32,12 @@ int main(int argc, char* argv[]) {
 
         // Generate mesh
         Timer t, timer;
+        // Initialize the Gmsh library
+        gmsh::initialize();
         std::vector<double> nodeCoord;
         std::vector<size_t> elementNodeTags;
         std::vector<size_t> elementMaterialTags;
         std::vector<size_t> boundaryNodeTags;
-
-        // Initialize the Gmsh library
-        gmsh::initialize();
         int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
                                 boundaryNodeTags, settings);
         if (err != 0) {

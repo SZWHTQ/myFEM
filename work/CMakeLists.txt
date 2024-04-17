@@ -1,4 +1,4 @@
-set(dir "${CMAKE_CURRENT_SOURCE_DIR}")
+set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Check system
 if(WIN32)
@@ -7,53 +7,54 @@ else()
     set(GMSH_DIR "~/Repository/Gmsh/SDK/latest")
 endif()
 
-include_directories(
-    "${GMSH_DIR}/include"
-    "${CMAKE_HOME_DIRECTORY}/toml"
-    "${dir}"
-)
-
 add_library(
     work
     SHARED
-    "${dir}/ApplyBoundary.cc"
-    "${dir}/GenerateMesh.cc"
-    "${dir}/GetStrainEnergyChange.cc"
-    "${dir}/SetMaterial.cc"
+    ${dir}/ApplyBoundary.cc
+    ${dir}/GenerateMesh.cc
+    ${dir}/GetStrainEnergyChange.cc
+    ${dir}/SetMaterial.cc
 )
 target_link_libraries(
     work
+    PUBLIC
     gmsh
     ${PROJECT_NAME}
 )
-
 target_link_directories(
     work
     PUBLIC
-    "${GMSH_DIR}/lib"
+    ${GMSH_DIR}/lib
+)
+target_include_directories(
+    work
+    PUBLIC
+    ${GMSH_DIR}/include
+    ${dir}
 )
 
 add_library(
-    Worker
+    pythonWorker
     SHARED
-    "${dir}/worker.cc"
+    ${dir}/worker.cc
 )
 target_link_libraries(
-    Worker
+    pythonWorker
     work
 )
 
 if(WIN32)
-    target_compile_definitions(Worker PRIVATE "EXAMPLE_EXPORTS")
+    target_compile_definitions(pythonWorker PRIVATE EXAMPLE_EXPORTS)
 endif()
 
-set_target_properties(Worker PROPERTIES
+set_target_properties(pythonWorker PROPERTIES
     PREFIX ""
-    OUTPUT_NAME "worker"
     POSITION_INDEPENDENT_CODE TRUE
+    OUTPUT_NAME "worker"
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library/build
     VISIBILITY_INLINES_HIDDEN ON
     CXX_VISIBILITY_PRESET hidden
 )
-target_compile_options(Worker PRIVATE "-fdeclspec")
+target_compile_options(pythonWorker PRIVATE -fdeclspec)
 
-add_subdirectory("single")
+add_subdirectory(single)
