@@ -3,21 +3,21 @@ import sys
 
 
 class WorkerLibraryWrapper:
-    def __init__(self, libName="./library/build/Release/worker"):
+    def __init__(self, libDirectory: str = "./library/build/Release"):
         # Get system name
         system = sys.platform
         # Check if windows
         if system == "win32":
-            libName += ".dll"
+            libDirectory += "/worker.dll"
         # Check if linux
         elif system == "linux":
-            libName += ".so"
+            libDirectory += "/worker.so"
         # Check if mac
         elif system == "darwin":
-            libName += ".dylib"
+            libDirectory += "/worker.dylib"
 
         # Load library
-        self.lib = ctypes.CDLL(libName)
+        self.lib = ctypes.CDLL(libDirectory)
         self.lib.worker.argtypes = [
             ctypes.c_double,  # L
             ctypes.c_double,  # B
