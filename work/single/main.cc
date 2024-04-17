@@ -116,9 +116,9 @@ int main(int argc, char* argv[]) {
         Material temp(2, matrix.getElasticModulus(), matrix.getPoissonRatio());
         set_material(&meshNoInclusion, {&matrix, &temp}, elementMaterialTags);
         meshNoInclusion.Solve(loadCondition, boundaryCondition);
-        vtkManager vtkNoInclusion(meshNoInclusion);
-        vtkNoInclusion.setMeshData(meshNoInclusion);
-        vtkNoInclusion.write("PlateNoInclusion.vtu", isBinary);
+        // vtkManager vtkNoInclusion(meshNoInclusion);
+        // vtkNoInclusion.setMeshData(meshNoInclusion);
+        // vtkNoInclusion.write("PlateNoInclusion.vtu", isBinary);
 
         double matrixStrainEnergyNoInclusion = 0,
                inclusionStrainEnergyNoInclusion = 0;
