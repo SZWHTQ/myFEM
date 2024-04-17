@@ -1,4 +1,5 @@
 """Question3_1.py, a/b=3"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -69,7 +70,7 @@ def main():
     ax.minorticks_on()
     ax.set_xticks(np.arange(*xRange, 1), minor=True)
     ax.set_yticks(np.arange(*yRange, 5), minor=True)
-    
+
     ax.grid(True, which="both", linestyle="--", linewidth=0.5)
     ax.legend(loc="lower right")
     # Set legend font size

@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(myFEM)
+project(
+    myFEM
+    VERSION 1.0.0
+)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -36,12 +39,10 @@ add_library(
     ${PROJECT_NAME}
     ${srcs}
 )
-
 target_link_libraries(
     ${PROJECT_NAME}
     ${VTK_LIBRARIES}
 )
-
 target_include_directories(
     ${PROJECT_NAME}
     PUBLIC
@@ -49,14 +50,27 @@ target_include_directories(
     ${CMAKE_SOURCE_DIR}/toml
     ${CMAKE_SOURCE_DIR}/include
 )
-
 set_target_properties(
     ${PROJECT_NAME}
     PROPERTIES
     POSITION_INDEPENDENT_CODE ON
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION}
+)
+install(
+    TARGETS ${PROJECT_NAME}
+    DESTINATION lib
+    EXPORT ${PROJECT_NAME}Targets
 )
 
 add_subdirectory(work)
 
 enable_testing()
 add_subdirectory(test)
+
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+
+# Choose different generators, such as NSIS (Windows installer), DEB (Debian package), etc.
+set(CPACK_GENERATOR "TGZ")
+include(CPack)

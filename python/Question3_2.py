@@ -1,4 +1,4 @@
-"""Question3_1.py, a/b=1/3"""
+"""Question3_2.py, a/b=1/3"""
 
 import numpy as np
 import matplotlib.pyplot as plt

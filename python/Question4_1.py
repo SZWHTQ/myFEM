@@ -1,4 +1,5 @@
-"""Question3_1.py, a/b=3"""
+"""Question4_1.py, a/b=3"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -14,8 +15,8 @@ def getCurve(Ksi, inclusionModulus):
     wrapper = WorkerLibraryWrapper()
     wrapper.inclusionModulus = inclusionModulus
     wrapper.a_b = 3
-    wrapper.meshSize = 0.1
-    wrapper.refinementFactor = 200
+    wrapper.meshSize = 0.5
+    wrapper.refinementFactor = 20
     wrapper.convertToSquare = True
     # wrapper.verbose = True
     for xi in Ksi:
@@ -60,7 +61,7 @@ def main():
     ax.set_xlabel(r"$\xi$")
     ax.set_ylabel(r"$\Delta U$")
     xLimit = [2.5, 19.5]
-    yLimit = [-32.5, 10]
+    yLimit = [-32.5, 7.5]
     xRange = [3, 20]
     yRange = [-30, 11]
     ax.set_xlim(*xLimit)
@@ -70,7 +71,7 @@ def main():
     ax.minorticks_on()
     ax.set_xticks(np.arange(*xRange, 1), minor=True)
     ax.set_yticks(np.arange(*yRange, 2.5), minor=True)
-    
+
     ax.grid(True, which="both", linestyle="--", linewidth=0.5)
     ax.legend(loc="lower right")
     # Set legend font size

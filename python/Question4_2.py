@@ -1,4 +1,4 @@
-"""Question3_1.py, a/b=1/3"""
+"""Question4_2.py, a/b=1/3"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -84,7 +84,7 @@ def main():
         width="50%",
         height="50%",
         loc="lower left",
-        bbox_to_anchor=(0.3, 0.05, 1, 1),
+        bbox_to_anchor=(0.28, 0.05, 1, 1),
         bbox_transform=ax.transAxes,
     )
 
@@ -120,7 +120,7 @@ def main():
     ax.annotate(
         "",
         xy=(
-            xLimit[0] + (xLimit[1] - xLimit[0]) * 0.32,
+            xLimit[0] + (xLimit[1] - xLimit[0]) * 0.3,
             yLimit[0] + (yLimit[1] - yLimit[0]) * 0.57,
         ),
         xytext=(xRangeIns[1], yRangeIns[0]),
