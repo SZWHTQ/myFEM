@@ -154,7 +154,7 @@ int Serendipity::calculateStrainStress() {
     const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
     Eigen::VectorXd displacementArray(nodeNum * 2);
-    for (int i = 0; i < nodeNum; ++i) {
+    for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
         displacementArray(2 * i + 1) = nodes[i]->Displacement(1);
     }
@@ -220,7 +220,7 @@ int Serendipity::calculateStrainStress() {
 
 const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStrain() {
     Eigen::VectorXd displacementArray(nodeNum * 2);
-    for (int i = 0; i < nodeNum; ++i) {
+    for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
         displacementArray(2 * i + 1) = nodes[i]->Displacement(1);
     }
@@ -277,7 +277,7 @@ const double Serendipity::getStrainEnergy() {
 
 int Serendipity::calculateStrainStressGaussPoint() {
     Eigen::VectorXd displacementArray(nodeNum * 2);
-    for (int i = 0; i < nodeNum; ++i) {
+    for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
         displacementArray(2 * i + 1) = nodes[i]->Displacement(1);
     }

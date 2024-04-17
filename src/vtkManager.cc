@@ -24,7 +24,7 @@ vtkManager::vtkManager(Mesh& mesh) {
     }
 };
 
-void vtkManager::setMeshData(Mesh& mesh) {
+void vtkManager::setMeshData(Mesh& mesh) const {
     vtkNew<vtkFloatArray> Displacement;
     Displacement->SetNumberOfComponents(3);
     Displacement->SetName("Displacement");
@@ -109,7 +109,7 @@ void vtkManager::setMeshData(Mesh& mesh) {
 
 }
 
-void vtkManager::write(std::string fileName, bool isBinary) {
+void vtkManager::write(std::string fileName, bool isBinary) const {
     writer->SetFileName(fileName.c_str());
     writer->SetInputData(Grid);
     if (isBinary) {

@@ -16,6 +16,6 @@ class vtkManager {
     vtkManager(Mesh& mesh);
     ~vtkManager(){};
 
-    void setMeshData(Mesh& mesh);
-    void write(std::string fileName, bool isBinary = false);
+    void setMeshData(Mesh& mesh) const;
+    void write(std::string fileName, bool isBinary = false) const;
 };
