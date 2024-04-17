@@ -16,8 +16,9 @@ size_t Serendipity::nodeNum = 8;
 Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
            std::vector<size_t> elementNodeTags,
            std::vector<size_t> boundaryNodeTags, bool planeStress_)
-    : meshType(type), planeStress(planeStress_) {
-    Nodes.reserve(nodeCoord.size() / 3);
+    : planeStress(planeStress_) {
+    nodeNum = nodeCoord.size() / 3;
+    Nodes.reserve(nodeNum);
     for (size_t i = 0; i < nodeCoord.size(); i += 3) {
         size_t id = i / 3;
         Nodes.push_back(std::make_shared<Node>(
@@ -28,7 +29,7 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
         Nodes[boundaryNodeTags[i]]->isBoundary = true;
     }
 
-    switch (meshType) {
+    switch (type) {
         case MeshType::serendipity:
             for (size_t i = 0; i < elementNodeTags.size();
                  i += Serendipity::nodeNum) {
@@ -54,7 +55,8 @@ Mesh::Mesh(std::vector<double> nodeCoord,
                elementTypeAndNodeTags,
            std::vector<size_t> boundaryNodeTags, bool planeStress_)
     : planeStress(planeStress_) {
-    Nodes.reserve(nodeCoord.size() / 3);
+    nodeNum = nodeCoord.size() / 3;
+    Nodes.reserve(nodeNum);
     for (size_t i = 0; i < nodeCoord.size(); i += 3) {
         Nodes.push_back(std::make_shared<Node>(
             i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));

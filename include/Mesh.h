@@ -12,11 +12,11 @@ class Mesh {
     std::vector<Element*> Elements;
 
     bool planeStress;
-    enum MeshType { serendipity } meshType;
+    enum MeshType { null, serendipity };
 
     Eigen::SparseVector<double> Force;
 
-    Mesh() {
+    Mesh() : nodeNum(0), planeStress(true){
         Nodes = std::vector<std::shared_ptr<Node>>();
         Elements = std::vector<Element*>();
     }

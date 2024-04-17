@@ -21,7 +21,7 @@ class Node {
     Eigen::Vector3d Stress{Eigen::Vector3d::Zero()};
 
     Node() : index(0), x(0), y(0), z(0){};
-    Node(double x_, double y_, double z_) : x(x_), y(y_), z(z_){};
+    Node(double x_, double y_, double z_) : index(0), x(x_), y(y_), z(z_){};
     Node(size_t index_, double x_, double y_, double z_)
         : index(index_), x(x_), y(y_), z(z_){};
     ~Node(){};
@@ -39,7 +39,7 @@ class Element {
     Material* material;
     double thickness;
 
-    Element(){};
+    Element() : index(0), thickness(1.0), material(nullptr){};
     explicit Element(const size_t index_, const std::string elementName_);
     virtual ~Element(){};
 

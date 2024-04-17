@@ -37,7 +37,7 @@ void vtkManager::setMeshData(Mesh& mesh) {
     vtkNew<vtkFloatArray> Force;
     Force->SetNumberOfComponents(3);
     Force->SetName("Force");
-    for (size_t i = 0; i < mesh.Force.size() / 2; ++i) {
+    for (size_t i = 0; i < size_t(mesh.Force.size() / 2); ++i) {
         Force->InsertNextTuple3(mesh.Force.coeff(i * 2),
                                 mesh.Force.coeff(i * 2 + 1), 0);
     }
