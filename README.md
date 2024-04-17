@@ -5,7 +5,7 @@ For some homework
 1. Rectangle Serendipity 2D
 
 ### Depends on
-- [Gmsh>=4.12.0](https://gmsh.info/)
+- [Gmsh](https://gmsh.info/)>=4.12.0
 - [tomlplusplus](https://github.com/marzer/tomlplusplus)
 - [Eigen](https://eigen.tuxfamily.org/)
 - [VTK](https://vtk.org/)
