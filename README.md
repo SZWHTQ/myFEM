@@ -27,7 +27,7 @@ Go to the python directory
 ```bash
 cd python
 ```
-Before run the python script, you may need to modify the `libraryWrapper.py`. For example, if you build the library in the `python/library/build/` directory and decide to run python script in `python` directory, you should modify the line 6 as follows
+Before run the python script, you may need to modify the `libraryWrapper.py`. For example, if you build the library in the `python/library/build/` directory and decide to run python script in `python` directory, you should modify the `libraryWrapper.py` as follows
 ```python
 class WorkerLibraryWrapper:
     def __init__(self, libDirectory: str = "./library/build/Release"):
