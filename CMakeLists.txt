@@ -5,6 +5,7 @@ project(myFEM)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(BUILD_SHARED_LIBS OFF)
 
 set(srcs)
 add_subdirectory(src)

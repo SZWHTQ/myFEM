@@ -1,7 +1,7 @@
+#include <gmsh.h>
+
 #include <cmath>
 #include <iostream>
-
-#include <gmsh.h>
 
 #include "GenerateMesh.h"
 
@@ -18,6 +18,7 @@ int main() {
     gmsh::initialize();
     int val = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
                             boundaryNodeTags, L, B, a, b, lc);
+    gmsh::finalize();
     if (val != 0) {
         return -1;
     }
