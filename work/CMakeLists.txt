@@ -55,6 +55,5 @@ set_target_properties(pythonWorker PROPERTIES
     VISIBILITY_INLINES_HIDDEN ON
     CXX_VISIBILITY_PRESET hidden
 )
-target_compile_options(pythonWorker PRIVATE -fdeclspec)
 
 add_subdirectory(single)
