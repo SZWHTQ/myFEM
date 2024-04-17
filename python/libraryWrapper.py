@@ -15,9 +15,9 @@ class WorkerLibraryWrapper:
         # Check if mac
         elif system == "darwin":
             libName += ".dylib"
+
         # Load library
         self.lib = ctypes.CDLL(libName)
-        # current folder via pwd
         self.lib.worker.argtypes = [
             ctypes.c_double,  # L
             ctypes.c_double,  # B
@@ -37,6 +37,8 @@ class WorkerLibraryWrapper:
             ctypes.c_bool,  # verbose
         ]
         self.lib.worker.restype = ctypes.c_double
+
+        # Set default values
         self.L = 10
         self.B = 10
         self.ksi = 10
