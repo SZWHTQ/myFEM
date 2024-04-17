@@ -46,6 +46,12 @@ target_link_libraries(
     ${VTK_LIBRARIES}
 )
 
+set_target_properties(
+    ${PROJECT_NAME}
+    PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+)
+
 add_subdirectory("work")
 
 add_subdirectory("test")

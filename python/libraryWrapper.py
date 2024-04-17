@@ -1,9 +1,22 @@
 import ctypes
+import sys
 
 
 class WorkerLibraryWrapper:
-    def __init__(self, libPath="./worker.dylib"):
-        self.lib = ctypes.CDLL(libPath)
+    def __init__(self, libName="./worker"):
+        # Get system name
+        system = sys.platform
+        # Check if windows
+        if system == "win32":
+            libName += ".dll"
+        # Check if linux
+        elif system == "linux":
+            libName += ".so"
+        # Check if mac
+        elif system == "darwin":
+            libName += ".dylib"
+        # Load library
+        self.lib = ctypes.CDLL(libName)
         # current folder via pwd
         self.lib.worker.argtypes = [
             ctypes.c_double,  # L

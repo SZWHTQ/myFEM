@@ -8,13 +8,15 @@ def getLame(E, nu):
     return lam, mu
 
 
-def cylindricalInclusion(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2, sigma=1, a=1):
+def cylindricalInclusion(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2, sigma_0=1, a=1):
     _, mu_m = getLame(E_m, nu_m)
     _, mu_i = getLame(E_i, nu_i)
-    u_r = sigma * a * (1 - nu_m) / mu_m * (1 - 2 * nu_i) / (1 - 2 * nu_i + mu_i / mu_m)
+    u_r = (
+        sigma_0 * a * (1 - nu_m) / mu_m * (1 - 2 * nu_i) / (1 - 2 * nu_i + mu_i / mu_m)
+    )
     deltaU = (
         np.pi
-        * sigma
+        * sigma_0
         * a
         * u_r
         * (
@@ -23,6 +25,24 @@ def cylindricalInclusion(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2, sigma=1, a=1):
             - 2 * (nu_i - nu_m) * (1 + nu_m) * E_i / (1 + nu_i) / (1 - 2 * nu_i) / E_m
         )
     )
+    return -deltaU
+
+
+def circle(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2, sigma_0=1, a=1):
+    L_m, mu_m = getLame(E_m, nu_m)
+    L_i, mu_i = getLame(E_i, nu_i)
+
+    A = 0.5 * sigma_0 / (L_m + mu_m)
+    B = (
+        0.5
+        * sigma_0
+        * a
+        * a
+        * (L_m + mu_m - L_i - mu_i)
+        / ((L_m + mu_m) * (L_i + mu_i + mu_m))
+    )
+
+    deltaU = -1 * np.pi * a * sigma_0 * (A * a + B / a) * (E_m - E_i) / E_m
     return -deltaU
 
 
