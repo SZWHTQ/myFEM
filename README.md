@@ -41,5 +41,8 @@ python Question2.py
 ```
 
 ### Result
+#### Question 2
+![This Project](image/Question2.png)
+#### Single run
 ![This Project](image/StressXX.png)
 ![COMSOL](image/COMSOL_StressXX.png)
