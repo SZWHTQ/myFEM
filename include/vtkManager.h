@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
 #include "Mesh.h"
@@ -9,7 +10,7 @@ class vtkManagerImpl;
 
 class vtkManager {
    public:
-    vtkManager();
+    vtkManager() = delete;
     vtkManager(Mesh& mesh);
     ~vtkManager();
 

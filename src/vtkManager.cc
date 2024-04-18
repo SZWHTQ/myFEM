@@ -17,7 +17,7 @@ class vtkManagerImpl {
     vtkNew<vtkXMLUnstructuredGridWriter> writer;
 };
 
-vtkManager::vtkManager(Mesh& mesh) {
+vtkManager::vtkManager(Mesh& mesh) : pimpl(std::make_unique<vtkManagerImpl>()) {
     vtkNew<vtkPoints> Points;
     for (auto&& node : mesh.Nodes) {
         Points->InsertNextPoint(node->x, node->y, node->z);
@@ -37,6 +37,7 @@ vtkManager::vtkManager(Mesh& mesh) {
 vtkManager::~vtkManager() {
     // Destructor
     // Must be defined in the .cc file
+    // delete pimpl;
 }
 
 void vtkManager::setMeshData(Mesh& mesh) const {
