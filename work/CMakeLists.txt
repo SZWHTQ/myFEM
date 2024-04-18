@@ -51,6 +51,7 @@ add_library(
 )
 target_link_libraries(
     pythonWorker
+    PRIVATE
     work
 )
 install(

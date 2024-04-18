@@ -10,9 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(BUILD_SHARED_LIBS OFF)
 
-set(srcs)
-add_subdirectory(src)
-
 find_package(VTK COMPONENTS
     CommonCore
     IOCore
@@ -20,28 +17,30 @@ find_package(VTK COMPONENTS
     IOXML
     REQUIRED
 )
-
 if(VTK_FOUND)
     message(STATUS "VTK found: version ${VTK_VERSION}")
 else()
     message(FATAL_ERROR "VTK not found")
 endif()
 
-find_package(Eigen3)
-
+find_package(Eigen3 REQUIRED)
 if(Eigen3_FOUND)
     message(STATUS "Eigen3 found: version ${Eigen3_VERSION}")
 else()
     message(FATAL_ERROR "Eigen3 not found")
 endif()
 
+set(srcs)
+add_subdirectory(src)
+
 add_library(
     ${PROJECT_NAME}
+    STATIC
     ${srcs}
 )
 target_link_libraries(
     ${PROJECT_NAME}
-    PUBLIC
+    PRIVATE
     ${VTK_LIBRARIES}
 )
 target_include_directories(
@@ -59,8 +58,8 @@ set_target_properties(
     SOVERSION ${PROJECT_VERSION}
 )
 vtk_module_autoinit(
-  TARGETS ${PROJECT_NAME}
-  MODULES ${VTK_LIBRARIES}
+    TARGETS ${PROJECT_NAME}
+    MODULES ${VTK_LIBRARIES}
 )
 install(
     TARGETS ${PROJECT_NAME}

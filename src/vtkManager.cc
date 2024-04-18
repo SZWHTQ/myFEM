@@ -3,26 +3,42 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkQuadraticQuad.h>
+#include <vtkPoints.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+
 
 #include "Material.h"
 #include "vtkManager.h"
+
+// Implementation class
+class vtkManagerImpl {
+public:
+    vtkNew<vtkUnstructuredGrid> Grid;
+    vtkNew<vtkXMLUnstructuredGridWriter> writer;
+};
 
 vtkManager::vtkManager(Mesh& mesh) {
     vtkNew<vtkPoints> Points;
     for (auto&& node : mesh.Nodes) {
         Points->InsertNextPoint(node->x, node->y, node->z);
     }
-    Grid->SetPoints(Points);
+    pimpl->Grid->SetPoints(Points);
     for (auto&& element : mesh.Elements) {
         vtkNew<vtkQuadraticQuad> QuadraticQuad;
         for (size_t i = 0; i < element->nodes.size(); ++i) {
             QuadraticQuad->GetPointIds()->SetId(i,
                                                 element->nodes[i]->getIndex());
         }
-        Grid->InsertNextCell(QuadraticQuad->GetCellType(),
+        pimpl->Grid->InsertNextCell(QuadraticQuad->GetCellType(),
                              QuadraticQuad->GetPointIds());
     }
 };
+
+vtkManager::~vtkManager() {
+    // Destructor
+    // Must be defined in the .cc file
+}
 
 void vtkManager::setMeshData(Mesh& mesh) const {
     vtkNew<vtkFloatArray> Displacement;
@@ -32,7 +48,7 @@ void vtkManager::setMeshData(Mesh& mesh) const {
     for (auto&& node : mesh.Nodes) {
         Displacement->InsertNextTuple(node->Displacement.data());
     }
-    Grid->GetPointData()->AddArray(Displacement);
+    pimpl->Grid->GetPointData()->AddArray(Displacement);
 
     vtkNew<vtkFloatArray> Force;
     Force->SetNumberOfComponents(3);
@@ -41,7 +57,7 @@ void vtkManager::setMeshData(Mesh& mesh) const {
         Force->InsertNextTuple3(mesh.Force.coeff(i * 2),
                                 mesh.Force.coeff(i * 2 + 1), 0);
     }
-    Grid->GetPointData()->AddArray(Force);
+    pimpl->Grid->GetPointData()->AddArray(Force);
 
     vtkNew<vtkFloatArray> Normal;
     Normal->SetNumberOfComponents(3);
@@ -57,7 +73,7 @@ void vtkManager::setMeshData(Mesh& mesh) const {
         normal.normalize();
         Normal->InsertNextTuple(normal.data());
     }
-    Grid->GetCellData()->AddArray(Normal);
+    pimpl->Grid->GetCellData()->AddArray(Normal);
 
     vtkNew<vtkFloatArray> Strain;
     Strain->SetNumberOfComponents(3);
@@ -65,7 +81,7 @@ void vtkManager::setMeshData(Mesh& mesh) const {
     for (auto&& node : mesh.Nodes) {
         Strain->InsertNextTuple(node->Strain.data());
     }
-    Grid->GetPointData()->AddArray(Strain);
+    pimpl->Grid->GetPointData()->AddArray(Strain);
 
     vtkNew<vtkFloatArray> Stress;
     Stress->SetNumberOfComponents(3);
@@ -73,7 +89,7 @@ void vtkManager::setMeshData(Mesh& mesh) const {
     for (auto&& node : mesh.Nodes) {
         Stress->InsertNextTuple(node->Stress.data());
     }
-    Grid->GetPointData()->AddArray(Stress);
+    pimpl->Grid->GetPointData()->AddArray(Stress);
 
     vtkNew<vtkFloatArray> Material;
     Material->SetNumberOfComponents(1);
@@ -81,7 +97,7 @@ void vtkManager::setMeshData(Mesh& mesh) const {
     for (auto&& element : mesh.Elements) {
         Material->InsertNextValue(element->material->getIndex());
     }
-    Grid->GetCellData()->AddArray(Material);
+    pimpl->Grid->GetCellData()->AddArray(Material);
 
     vtkNew<vtkFloatArray> AreaArray;
     AreaArray->SetNumberOfComponents(1);
@@ -89,7 +105,7 @@ void vtkManager::setMeshData(Mesh& mesh) const {
     for (auto&& element : mesh.Elements) {
         AreaArray->InsertNextValue(element->getArea());
     }
-    Grid->GetCellData()->AddArray(AreaArray);
+    pimpl->Grid->GetCellData()->AddArray(AreaArray);
 
     vtkNew<vtkFloatArray> strainEnergy;
     strainEnergy->SetNumberOfComponents(1);
@@ -97,7 +113,7 @@ void vtkManager::setMeshData(Mesh& mesh) const {
     for (auto&& element : mesh.Elements) {
         strainEnergy->InsertNextValue(element->getStrainEnergy());
     }
-    Grid->GetCellData()->AddArray(strainEnergy);
+    pimpl->Grid->GetCellData()->AddArray(strainEnergy);
 
     vtkNew<vtkIntArray> Boundary;
     Boundary->SetNumberOfComponents(1);
@@ -105,17 +121,17 @@ void vtkManager::setMeshData(Mesh& mesh) const {
     for (auto&& node : mesh.Nodes) {
         Boundary->InsertNextValue(node->isBoundary);
     }
-    Grid->GetPointData()->AddArray(Boundary);
+    pimpl->Grid->GetPointData()->AddArray(Boundary);
 
 }
 
 void vtkManager::write(std::string fileName, bool isBinary) const {
-    writer->SetFileName(fileName.c_str());
-    writer->SetInputData(Grid);
+    pimpl->writer->SetFileName(fileName.c_str());
+    pimpl->writer->SetInputData(pimpl->Grid);
     if (isBinary) {
-        writer->SetDataModeToBinary();
+        pimpl->writer->SetDataModeToBinary();
     } else {
-        writer->SetDataModeToAscii();
+        pimpl->writer->SetDataModeToAscii();
     }
-    writer->Write();
+    pimpl->writer->Write();
 }

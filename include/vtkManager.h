@@ -1,21 +1,24 @@
 #pragma once
-#include <vtkPoints.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkXMLUnstructuredGridWriter.h>
 
 #include <string>
 
 #include "Mesh.h"
 
+class vtkUnstructuredGrid;
+class vtkXMLUnstructuredGridWriter;
+
+// Declaration of an implementation class
+class vtkManagerImpl;
+
 class vtkManager {
    public:
-    vtkNew<vtkUnstructuredGrid> Grid;
-    vtkNew<vtkXMLUnstructuredGridWriter> writer;
-
-    vtkManager(){};
+    vtkManager();
     vtkManager(Mesh& mesh);
-    ~vtkManager(){};
+    ~vtkManager();
 
     void setMeshData(Mesh& mesh) const;
     void write(std::string fileName, bool isBinary = false) const;
+
+   private:
+    std::unique_ptr<vtkManagerImpl> pimpl;
 };
