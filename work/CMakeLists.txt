@@ -45,29 +45,29 @@ install(
 )
 
 add_library(
-    pythonWorker
+    PyWorker
     SHARED
-    ${dir}/worker.cc
+    ${dir}/PyWorker.cc
 )
 target_link_libraries(
-    pythonWorker
+    PyWorker
     PRIVATE
     work
 )
 install(
-    TARGETS pythonWorker
+    TARGETS PyWorker
     DESTINATION lib
     EXPORT workTargets
 )
 
 if(WIN32)
-    target_compile_definitions(pythonWorker PRIVATE EXAMPLE_EXPORTS)
+    target_compile_definitions(PyWorker PRIVATE EXAMPLE_EXPORTS)
 endif()
 
-set_target_properties(pythonWorker PROPERTIES
+set_target_properties(PyWorker PROPERTIES
     PREFIX ""
     POSITION_INDEPENDENT_CODE TRUE
-    OUTPUT_NAME "worker"
+    OUTPUT_NAME "PythonWorker"
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library/build
     VISIBILITY_INLINES_HIDDEN ON
     CXX_VISIBILITY_PRESET hidden

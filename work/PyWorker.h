@@ -8,8 +8,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-EXPORT double worker(char* tomlFilePath, double inclusionElasticModulus,
-                   double ksi, double a_b, bool verbose);
+EXPORT double PyWorker(char* tomlFilePath, double inclusionElasticModulus,
+                       double ksi, double a_b, bool verbose);
 #ifdef __cplusplus
 }
 #endif

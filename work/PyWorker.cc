@@ -1,4 +1,4 @@
-#ifdef _WIN32
+#if _WIN32 || _WIN64
 #define EXPORT __declspec(dllexport)
 #else
 #define EXPORT __attribute__((visibility("default")))
@@ -21,15 +21,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-EXPORT double worker(const double L, const double B, const double ksi,
-                     const double a_b, const double loadValue,
-                     const double matrixElasticModulus,
-                     const double matrixPoissonRatio,
-                     const double inclusionElasticModulus,
-                     const double inclusionPoissonRatio, const double meshSize,
-                     const double refinementFactor, const int meshAlgorithm,
-                     const bool isSerendipity, const bool convertToSquare,
-                     const bool isPlaneStress, const bool verbose) {
+EXPORT double PyWorker(const double L, const double B, const double ksi,
+                       const double a_b, const double loadValue,
+                       const double matrixElasticModulus,
+                       const double matrixPoissonRatio,
+                       const double inclusionElasticModulus,
+                       const double inclusionPoissonRatio,
+                       const double meshSize, const double refinementFactor,
+                       const int meshAlgorithm, const bool isSerendipity,
+                       const bool convertToSquare, const bool isPlaneStress,
+                       const bool verbose) {
     try {
         // Define geometry
         double a = B / ksi;

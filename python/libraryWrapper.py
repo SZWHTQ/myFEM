@@ -8,17 +8,22 @@ class WorkerLibraryWrapper:
         system = sys.platform
         # Check if windows
         if system == "win32":
-            libDirectory += "/worker.dll"
+            libPath = libDirectory + "/PythonWorker.dll"
         # Check if linux
         elif system == "linux":
-            libDirectory += "/worker.so"
+            libPath = libDirectory + "/PythonWorker.so"
         # Check if mac
         elif system == "darwin":
-            libDirectory += "/worker.dylib"
+            libPath = libDirectory + "/PythonWorker.dylib"
 
         # Load library
-        self.lib = ctypes.CDLL(libDirectory)
-        self.lib.worker.argtypes = [
+        try:
+            self.lib = ctypes.CDLL(libPath)
+        except OSError as e:
+            print(f"Error loading DLL: {e}")
+            sys.exit(1)
+
+        self.lib.PyWorker.argtypes = [
             ctypes.c_double,  # L
             ctypes.c_double,  # B
             ctypes.c_double,  # ksi
@@ -36,7 +41,7 @@ class WorkerLibraryWrapper:
             ctypes.c_bool,  # isPlaneStress
             ctypes.c_bool,  # verbose
         ]
-        self.lib.worker.restype = ctypes.c_double
+        self.lib.PyWorker.restype = ctypes.c_double
 
         # Set default values
         self.L = 10
@@ -57,7 +62,7 @@ class WorkerLibraryWrapper:
         self.verbose = False
 
     def run(self) -> float:
-        return self.lib.worker(
+        return self.lib.PyWorker(
             self.L,
             self.B,
             self.ksi,
