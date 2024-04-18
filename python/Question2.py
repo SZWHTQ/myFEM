@@ -21,9 +21,9 @@ for E in tqdm(inclusionModuli):
         analytical,
         cylindricalInclusion(
             E_m=wrapper.matrixModulus,
-            nu_m=wrapper.matrixPoisson,
-            E_i=wrapper.inclusionModulus,
-            nu_i=wrapper.inclusionPoisson,
+            matrixPoisson=wrapper.matrixPoisson,
+            inclusionModulus=wrapper.inclusionModulus,
+            inclusionPoisson=wrapper.inclusionPoisson,
         ),
     )
 relativeError = np.abs(analytical - numerical) / np.abs(analytical) * 100

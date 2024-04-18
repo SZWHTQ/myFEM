@@ -3,26 +3,47 @@ import matplotlib.pyplot as plt
 
 
 def getLame(E, nu):
-    mu = E / (2 * (1 + nu))
     lam = E * nu / ((1 + nu) * (1 - 2 * nu))
+    mu = E / (2 * (1 + nu))
     return lam, mu
 
 
-def cylindricalInclusion(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2, sigma_0=1, a=1):
-    _, mu_m = getLame(E_m, nu_m)
-    _, mu_i = getLame(E_i, nu_i)
+def cylindricalInclusion(
+    matrixPoisson: float = 0.3,
+    inclusionModulus: float = 1,
+    inclusionPoisson: float = 0.2,
+    boundaryStress: float = 1,
+    inclusionCircleRadius: float = 1,
+):
+    matrixModulus = 1  # Must be 1 for this analytical formula
+    _, mu_m = getLame(matrixModulus, matrixPoisson)
+    _, mu_i = getLame(inclusionModulus, inclusionPoisson)
     u_r = (
-        sigma_0 * a * (1 - nu_m) / mu_m * (1 - 2 * nu_i) / (1 - 2 * nu_i + mu_i / mu_m)
+        boundaryStress
+        * inclusionCircleRadius
+        * (1 - matrixPoisson)
+        / mu_m
+        * (1 - 2 * inclusionPoisson)
+        / (1 - 2 * inclusionPoisson + mu_i / mu_m)
     )
     deltaU = (
         np.pi
-        * sigma_0
-        * a
+        * boundaryStress
+        * inclusionCircleRadius
         * u_r
         * (
             1
-            - (1 + nu_m) * E_i / (1 + nu_i) / E_m
-            - 2 * (nu_i - nu_m) * (1 + nu_m) * E_i / (1 + nu_i) / (1 - 2 * nu_i) / E_m
+            - (1 + matrixPoisson)
+            * inclusionModulus
+            / (1 + inclusionPoisson)
+            / matrixModulus
+            - 2
+            * (inclusionPoisson - matrixPoisson)
+            * (1 + matrixPoisson)
+            * inclusionModulus
+            / (1 + inclusionPoisson)
+            / (1 - 2 * inclusionPoisson)
+            / matrixModulus
         )
     )
     return -deltaU
@@ -48,7 +69,7 @@ def circle(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2, sigma_0=1, a=1):
 
 def main():
     E = [1e-15, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    Y1 = [cylindricalInclusion(E_i=E_i) for E_i in E]
+    Y1 = [cylindricalInclusion(inclusionModulus=E_i) for E_i in E]
     Y2 = [
         -5.930960,
         -0.568125,

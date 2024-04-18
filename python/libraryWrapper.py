@@ -47,18 +47,18 @@ class WorkerLibraryWrapper:
         self.lib.PyWorker.restype = ctypes.c_double
 
         # Set default values
-        self.L = 10
-        self.B = 10
-        self.ksi = 10
-        self.a_b = 1
-        self.loadValue = 1
-        self.matrixModulus = 1
-        self.matrixPoisson = 0.3
-        self.inclusionModulus = 1
-        self.inclusionPoisson = 0.2
-        self.meshSize = 0.2
-        self.refinementFactor = 5
-        self.meshAlgorithm = 8
+        self.L: float = 10
+        self.B: float = 10
+        self.ksi: float = 10
+        self.a_b: float = 1
+        self.loadValue: float = 1
+        self.matrixModulus: float = 1
+        self.matrixPoisson: float = 0.3
+        self.inclusionModulus: float = 1
+        self.inclusionPoisson: float = 0.2
+        self.meshSize: float = 0.2
+        self.refinementFactor: float = 1
+        self.meshAlgorithm: int = 8
         self.isSerendipity = True
         self.convertToSquare = False
         self.writeInp = False
