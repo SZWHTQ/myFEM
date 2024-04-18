@@ -37,7 +37,6 @@ vtkManager::vtkManager(Mesh& mesh) : pimpl(std::make_unique<vtkManagerImpl>()) {
 vtkManager::~vtkManager() {
     // Destructor
     // Must be defined in the .cc file
-    // delete pimpl;
 }
 
 void vtkManager::setMeshData(Mesh& mesh) const {
