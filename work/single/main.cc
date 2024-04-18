@@ -152,10 +152,12 @@ int main(int argc, char* argv[]) {
         double deltaEnergy =
             matrixStrainEnergyNoInclusion - matrixStrainEnergy +
             inclusionStrainEnergyNoInclusion - inclusionStrainEnergy;
-        std::cout << "Strain energy change: " << deltaEnergy * 4 << std::endl;
+        std::cout << "Strain energy change: " << std::endl;
+        std::cout << "  Finite element analysis result: " << deltaEnergy * 4
+                  << std::endl;
         auto deltaU = getStrainEnergyChange(&mesh, &meshNoInclusion, &matrix,
                                             &inclusion, isPlaneStress);
-        std::cout << "Strain energy change: " << deltaU * 4 << std::endl;
+        std::cout << "  Integral on the interface result: " << deltaU * 4 << std::endl;
         std::cout << std::fixed << std::setprecision(2);
 
         std::cout << "Relative error: "

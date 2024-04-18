@@ -37,14 +37,14 @@ EXPORT double PyWorker(const double L, const double B, const double ksi,
         double a = B / ksi;
         double b = a / a_b;
         if (verbose) {
-            std::cout << "L: " << L << " B: " << B << std::endl;
-            std::cout << "a: " << a << " b: " << b << std::endl;
-            std::cout << "matrix elastic modulus: " << matrixElasticModulus
-                      << " matrix poisson ratio: " << matrixPoissonRatio
+            std::cout << "L = " << L << ", B = " << B << std::endl;
+            std::cout << "a = " << a << ", b = " << b << std::endl;
+            std::cout << "matrix elastic modulus = " << matrixElasticModulus
+                      << ", matrix poisson ratio = " << matrixPoissonRatio
                       << std::endl;
-            std::cout << "inclusion elastic modulus: "
+            std::cout << "inclusion elastic modulus = "
                       << inclusionElasticModulus
-                      << " inclusion poisson ratio: " << inclusionPoissonRatio
+                      << ", inclusion poisson ratio = " << inclusionPoissonRatio
                       << std::endl;
         }
 
@@ -57,10 +57,10 @@ EXPORT double PyWorker(const double L, const double B, const double ksi,
 
         // Initialize the Gmsh library
         gmsh::initialize();
-        int err = generate_mesh(
-            nodeCoord, elementNodeTags, elementMaterialTags, interfaceNodeTags,
-            L, B, a, b, meshSize, refinementFactor, isSerendipity,
-            meshAlgorithm, convertToSquare, writeInp, writeMsh, runFltk);
+        int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
+                                interfaceNodeTags, L, B, a, b, meshSize,
+                                refinementFactor, isSerendipity, meshAlgorithm,
+                                convertToSquare, writeInp, writeMsh, runFltk);
         if (err != 0) {
             return err;
         }
@@ -118,11 +118,6 @@ EXPORT double PyWorker(const double L, const double B, const double ksi,
 
         auto deltaU =
             getStrainEnergyChange(&mesh, &matrix, &inclusion, isPlaneStress);
-        std::cout << std::setprecision(-1);
-        if (verbose) {
-            std::cout << "Strain energy change: " << deltaU * 4 << std::endl;
-        }
-        return deltaU * 4;
 
         // Clear memory
         {
@@ -131,10 +126,12 @@ EXPORT double PyWorker(const double L, const double B, const double ksi,
             elementNodeTags.clear();
             std::vector<size_t>().swap(elementNodeTags);
         }
-
         // Finalize the Gmsh library
         gmsh::finalize();
+        // Reset precision
+        std::cout << std::setprecision(-1);
 
+        return deltaU * 4;
     } catch (const std::exception& e) {
         std::cerr << e.what();
         return -1;

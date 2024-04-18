@@ -12,14 +12,15 @@ worker.refinementFactor = 5
 worker.verbose = True
 worker.runFltk = True
 resultWorker = worker.run()
-print(f"Strain energy change: {resultWorker:.6f}")
+print("Strain energy change:")
+print(f"  Integral on the interface result: {resultWorker:.6f}")
 resultAnalytical = cylindricalInclusion(
     matrixPoisson=worker.matrixPoisson,
     inclusionModulus=worker.inclusionModulus,
     inclusionPoisson=worker.inclusionPoisson,
     inclusionCircleRadius=worker.B / worker.ksi,
 )
-print(f"Analytical result: {resultAnalytical:.6f}")
+print(f"  Analytical result: {resultAnalytical:.6f}")
 print(
     f"Relative error: {abs(resultWorker - resultAnalytical) / abs(resultAnalytical)*100:.6f}%"
 )
