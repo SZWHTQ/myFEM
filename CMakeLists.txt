@@ -41,6 +41,7 @@ add_library(
 )
 target_link_libraries(
     ${PROJECT_NAME}
+    PUBLIC
     ${VTK_LIBRARIES}
 )
 target_include_directories(
@@ -56,6 +57,10 @@ set_target_properties(
     POSITION_INDEPENDENT_CODE ON
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION}
+)
+vtk_module_autoinit(
+  TARGETS ${PROJECT_NAME}
+  MODULES ${VTK_LIBRARIES}
 )
 install(
     TARGETS ${PROJECT_NAME}
