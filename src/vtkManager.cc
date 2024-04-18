@@ -2,18 +2,17 @@
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
-#include <vtkQuadraticQuad.h>
 #include <vtkPoints.h>
+#include <vtkQuadraticQuad.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
-
 
 #include "Material.h"
 #include "vtkManager.h"
 
 // Implementation class
 class vtkManagerImpl {
-public:
+   public:
     vtkNew<vtkUnstructuredGrid> Grid;
     vtkNew<vtkXMLUnstructuredGridWriter> writer;
 };
@@ -31,7 +30,7 @@ vtkManager::vtkManager(Mesh& mesh) {
                                                 element->nodes[i]->getIndex());
         }
         pimpl->Grid->InsertNextCell(QuadraticQuad->GetCellType(),
-                             QuadraticQuad->GetPointIds());
+                                    QuadraticQuad->GetPointIds());
     }
 };
 
@@ -122,7 +121,6 @@ void vtkManager::setMeshData(Mesh& mesh) const {
         Boundary->InsertNextValue(node->isBoundary);
     }
     pimpl->Grid->GetPointData()->AddArray(Boundary);
-
 }
 
 void vtkManager::write(std::string fileName, bool isBinary) const {
