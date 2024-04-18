@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from libraryWrapper import WorkerLibraryWrapper
 from Analytical import cylindricalInclusion
+import scipy as sp
 
 
 # inclusionModuli = np.array([1e-15, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
@@ -54,6 +55,16 @@ ax1.plot(
     label="Numerical",
     marker="x",
     **params,
+)
+
+sp.io.savemat(
+    "Question2.mat",
+    {
+        "inclusionModuli": inclusionModuli,
+        "analytical": analytical,
+        "numerical": numerical,
+        "relativeError": relativeError,
+    },
 )
 
 # Set the first y-axis label and scale

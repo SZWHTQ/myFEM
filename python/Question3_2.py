@@ -6,7 +6,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.patches import Rectangle
 from tqdm import tqdm
 from libraryWrapper import WorkerLibraryWrapper
-from Analytical import cylindricalInclusion
+import scipy as sp
 
 
 def getCurve(Ksi, inclusionModulus):
@@ -44,6 +44,11 @@ def main():
     Curves = []
     for E in tqdm(inclusionModulus):
         Curves.append(getCurve(Ksi, E))
+
+    sp.io.savemat(
+        "Question3_2.mat",
+        {"Ksi": Ksi, "Curves": Curves, "inclusionModulus": inclusionModulus},
+    )
 
     ax = plt.gca()
     for i, curve in enumerate(Curves):
