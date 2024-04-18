@@ -4,9 +4,6 @@
 
 #include "Mesh.h"
 
-class vtkUnstructuredGrid;
-class vtkXMLUnstructuredGridWriter;
-
 // Declaration of an implementation class
 class vtkManagerImpl;
 
