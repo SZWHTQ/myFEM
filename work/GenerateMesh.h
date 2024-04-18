@@ -19,7 +19,8 @@ int generate_mesh(std::vector<double>& nodeCoord,
                   std::vector<size_t>& interfaceNodeTags, double L, double B,
                   double a, double b, double lc, double refinementFactor = 1,
                   bool isSerendipity = true, int meshAlgorithm = 8,
-                  bool convertToSquare = false);
+                  bool convertToSquare = false, bool writeInp = false,
+                  bool writeMsh = false, bool runFltk = false);
 
 int generate_mesh(std::vector<double>& nodeCoord,
                   std::vector<size_t>& elementNodeTags,

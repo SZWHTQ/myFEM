@@ -22,10 +22,14 @@ int generate_mesh(std::vector<double>& nodeCoord,
     int meshAlgorithm = settings["Mesh"]["Algorithm"].value_or(8);
     bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
     bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
+    bool writeInp = settings["Mesh"]["writeInp"].value_or(false);
+    bool writeMsh = settings["Mesh"]["writeMsh"].value_or(false);
+    bool runFltk = settings["Mesh"]["runFltk"].value_or(false);
 
     int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
                             interfaceNodeTags, L, B, a, b, lc, refinementFactor,
-                            isSerendipity, meshAlgorithm, convertToSquare);
+                            isSerendipity, meshAlgorithm, convertToSquare,
+                            writeInp, writeMsh, runFltk);
     return err;
 }
 
@@ -34,7 +38,8 @@ int generate_mesh(std::vector<double>& nodeCoord,
                   std::vector<size_t>& elementMaterialTags,
                   std::vector<size_t>& interfaceNodeTags, double L, double B,
                   double a, double b, double lc, double refinementFactor,
-                  bool isSerendipity, int meshAlgorithm, bool convertToSquare) {
+                  bool isSerendipity, int meshAlgorithm, bool convertToSquare,
+                  bool writeInp, bool writeMsh, bool runFltk) {
     gmsh::option::setNumber("General.Terminal", 0);
     try {
         // Start a new model
@@ -166,12 +171,12 @@ int generate_mesh(std::vector<double>& nodeCoord,
         // gmsh::model::mesh::removeDuplicateElements();
 
         // Save mesh to file
-#if WRITE_INP
-        gmsh::write("PlateWithInclusion.inp");
-#endif
-#if WRITE_MSH
-        gmsh::write("PlateWithInclusion.msh");
-#endif
+        if (writeInp) {
+            gmsh::write("PlateWithInclusion.inp");
+        }
+        if (writeMsh) {
+            gmsh::write("PlateWithInclusion.msh");
+        }
 
         // Retrieve the node coordinates
         std::vector<size_t> nodeTags;
@@ -247,7 +252,9 @@ int generate_mesh(std::vector<double>& nodeCoord,
                 interfaceNodeTags.push_back(pointsTag[6]);
             }
         }
-        // gmsh::fltk::run();
+        if (runFltk) {
+            gmsh::fltk::run();
+        }
     } catch (const std::exception& e) {
         std::cerr << e.what();
         return -2;

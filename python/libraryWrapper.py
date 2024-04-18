@@ -38,6 +38,9 @@ class WorkerLibraryWrapper:
             ctypes.c_int,  # meshAlgorithm
             ctypes.c_bool,  # isSerendipity
             ctypes.c_bool,  # convertToSquare
+            ctypes.c_bool,  # writeInp
+            ctypes.c_bool,  # writeMsh
+            ctypes.c_bool,  # runFltk
             ctypes.c_bool,  # isPlaneStress
             ctypes.c_bool,  # verbose
         ]
@@ -54,10 +57,13 @@ class WorkerLibraryWrapper:
         self.inclusionModulus = 1
         self.inclusionPoisson = 0.2
         self.meshSize = 0.2
-        self.refinementFactor = 1
+        self.refinementFactor = 5
         self.meshAlgorithm = 8
         self.isSerendipity = True
         self.convertToSquare = False
+        self.writeInp = False
+        self.writeMsh = False
+        self.runFltk = False
         self.isPlaneStress = False
         self.verbose = False
 
@@ -77,6 +83,9 @@ class WorkerLibraryWrapper:
             self.meshAlgorithm,
             self.isSerendipity,
             self.convertToSquare,
+            self.writeInp,
+            self.writeMsh,
+            self.runFltk,
             self.isPlaneStress,
             self.verbose,
         )

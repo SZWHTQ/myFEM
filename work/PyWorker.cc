@@ -29,8 +29,9 @@ EXPORT double PyWorker(const double L, const double B, const double ksi,
                        const double inclusionPoissonRatio,
                        const double meshSize, const double refinementFactor,
                        const int meshAlgorithm, const bool isSerendipity,
-                       const bool convertToSquare, const bool isPlaneStress,
-                       const bool verbose) {
+                       const bool convertToSquare, const bool writeInp,
+                       const bool writeMsh, const bool runFltk,
+                       const bool isPlaneStress, const bool verbose) {
     try {
         // Define geometry
         double a = B / ksi;
@@ -56,10 +57,10 @@ EXPORT double PyWorker(const double L, const double B, const double ksi,
 
         // Initialize the Gmsh library
         gmsh::initialize();
-        int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
-                                interfaceNodeTags, L, B, a, b, meshSize,
-                                refinementFactor, isSerendipity, meshAlgorithm,
-                                convertToSquare);
+        int err = generate_mesh(
+            nodeCoord, elementNodeTags, elementMaterialTags, interfaceNodeTags,
+            L, B, a, b, meshSize, refinementFactor, isSerendipity,
+            meshAlgorithm, convertToSquare, writeInp, writeMsh, runFltk);
         if (err != 0) {
             return err;
         }
