@@ -16,7 +16,7 @@ class Serendipity : public Element {
     Serendipity(const size_t index_, const std::vector<std::shared_ptr<Node>>& nodes_,
                 const bool planeStress_ = true);
 
-    const double getArea() override;
+    double getArea() override;
 
     const std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncLocalDerivative(
         double ksi, double eta) override;
@@ -36,7 +36,7 @@ class Serendipity : public Element {
 
     const std::vector<Eigen::VectorXd> getGaussPointsStress() override;
 
-    const double getStrainEnergy() override;
+    double getStrainEnergy() override;
 
     int calculateStrainStress() override;
     int calculateStrainStressGaussPoint() override;

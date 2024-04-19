@@ -103,19 +103,6 @@ EXPORT double PyWorker(const double L, const double B, const double ksi,
                       << std::endl;
         }
 
-        double matrixStrainEnergy = 0, inclusionStrainEnergy = 0;
-        for (auto& element : mesh.Elements) {
-            if (element->material->getIndex() == 1) {
-                matrixStrainEnergy += element->getStrainEnergy();
-            } else if (element->material->getIndex() == 2) {
-                inclusionStrainEnergy += element->getStrainEnergy();
-            } else {
-                std::cerr << "Wrong material index: "
-                          << element->material->getIndex() << " at "
-                          << element->getIndex() << std::endl;
-            }
-        }
-
         auto deltaU =
             getStrainEnergyChange(&mesh, &matrix, &inclusion, isPlaneStress);
 

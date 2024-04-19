@@ -6,8 +6,8 @@ B = 10
 
 [Ellipse]
 ksi = 10 # a = rectangle.B / ksi
-a_b = 1 # b = a / a_b
-convertToSquare = true
+a_b = 3 # b = a / a_b
+convertToSquare = false
 
 [Material]
 Matrix = [1, 0.3]    # [E, nu]

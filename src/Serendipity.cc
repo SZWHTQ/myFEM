@@ -21,14 +21,13 @@ Serendipity::Serendipity(const size_t index_,
 
 
 // get the area of the element via gauss integral
-const double Serendipity::getArea() {
+double Serendipity::getArea() {
     double area = 0;
     int gaussPointNum = 3;
     const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
     const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
     const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
-    double strainEnergy = 0;
-    for (int i = 0; i < ksiId.size(); ++i) {
+    for (size_t i = 0; i < ksiId.size(); ++i) {
         auto& J = getJacobian(gaussData.abscissas[ksiId[i]],
                               gaussData.abscissas[etaId[i]]);
         double detJ = J.determinant();
@@ -158,7 +157,7 @@ int Serendipity::calculateStrainStress() {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
         displacementArray(2 * i + 1) = nodes[i]->Displacement(1);
     }
-    for (int n = 0; n < nodeNum; ++n) {
+    for (size_t n = 0; n < nodeNum; ++n) {
         auto&& B = getStrainMatrix(Ksi[n], Eta[n]);
         nodes[n]->Strain = B * displacementArray;
         nodes[n]->Stress = D * nodes[n]->Strain;
@@ -233,7 +232,7 @@ const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStrain() {
 
     const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
     const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
-    for (int i = 0; i < ksiId.size(); ++i) {
+    for (size_t i = 0; i < ksiId.size(); ++i) {
         gaussStrain[i] = getStrainMatrix(gaussData.abscissas[ksiId[i]],
                                          gaussData.abscissas[etaId[i]]) *
                          displacementArray;
@@ -248,14 +247,14 @@ const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStress() {
 
     std::vector<Eigen::VectorXd> gaussStress(strainGp.size(),
                                              Eigen::VectorXd::Zero(3));
-    for (int i = 0; i < strainGp.size(); ++i) {
+    for (size_t i = 0; i < strainGp.size(); ++i) {
         gaussStress[i] = D * strainGp[i];
     }
 
     return gaussStress;
 }
 
-const double Serendipity::getStrainEnergy() {
+double Serendipity::getStrainEnergy() {
     auto& strainGp = getGaussPointsStrain();
     auto& stressGp = getGaussPointsStress();
     int gaussPointNum = 3;
@@ -263,7 +262,7 @@ const double Serendipity::getStrainEnergy() {
     const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
     const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
     double strainEnergy = 0;
-    for (int i = 0; i < ksiId.size(); ++i) {
+    for (size_t i = 0; i < ksiId.size(); ++i) {
         auto& J = getJacobian(gaussData.abscissas[ksiId[i]],
                               gaussData.abscissas[etaId[i]]);
         double detJ = J.determinant();
@@ -293,7 +292,7 @@ int Serendipity::calculateStrainStressGaussPoint() {
     interpolationMatrix.setZero();
     const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> S = {-1, -1, 1, 1, -1, 0, 1, 0};
-    for (int n = 0; n < nodeNum; ++n) {
+    for (size_t n = 0; n < nodeNum; ++n) {
         double r = R[n] / (-gaussData.abscissas[0]),
                s = S[n] / (-gaussData.abscissas[0]);
 
@@ -318,16 +317,16 @@ int Serendipity::calculateStrainStressGaussPoint() {
     auto& solver = interpolationMatrix.colPivHouseholderQr();
     Eigen::VectorXd strain(nodeNum);
     for (int d = 0; d < 3; ++d) {
-        for (int i = 0; i < nodeNum; ++i) {
+        for (size_t i = 0; i < nodeNum; ++i) {
             strain(i) = strainGp[i](d);
         }
         Eigen::VectorXd strainAtNode = solver.solve(strain);
-        for (int i = 0; i < nodeNum; ++i) {
+        for (size_t i = 0; i < nodeNum; ++i) {
             nodes[i]->Strain(d) = strainAtNode(i);
         }
     }
 
-    for (int i = 0; i < nodeNum; ++i) {
+    for (size_t i = 0; i < nodeNum; ++i) {
         nodes[i]->Stress = D * nodes[i]->Strain;
     }
 

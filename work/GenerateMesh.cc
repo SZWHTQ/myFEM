@@ -21,7 +21,6 @@ int generate_mesh(std::vector<double>& nodeCoord,
     double refinementFactor = settings["Mesh"]["refinementFactor"].value_or(8);
     int meshAlgorithm = settings["Mesh"]["Algorithm"].value_or(8);
     bool isSerendipity = settings["Mesh"]["Serendipity"].value_or(true);
-    bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
     bool writeInp = settings["Mesh"]["writeInp"].value_or(false);
     bool writeMsh = settings["Mesh"]["writeMsh"].value_or(false);
     bool runFltk = settings["Mesh"]["runFltk"].value_or(false);

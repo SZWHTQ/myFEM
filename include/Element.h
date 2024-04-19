@@ -39,12 +39,12 @@ class Element {
     Material* material;
     double thickness;
 
-    Element() : index(0), thickness(1.0), material(nullptr){};
+    Element() : index(0), material(nullptr), thickness(1.0) {};
     explicit Element(const size_t index_, const std::string elementName_);
     virtual ~Element(){};
 
     // Area of element
-    virtual const double getArea() = 0;
+    virtual double getArea() = 0;
 
     // Derivative of shape function with respect to local coordinates
     virtual const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
@@ -73,7 +73,7 @@ class Element {
     virtual const std::vector<Eigen::VectorXd> getGaussPointsStress() = 0;
 
     // Strain energy
-    virtual const double getStrainEnergy() = 0;
+    virtual double getStrainEnergy() = 0;
 
     // Calculate strain and stress
     virtual int calculateStrainStress() = 0;

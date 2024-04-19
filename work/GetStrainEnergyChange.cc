@@ -67,7 +67,6 @@ double getStrainEnergyChange(Mesh* mesh, Material* matrix, Material* inclusion,
     // double lambda2 = 1;
 
     for (auto& element : mesh->Elements) {
-        size_t elementIndex = element->getIndex();
         if (element->material->getIndex() == 1) {
             for (int i = 0; i < 4; ++i) {
                 int j = (i + 1) % 4;

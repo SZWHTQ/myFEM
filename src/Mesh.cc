@@ -25,7 +25,7 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
             id, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
     }
 
-    for (int i = 0; i < boundaryNodeTags.size(); ++i) {
+    for (size_t i = 0; i < boundaryNodeTags.size(); ++i) {
         Nodes[boundaryNodeTags[i]]->isBoundary = true;
     }
 
@@ -62,7 +62,7 @@ Mesh::Mesh(std::vector<double> nodeCoord,
             i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
     }
 
-    for (int i = 0; i < boundaryNodeTags.size(); ++i) {
+    for (size_t i = 0; i < boundaryNodeTags.size(); ++i) {
         Nodes[boundaryNodeTags[i] - 1]->isBoundary = true;
     }
 

@@ -27,8 +27,6 @@ int main(int argc, char* argv[]) {
         // Define geometry
         double L = settings["Rectangle"]["L"].value_or(2);
         double B = settings["Rectangle"]["B"].value_or(0.9);
-        double a = B / settings["Ellipse"]["ksi"].value_or(3.0);
-        double b = a / settings["Ellipse"]["a_b"].value_or(1. / 3);
         bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
 
         // Generate mesh
@@ -64,7 +62,6 @@ int main(int argc, char* argv[]) {
         double nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
         Elastic matrix(1, E1, nu1);
         Elastic inclusion(2, E2, nu2);
-        // set_material(&mesh, {&matrix, &inclusion}, a, b);
         set_material(&mesh, {&matrix, &inclusion}, elementMaterialTags);
 
         // Apply boundary
