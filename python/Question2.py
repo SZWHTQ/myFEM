@@ -20,7 +20,6 @@ for E in tqdm(inclusionModuli):
     analytical = np.append(
         analytical,
         cylindricalInclusion(
-            E_m=wrapper.matrixModulus,
             matrixPoisson=wrapper.matrixPoisson,
             inclusionModulus=wrapper.inclusionModulus,
             inclusionPoisson=wrapper.inclusionPoisson,

@@ -10,7 +10,6 @@ import scipy as sp
 
 
 def getCurve(Ksi, inclusionModulus):
-    # Ksi[0] += 1e-3
     result = np.array([])
     wrapper = WorkerLibraryWrapper()
     wrapper.inclusionModulus = inclusionModulus
