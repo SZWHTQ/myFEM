@@ -5,6 +5,7 @@ _build
 *.msh
 *.vtu
 __pycache__
+python/lib
 .DS_store
 
 # Prerequisites
