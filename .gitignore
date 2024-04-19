@@ -6,6 +6,7 @@ _build
 *.vtu
 __pycache__
 python/lib
+*.mat
 .DS_store
 
 # Prerequisites

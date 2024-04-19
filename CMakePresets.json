@@ -12,8 +12,7 @@
             "generator": "Ninja Multi-Config",
             "cacheVariables": {
                 "CMAKE_CXX_STANDARD_REQUIRED": "True",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         },
         {
@@ -34,6 +33,20 @@
                 "CMAKE_CXX_STANDARD_REQUIRED": "True"
             },
             "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Release",
+            "description": "Release build",
+            "configurePreset": "Default",
+            "buildCommandArgs": "-v"
+        },
+        {
+            "name": "Debug",
+            "description": "Debug build",
+            "configurePreset": "Default",
+            "buildCommandArgs": "-v"
         }
     ]
 }
