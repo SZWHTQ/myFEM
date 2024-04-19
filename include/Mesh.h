@@ -27,6 +27,7 @@ class Mesh {
          std::vector<std::pair<MeshType, std::vector<size_t>>>
              elementTypeAndNodeTags,
          std::vector<size_t> boundaryNodeTags, bool planeStress = true);
+    ~Mesh();
 
     Eigen::MatrixXd assembleStiffnessMatrix();
     Eigen::SparseMatrix<double> sparseAssembleStiffnessMatrix();

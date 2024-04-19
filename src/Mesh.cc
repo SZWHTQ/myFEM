@@ -90,6 +90,13 @@ Mesh::Mesh(std::vector<double> nodeCoord,
     }
 }
 
+Mesh::~Mesh() {
+    for (Element* elem : Elements) {
+        delete elem;
+    }
+    Elements.clear();
+}
+
 const std::vector<double> Mesh::equivalentForce(Load* load) {
     std::vector<double> equivalentForce(6);
     Eigen::VectorXd X(6), Y(6);

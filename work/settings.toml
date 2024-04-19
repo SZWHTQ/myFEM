@@ -14,7 +14,7 @@ Matrix = [1, 0.3]    # [E, nu]
 Inclusion = [2, 0.2]
 
 [Mesh]
-size = 1
+size = 0.1
 refinementFactor = 20
 Algorithm = 8
 planeStress = false
