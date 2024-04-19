@@ -1,6 +1,6 @@
 # Check system
 if(WIN32)
-    set(GMSH_DIR "$ENV{VCPKG_DIR}/packages/gmsh_arm64-windows")
+    set(GMSH_DIR "$ENV{VCPKG_ROOT}/packages/gmsh_arm64-windows")
 else()
     set(GMSH_DIR "~/Repository/Gmsh/SDK/latest")
 endif()
