@@ -15,18 +15,10 @@ find_package(VTK COMPONENTS
     IOXML
     REQUIRED
 )
-if(VTK_FOUND)
-    message(STATUS "VTK found: version ${VTK_VERSION}")
-else()
-    message(FATAL_ERROR "VTK not found")
-endif()
+message(STATUS "VTK found: version ${VTK_VERSION}")
 
 find_package(Eigen3 REQUIRED)
-if(Eigen3_FOUND)
-    message(STATUS "Eigen3 found: version ${Eigen3_VERSION}")
-else()
-    message(FATAL_ERROR "Eigen3 not found")
-endif()
+message(STATUS "Eigen3 found: version ${Eigen3_VERSION}")
 
 set(srcs)
 add_subdirectory(src)

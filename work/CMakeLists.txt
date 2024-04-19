@@ -3,8 +3,18 @@ set(dir ${CMAKE_CURRENT_SOURCE_DIR})
 # Check system
 if(WIN32)
     set(GMSH_DIR "$ENV{VCPKG_ROOT}/packages/gmsh_arm64-windows")
-else()
+    # x64 or arm64
+    if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "AMD64")
+        set(GMSH_DIR "$ENV{VCPKG_ROOT}/packages/gmsh_x64-windows")
+    elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "ARM64")
+        set(GMSH_DIR "$ENV{VCPKG_ROOT}/packages/gmsh_arm64-windows")
+    else()
+        message(FATAL_ERROR "Unknown processor")
+    endif()
+elseif(LINUX OR APPLE)
     set(GMSH_DIR "~/Repository/Gmsh/SDK/latest")
+else()
+    message(FATAL_ERROR "Unknown system")
 endif()
 
 add_library(
@@ -68,7 +78,7 @@ set_target_properties(PyWorker PROPERTIES
     PREFIX ""
     POSITION_INDEPENDENT_CODE TRUE
     OUTPUT_NAME "PythonWorker"
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library/build
+    # LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/python/library/build
     VISIBILITY_INLINES_HIDDEN ON
     CXX_VISIBILITY_PRESET hidden
     VERSION ${PROJECT_VERSION}
