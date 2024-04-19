@@ -19,7 +19,7 @@ endif()
 
 add_library(
     work
-    STATIC
+    SHARED
     ${dir}/ApplyBoundary.cc
     ${dir}/GenerateMesh.cc
     ${dir}/GetStrainEnergyChange.cc

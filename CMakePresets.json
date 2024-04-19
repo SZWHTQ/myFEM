@@ -39,14 +39,12 @@
         {
             "name": "Release",
             "description": "Release build",
-            "configurePreset": "Default",
-            "buildCommandArgs": "-v"
+            "configurePreset": "Default"
         },
         {
             "name": "Debug",
             "description": "Debug build",
-            "configurePreset": "Default",
-            "buildCommandArgs": "-v"
+            "configurePreset": "Default"
         }
     ]
 }

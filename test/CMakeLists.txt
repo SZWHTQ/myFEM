@@ -1,8 +1,18 @@
 # Check system
 if(WIN32)
     set(GMSH_DIR "$ENV{VCPKG_ROOT}/packages/gmsh_arm64-windows")
-else()
+    # x64 or arm64
+    if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "AMD64")
+        set(GMSH_DIR "$ENV{VCPKG_ROOT}/packages/gmsh_x64-windows")
+    elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "ARM64")
+        set(GMSH_DIR "$ENV{VCPKG_ROOT}/packages/gmsh_arm64-windows")
+    else()
+        message(FATAL_ERROR "Unknown processor")
+    endif()
+elseif(LINUX OR APPLE)
     set(GMSH_DIR "~/Repository/Gmsh/SDK/latest")
+else()
+    message(FATAL_ERROR "Unknown system")
 endif()
 
 ## Add test
