@@ -7,22 +7,23 @@
 #include "GetStrainEnergyChange.h"
 #include "Material.h"
 
-static double getDistance(std::shared_ptr<Node> node1, std::shared_ptr<Node> node2) {
+static double getDistance(std::shared_ptr<Node> node1,
+                          std::shared_ptr<Node> node2) {
     return std::sqrt(std::pow(node1->x - node2->x, 2) +
                      std::pow(node1->y - node2->y, 2) +
                      std::pow(node1->z - node2->z, 2));
 }
 
 static Eigen::Vector2d getNormal(std::shared_ptr<Node> node1,
-                          std::shared_ptr<Node> node2) {
+                                 std::shared_ptr<Node> node2) {
     Eigen::Vector2d normal(node2->y - node1->y, node1->x - node2->x);
     normal.normalize();
     return normal;
 }
 
 static Eigen::Vector2d getTraction(std::shared_ptr<Node> node1,
-                            std::shared_ptr<Node> node2,
-                            std::shared_ptr<Node> node3) {
+                                   std::shared_ptr<Node> node2,
+                                   std::shared_ptr<Node> node3) {
     Eigen::Vector2d traction;
     Eigen::Matrix2d stress;
     stress(0, 0) = (node1->Stress[0] + node2->Stress[0] + node3->Stress[0]) / 3;
@@ -36,8 +37,9 @@ static Eigen::Vector2d getTraction(std::shared_ptr<Node> node1,
     return traction;
 }
 
-static double getStressSum(std::shared_ptr<Node> node1, std::shared_ptr<Node> node2,
-                    std::shared_ptr<Node> node3) {
+static double getStressSum(std::shared_ptr<Node> node1,
+                           std::shared_ptr<Node> node2,
+                           std::shared_ptr<Node> node3) {
     double stressSum = 0;
     stressSum += node1->Stress[0] + node1->Stress[1];
     stressSum += node2->Stress[0] + node2->Stress[1];
@@ -47,8 +49,8 @@ static double getStressSum(std::shared_ptr<Node> node1, std::shared_ptr<Node> no
 }
 
 static Eigen::Vector2d getDisplacement(std::shared_ptr<Node> node1,
-                                std::shared_ptr<Node> node2,
-                                std::shared_ptr<Node> node3) {
+                                       std::shared_ptr<Node> node2,
+                                       std::shared_ptr<Node> node3) {
     Eigen::Vector2d displacement;
     displacement(0) = (node1->Displacement[0] + node2->Displacement[0] +
                        node3->Displacement[0]) /

@@ -1,27 +1,27 @@
 #include <gmsh.h>
 
-#include <cstddef>
 #include <memory>
 #include <vector>
 
 #include "GetStrainEnergyChange.h"
 #include "Material.h"
 
-static double getDistance(std::shared_ptr<Node> node1, std::shared_ptr<Node> node2) {
+static double getDistance(std::shared_ptr<Node> node1,
+                          std::shared_ptr<Node> node2) {
     return std::sqrt(std::pow(node1->x - node2->x, 2) +
                      std::pow(node1->y - node2->y, 2) +
                      std::pow(node1->z - node2->z, 2));
 }
 
 static Eigen::Vector2d getNormal(std::shared_ptr<Node> node1,
-                          std::shared_ptr<Node> node2) {
+                                 std::shared_ptr<Node> node2) {
     Eigen::Vector2d normal(node2->y - node1->y, node1->x - node2->x);
     normal.normalize();
     return normal;
 }
 
 static Eigen::Vector2d getTraction(std::shared_ptr<Node> node1,
-                            std::shared_ptr<Node> node2) {
+                                   std::shared_ptr<Node> node2) {
     Eigen::Vector2d traction;
     auto&& normal = getNormal(node1, node2);
     traction(0) = 1 * normal(0);
@@ -33,8 +33,8 @@ static Eigen::Vector2d getTraction(std::shared_ptr<Node> node1,
 inline static double getStressSum() { return 2; }
 
 static Eigen::Vector2d getDisplacement(std::shared_ptr<Node> node1,
-                                std::shared_ptr<Node> node2,
-                                std::shared_ptr<Node> node3) {
+                                       std::shared_ptr<Node> node2,
+                                       std::shared_ptr<Node> node3) {
     Eigen::Vector2d displacement;
     displacement(0) = (node1->Displacement[0] + node2->Displacement[0] +
                        node3->Displacement[0]) /
