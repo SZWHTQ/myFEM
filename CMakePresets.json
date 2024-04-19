@@ -1,0 +1,39 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 15,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "Default",
+            "description": "Default settings with Ninja Multi-Config",
+            "generator": "Ninja Multi-Config",
+            "cacheVariables": {
+                "CMAKE_CXX_STANDARD_REQUIRED": "True",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
+            }
+        },
+        {
+            "name": "Visual Studio",
+            "description": "Windows Visual Studio Environment with Vcpkg",
+            "generator": "Visual Studio 17 2022",
+            "cacheVariables": {
+                "CMAKE_CXX_STANDARD_REQUIRED": "True"
+            },
+            "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        },
+        {
+            "name": "Visual Studio 2019",
+            "description": "Windows Visual Studio 2019 Environment with Vcpkg",
+            "generator": "Visual Studio 16 2019",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "CMAKE_CXX_STANDARD_REQUIRED": "True"
+            },
+            "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        }
+    ]
+}

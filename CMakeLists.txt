@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 
 project(
     myFEM
@@ -6,9 +6,6 @@ project(
 )
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(BUILD_SHARED_LIBS OFF)
 
 find_package(VTK COMPONENTS
     CommonCore
@@ -35,7 +32,7 @@ add_subdirectory(src)
 
 add_library(
     ${PROJECT_NAME}
-    STATIC
+    SHARED
     ${srcs}
 )
 target_link_libraries(
