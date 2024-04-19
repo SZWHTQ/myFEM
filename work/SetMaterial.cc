@@ -16,7 +16,7 @@ std::vector<double> get_element_center(Element* element) {
     return center;
 }
 
-bool inTheEllipse(double x, double y, double a, double b) {
+static bool inTheEllipse(double x, double y, double a, double b) {
     return x * x / a / a + y * y / b / b < 1;
 }
 

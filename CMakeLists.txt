@@ -32,7 +32,7 @@ add_subdirectory(src)
 
 add_library(
     ${PROJECT_NAME}
-    SHARED
+    STATIC
     ${srcs}
 )
 target_link_libraries(
