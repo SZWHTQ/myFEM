@@ -16,30 +16,30 @@ class Serendipity : public Element {
     Serendipity(const size_t index_, const std::vector<std::shared_ptr<Node>>& nodes_,
                 const bool planeStress_ = true);
 
-    double getArea() override;
+    double getArea() const override;
 
     const std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncLocalDerivative(
-        double ksi, double eta) override;
+        double ksi, double eta) const override;
 
     const std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncDerivative(
-        double ksi, double eta) override;
+        double ksi, double eta) const override;
 
-    const Eigen::MatrixXd getJacobian(double ksi, double eta) override;
+    const Eigen::MatrixXd getJacobian(double ksi, double eta) const override;
 
-    const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) override;
+    const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) const override;
 
-    const Eigen::MatrixXd getElasticMatrix() override;
+    const Eigen::MatrixXd getElasticMatrix() const override;
 
-    const Eigen::MatrixXd getStiffnessMatrix() override;
+    const Eigen::MatrixXd getStiffnessMatrix() const override;
 
-    const std::vector<Eigen::VectorXd> getGaussPointsStrain() override;
+    const std::vector<Eigen::VectorXd> getGaussPointsStrain() const override;
 
-    const std::vector<Eigen::VectorXd> getGaussPointsStress() override;
+    const std::vector<Eigen::VectorXd> getGaussPointsStress() const override;
 
-    double getStrainEnergy() override;
+    double getStrainEnergy() const override;
 
-    int calculateStrainStress() override;
-    int calculateStrainStressGaussPoint() override;
+    int calculateStrainStress() const override;
+    int calculateStrainStressGaussPoint() const override;
 
     ~Serendipity(){};
 };

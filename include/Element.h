@@ -44,42 +44,42 @@ class Element {
     virtual ~Element(){};
 
     // Area of element
-    virtual double getArea() = 0;
+    virtual double getArea() const = 0;
 
     // Derivative of shape function with respect to local coordinates
     virtual const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
-    getShapeFuncLocalDerivative(double ksi, double eta) = 0;
+    getShapeFuncLocalDerivative(double ksi, double eta) const = 0;
 
     // Derivative of shape function with respect to global coordinates
     virtual const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
-    getShapeFuncDerivative(double ksi, double eta) = 0;
+    getShapeFuncDerivative(double ksi, double eta) const = 0;
 
     // Jacobian matrix
-    virtual const Eigen::MatrixXd getJacobian(double ksi, double eta) = 0;
+    virtual const Eigen::MatrixXd getJacobian(double ksi, double eta) const = 0;
 
     // Strain matrix
-    virtual const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) = 0;
+    virtual const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) const = 0;
 
     // Elastic matrix
-    virtual const Eigen::MatrixXd getElasticMatrix() = 0;
+    virtual const Eigen::MatrixXd getElasticMatrix() const = 0;
 
     // Stiffness matrix
-    virtual const Eigen::MatrixXd getStiffnessMatrix() = 0;
+    virtual const Eigen::MatrixXd getStiffnessMatrix() const = 0;
 
     // Gauss Strain
-    virtual const std::vector<Eigen::VectorXd> getGaussPointsStrain() = 0;
+    virtual const std::vector<Eigen::VectorXd> getGaussPointsStrain() const = 0;
 
     // Gauss Stress
-    virtual const std::vector<Eigen::VectorXd> getGaussPointsStress() = 0;
+    virtual const std::vector<Eigen::VectorXd> getGaussPointsStress() const = 0;
 
     // Strain energy
-    virtual double getStrainEnergy() = 0;
+    virtual double getStrainEnergy() const = 0;
 
     // Calculate strain and stress
-    virtual int calculateStrainStress() = 0;
-    virtual int calculateStrainStressGaussPoint() = 0;
+    virtual int calculateStrainStress() const = 0;
+    virtual int calculateStrainStressGaussPoint() const = 0;
 
-    std::string getElementName() { return elementName; };
-    size_t getIndex() { return index; };
+    std::string getElementName() const { return elementName; };
+    size_t getIndex() const { return index; };
     size_t setMaterial(Material* material_);
 };

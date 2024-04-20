@@ -29,11 +29,11 @@ class Mesh {
          std::vector<size_t> boundaryNodeTags, bool planeStress = true);
     ~Mesh();
 
-    Eigen::MatrixXd assembleStiffnessMatrix();
+    Eigen::MatrixXd const assembleStiffnessMatrix();
     Eigen::SparseMatrix<double> sparseAssembleStiffnessMatrix();
     Eigen::MatrixXd parallelAssembleStiffnessMatrix();
     Eigen::SparseMatrix<double> parallelSparseAssembleStiffnessMatrix();
-    static const std::vector<double> equivalentForce(Load* load);
+    static std::vector<double> const equivalentForce(Load* load);
 
     int Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
               bool verbose = false);

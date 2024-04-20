@@ -97,7 +97,7 @@ Mesh::~Mesh() {
     Elements.clear();
 }
 
-const std::vector<double> Mesh::equivalentForce(Load* load) {
+std::vector<double> const Mesh::equivalentForce(Load* load) {
     std::vector<double> equivalentForce(6);
     Eigen::VectorXd X(6), Y(6);
     auto&& n = load->nodes;
@@ -147,7 +147,7 @@ const std::vector<double> Mesh::equivalentForce(Load* load) {
     return equivalentForce;
 }
 
-Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
+Eigen::MatrixXd const Mesh::assembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
 
@@ -282,6 +282,9 @@ Eigen::SparseMatrix<double> Mesh::parallelSparseAssembleStiffnessMatrix() {
  */
 int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
                 bool verbose) {
+    Timer timer;
+
+    // Get equivalent force
     Force.resize(Nodes.size() * 2);
     Force.setZero();
     for (auto&& load : loads) {
@@ -293,32 +296,34 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
                 equivalentForce[2 * i + 1];
         }
     }
-
-    Timer timer;
-
-    auto&& K = sparseAssembleStiffnessMatrix();
-
     if (verbose) {
-        std::cout << "  Stiffness matrix assembled in " << timer.elapsed()
+        std::cout << "  Equivalent force calculated in " << timer.elapsed()
                   << " ms" << std::endl;
-
-        // Apply boundary conditions
         timer.reset();
     }
 
-    Eigen::VectorXd List1 = Eigen::VectorXd::Ones(Nodes.size() * 2);
-    Eigen::VectorXd List2 = Eigen::VectorXd::Zero(Nodes.size() * 2);
-    for (auto&& boundary : boundaries) {
-        for (size_t i = 0; i < 2; ++i) {
-            if (boundary.fixed[i]) {
-                size_t j = 2 * boundary.node->getIndex() + i;
-                List1(j) = 0;
-                List2(j) = 1;
-                Force.coeffRef(j) = 0;
+    // Assemble stiffness matrix
+    auto&& K = sparseAssembleStiffnessMatrix();
+    if (verbose) {
+        std::cout << "  Stiffness matrix assembled in " << timer.elapsed()
+                  << " ms" << std::endl;
+        timer.reset();
+    }
+
+    // Apply boundary conditions
+    {
+        Eigen::VectorXd List1 = Eigen::VectorXd::Ones(Nodes.size() * 2);
+        Eigen::VectorXd List2 = Eigen::VectorXd::Zero(Nodes.size() * 2);
+        for (auto&& boundary : boundaries) {
+            for (size_t i = 0; i < 2; ++i) {
+                if (boundary.fixed[i]) {
+                    size_t j = 2 * boundary.node->getIndex() + i;
+                    List1(j) = 0;
+                    List2(j) = 1;
+                    Force.coeffRef(j) = 0;
+                }
             }
         }
-    }
-    {
         Eigen::SparseMatrix<double> diagonalMatrix1;
         Eigen::SparseMatrix<double> diagonalMatrix2;
         diagonalMatrix1 = List1.asDiagonal();
@@ -336,50 +341,46 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
             }
         }
      */
-
     if (verbose) {
         std::cout << "  Boundary conditions applied in " << timer.elapsed()
                   << " ms" << std::endl;
     }
 
+    // Solve
     // auto&& K = globalStiffnessMatrix.sparseView();
     Eigen::SparseVector<double> U;
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-
     if (verbose) {
         timer.reset();
     }
-
     solver.analyzePattern(K);
     solver.factorize(K);
-
     if (verbose) {
         std::cout << "  Analyzed pattern and factorized in " << timer.elapsed()
                   << " ms" << std::endl;
     }
-
     if (solver.info() != Eigen::Success) {
         std::cerr << "LU decomposition failed" << std::endl;
         std::cerr << "Error code: " << solver.info() << std::endl;
         std::cerr << "Error message: " << solver.lastErrorMessage() << "\n";
         return -1;
     }
-
     if (verbose) {
         timer.reset();
     }
-
     U = solver.solve(Force);
     if (verbose) {
         std::cout << "  Solver solved in " << timer.elapsed() << " ms"
                   << std::endl;
     }
 
+    // Copy displacement to Nodes
     for (size_t i = 0; i < Nodes.size(); ++i) {
         Nodes[i]->Displacement(0) = U.coeff(2 * i);
         Nodes[i]->Displacement(1) = U.coeff(2 * i + 1);
     }
 
+    // Calculate stain stress
     for (auto&& element : Elements) {
         element->calculateStrainStressGaussPoint();
     }
