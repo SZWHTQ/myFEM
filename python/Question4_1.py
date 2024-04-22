@@ -5,19 +5,19 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.patches import Rectangle
 from tqdm import tqdm
-from libraryWrapper import WorkerLibraryWrapper
+from libraryWrapper import PyWorkerWrapper
 import scipy as sp
 
 
 def getCurve(Ksi, inclusionModulus):
     result = np.array([])
-    wrapper = WorkerLibraryWrapper()
+    wrapper = PyWorkerWrapper()
     wrapper.inclusionModulus = inclusionModulus
     wrapper.a_b = 3
     wrapper.meshSize = 0.5
     wrapper.refinementFactor = 20
     wrapper.convertToSquare = True
-    # wrapper.verbose = True
+    wrapper.verbose = True
     for xi in Ksi:
         wrapper.ksi = xi
         result = np.append(result, wrapper.run())

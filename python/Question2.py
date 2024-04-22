@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from libraryWrapper import WorkerLibraryWrapper
+from libraryWrapper import PyWorkerWrapper
 from Analytical import cylindricalInclusion
 import scipy as sp
 
@@ -11,7 +11,7 @@ inclusionModuli = np.arange(0, 11, 1, dtype=np.float64)
 inclusionModuli[0] = 1e-15
 numerical = np.array([])
 analytical = np.array([])
-wrapper = WorkerLibraryWrapper()
+wrapper = PyWorkerWrapper()
 wrapper.meshSize = 2
 wrapper.refinementFactor = 10
 for E in tqdm(inclusionModuli):

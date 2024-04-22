@@ -2,19 +2,19 @@ import ctypes
 import sys
 
 
-class WorkerLibraryWrapper:
-    def __init__(self, libDirectory: str = "./lib"):
+class PyWorkerWrapper:
+    def __init__(self, libName: str = "PythonWorker", libDirectory: str = "./lib"):
         # Get system name
         system = sys.platform
         # Check if windows
         if system == "win32":
-            libPath = libDirectory + "/PythonWorker.dll"
+            libPath = libDirectory + "/" + libName + ".dll"
         # Check if linux
         elif system == "linux":
-            libPath = libDirectory + "/PythonWorker.so"
+            libPath = libDirectory + "/" + libName + ".so"
         # Check if mac
         elif system == "darwin":
-            libPath = libDirectory + "/PythonWorker.dylib"
+            libPath = libDirectory + "/" + libName + ".dylib"
 
         # Load library
         try:

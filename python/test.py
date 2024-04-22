@@ -1,7 +1,7 @@
 import libraryWrapper as lw
 from Analytical import cylindricalInclusion
 
-worker = lw.WorkerLibraryWrapper()
+worker = lw.PyWorkerWrapper()
 
 worker.B = 10
 worker.ksi = 10
