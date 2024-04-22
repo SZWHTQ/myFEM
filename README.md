@@ -48,7 +48,12 @@ python Question2.py
 
 ### Result
 #### Question 2
-![This Project](image/Question2.png)
-#### Single run
-![This Project](image/StressXX.png)
-![COMSOL](image/COMSOL_StressXX.png)
+<p align="center"><img width=800  alt="COMSOL" src="image/Question2.png"/>
+
+#### Singleton
+<table>
+<tr><td> COMSOL
+</td><td> <img width=750  alt="COMSOL" src="image/COMSOL_StressXX.png"/> </td>
+<tr><td> This work
+</td><td> <img width=750  alt="This Project" src="image/StressXX.png"/> </td>
+</table>
