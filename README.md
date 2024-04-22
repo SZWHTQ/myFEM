@@ -1,8 +1,8 @@
 # myFEM
-For some homework
+A simple FEM library
 
 ### Element Implementation
-- Rectangle Serendipity 2D
+- Rectangle Serendipity
 
 ### Depends on
 1. [Gmsh](https://gmsh.info/)>=4.12.0
