@@ -11,30 +11,36 @@ For some homework
 4. [VTK](https://vtk.org/)
 
 ### Build
-Configure the project with CMake
+1. Configure the project with CMake
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 ```
-Build the project
+2. Build the project
 ```bash
 cmake --build build -j
 ```
-Or just build the pythonWorker library
+- Or just build the `PyWorker` library
 ```bash
-cmake --build build -j --target pythonWorker
+cmake --build build -j --target PyWorker
 ```
-Go to the python directory
+3. Go to the python directory
 ```bash
 cd python
 ```
-Before run the python script, you may need to modify the `libraryWrapper.py`. For example, if you build the library in the `python/library/build/` directory and decide to run python script in `python` directory, you should modify the `libraryWrapper.py` as follows
+4. Before run the python script, you may need to modify the `libraryWrapper.py`. For example, if you built the library in `python/library/build` directory and decide to run python script in `python` directory, you should modify the `libraryWrapper.py` as follows:
 ```python
 class PyWorkerWrapper:
     def __init__(self, libName: str = "PythonWorker", libDirectory: str = "./lib"):
+        # Change the libDirectory to your library directory
+        libDirectory = "./library/build"
         # Get system name
         ...
 ```
-Now, run the python script
+- If you follow the above steps, you can create a soft link to the library directory:
+```bash
+ln -s ../build/work lib
+```
+5. Now, run the python script
 ```bash
 python Question2.py
 ```
