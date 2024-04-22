@@ -40,7 +40,8 @@ class PyWorkerWrapper:
 ```bash
 ln -s ../build/work lib
 ```
-5. Now, run the python script
+5. Check all the python dependencies listed in the `requirements.txt` are installed
+6. Now, run the python script
 ```bash
 python Question2.py
 ```
