@@ -29,9 +29,8 @@ cd python
 ```
 Before run the python script, you may need to modify the `libraryWrapper.py`. For example, if you build the library in the `python/library/build/` directory and decide to run python script in `python` directory, you should modify the `libraryWrapper.py` as follows
 ```python
-class WorkerLibraryWrapper:
-    def __init__(self, libDirectory: str = "./library/build/Release"):
-        libDirectory = "./library/build"
+class PyWorkerWrapper:
+    def __init__(self, libName: str = "PythonWorker", libDirectory: str = "./lib"):
         # Get system name
         ...
 ```
