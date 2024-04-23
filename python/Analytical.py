@@ -2,23 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def getLame(E, nu):
+def getLame(E: np.float64, nu: np.float64) -> tuple[np.float64, np.float64]:
     lam = E * nu / ((1 + nu) * (1 - 2 * nu))
     mu = E / (2 * (1 + nu))
     return lam, mu
 
 
 def cylindricalInclusion(
-    matrixPoisson: float = 0.3,
-    inclusionModulus: float = 1,
-    inclusionPoisson: float = 0.2,
-    boundaryStress: float = 1,
-    inclusionCircleRadius: float = 1,
-):
+    matrixPoisson: np.float64 = 0.3,
+    inclusionModulus: np.float64 = 1,
+    inclusionPoisson: np.float64 = 0.2,
+    boundaryStress: np.float64 = 1,
+    inclusionCircleRadius: np.float64 = 1,
+) -> np.float64:
     matrixModulus = 1  # Must be 1 for this analytical formula
     _, mu_m = getLame(matrixModulus, matrixPoisson)
     _, mu_i = getLame(inclusionModulus, inclusionPoisson)
-    u_r = (
+    u_r: np.float64 = (
         boundaryStress
         * inclusionCircleRadius
         * (1 - matrixPoisson)
@@ -26,7 +26,7 @@ def cylindricalInclusion(
         * (1 - 2 * inclusionPoisson)
         / (1 - 2 * inclusionPoisson + mu_i / mu_m)
     )
-    deltaU = (
+    deltaU: np.float64 = (
         np.pi
         * boundaryStress
         * inclusionCircleRadius
