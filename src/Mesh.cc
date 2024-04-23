@@ -151,7 +151,6 @@ Eigen::MatrixXd const Mesh::assembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
 
-    ThreadPool pool(std::thread::hardware_concurrency());
     for (auto element : Elements) {
         auto&& ke = element->getStiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {

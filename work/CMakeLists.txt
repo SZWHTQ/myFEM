@@ -85,4 +85,4 @@ set_target_properties(PyWorker PROPERTIES
     SOVERSION ${PROJECT_VERSION}
 )
 
-add_subdirectory(single)
+add_subdirectory(singleton)

@@ -19,7 +19,6 @@ Serendipity::Serendipity(const size_t index_,
     }
 }
 
-
 // get the area of the element via gauss integral
 double Serendipity::getArea() const {
     double area = 0;
@@ -90,7 +89,8 @@ const Eigen::MatrixXd Serendipity::getJacobian(double ksi, double eta) const {
     return J;
 }
 
-const Eigen::MatrixXd Serendipity::getStrainMatrix(double ksi, double eta) const {
+const Eigen::MatrixXd Serendipity::getStrainMatrix(double ksi,
+                                                   double eta) const {
     auto& [N_x, N_y] = getShapeFuncDerivative(ksi, eta);
     Eigen::MatrixXd strainMatrix(3, nodeNum * 2);
     strainMatrix.setZero();
@@ -140,7 +140,7 @@ const Eigen::MatrixXd Serendipity::getStiffnessMatrix() const {
             double detJ =
                 getJacobian(gaussData.abscissas[i], gaussData.abscissas[j])
                     .determinant();
-            stiffnessMatrix += B.transpose() * D * B * detJ *
+            stiffnessMatrix += thickness * B.transpose() * D * B * detJ *
                                gaussData.weights[i] * gaussData.weights[j];
         }
     }
