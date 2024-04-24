@@ -7,6 +7,7 @@
 
 #include "Element.h"
 #include "Mesh.h"
+#include <omp.h>
 #include "Serendipity.h"
 #include "ThreadPool.h"
 #include "Timer.h"
@@ -180,6 +181,7 @@ Eigen::SparseMatrix<double> Mesh::sparseAssembleStiffnessMatrix() {
     std::vector<Eigen::Triplet<double>> triplets;
     triplets.reserve(Elements.size() * 4 * Serendipity::nodeNum *
                      Serendipity::nodeNum);
+
     for (auto element : Elements) {
         auto&& ke = element->getStiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
@@ -282,6 +284,11 @@ Eigen::SparseMatrix<double> Mesh::parallelSparseAssembleStiffnessMatrix() {
 int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
                 bool verbose) {
     Timer timer;
+    Eigen::setNbThreads(omp_get_max_threads());
+    if (verbose) {
+        unsigned int eigenThreadsNum = Eigen::nbThreads();
+        std::cout << "  Eigen threads: " << eigenThreadsNum << std::endl;
+    }
 
     // Get equivalent force
     Force.resize(Nodes.size() * 2);

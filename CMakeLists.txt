@@ -28,6 +28,8 @@ message(STATUS "VTK found: version ${VTK_VERSION}")
 find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen3 found: version ${Eigen3_VERSION}")
 
+find_package(OpenMP)
+
 set(srcs)
 add_subdirectory(src)
 
@@ -41,6 +43,13 @@ target_link_libraries(
     PRIVATE
     ${VTK_LIBRARIES}
 )
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(
+        ${PROJECT_NAME}
+        PRIVATE
+        OpenMP::OpenMP_CXX
+    )
+endif()
 target_include_directories(
     ${PROJECT_NAME}
     PUBLIC
