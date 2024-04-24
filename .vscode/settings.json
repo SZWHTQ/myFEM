@@ -2,7 +2,7 @@
     "cmake.debugConfig": {
         "cwd": "${workspaceFolder}",
         "args": [
-            "${workspaceFolder}/work/single/settings.toml"
+            "${workspaceFolder}/work/singleton/settings.toml"
         ],
     },
 }

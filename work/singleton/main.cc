@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
         bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
 
         // Generate mesh
-        Timer t, timer;
+        Timer globalTimer, timer;
         // Initialize the Gmsh library
         gmsh::initialize();
         std::vector<double> nodeCoord;
@@ -43,17 +43,16 @@ int main(int argc, char* argv[]) {
             return err;
         }
         std::cout << std::fixed << std::setprecision(2);
-        std::cout << "Mesh created in " << timer.elapsed() << " ms"
-                  << std::endl;
+        std::cout << "Mesh created in " << timer << std::endl;
 
         // Convert mesh
         timer.reset();
         Mesh mesh(nodeCoord,
                   {std::pair(Mesh::MeshType::serendipity, elementNodeTags)},
                   boundaryNodeTags, isPlaneStress);
-        std::cout << "Mesh converted in " << timer.elapsed() << " ms"
-                  << " with " << mesh.Nodes.size() << " nodes and "
-                  << mesh.Elements.size() << " elements" << std::endl;
+        std::cout << "Mesh converted in " << timer << " with "
+                  << mesh.Nodes.size() << " nodes and " << mesh.Elements.size()
+                  << " elements" << std::endl;
 
         // Set material
         double E1 = settings["Material"]["Matrix"][0].value_or(1.0);
@@ -72,7 +71,7 @@ int main(int argc, char* argv[]) {
         // Solve
         timer.reset();
         mesh.Solve(loadCondition, boundaryCondition, true);
-        std::cout << "Mesh solved in " << timer.elapsed() << " ms" << std::endl;
+        std::cout << "Mesh solved in " << timer << std::endl;
 
         // Write output
         std::string vtkFileName =
@@ -82,8 +81,8 @@ int main(int argc, char* argv[]) {
         vtkManager vtk(mesh);
         vtk.setMeshData(mesh);
         vtk.write(vtkFileName, isBinary);
-        std::cout << "Vtk written in " << timer.elapsed() << " ms" << std::endl;
-        std::cout << "Total time: " << t.elapsed() << " ms" << std::endl;
+        std::cout << "Vtk written in " << timer << std::endl;
+        std::cout << "Total time: " << globalTimer << std::endl;
         std::cout << "\n";
 
         double matrixStrainEnergy = 0, inclusionStrainEnergy = 0;
@@ -154,7 +153,8 @@ int main(int argc, char* argv[]) {
                   << std::endl;
         auto deltaU = getStrainEnergyChange(&mesh, &meshNoInclusion, &matrix,
                                             &inclusion, isPlaneStress);
-        std::cout << "  Integral on the interface result: " << deltaU * 4 << std::endl;
+        std::cout << "  Integral on the interface result: " << deltaU * 4
+                  << std::endl;
         std::cout << std::fixed << std::setprecision(2);
 
         std::cout << "Relative error: "

@@ -15,7 +15,7 @@ Inclusion = [2, 0.2]
 
 [Mesh]
 size = 0.1
-refinementFactor = 20
+refinementFactor = 200
 Algorithm = 8
 planeStress = false
 

@@ -296,16 +296,14 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
         }
     }
     if (verbose) {
-        std::cout << "  Equivalent force calculated in " << timer.elapsed()
-                  << " ms" << std::endl;
+        std::cout << "  Equivalent force calculated in " << timer << std::endl;
         timer.reset();
     }
 
     // Assemble stiffness matrix
     auto&& K = sparseAssembleStiffnessMatrix();
     if (verbose) {
-        std::cout << "  Stiffness matrix assembled in " << timer.elapsed()
-                  << " ms" << std::endl;
+        std::cout << "  Stiffness matrix assembled in " << timer << std::endl;
         timer.reset();
     }
 
@@ -341,8 +339,7 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
         }
      */
     if (verbose) {
-        std::cout << "  Boundary conditions applied in " << timer.elapsed()
-                  << " ms" << std::endl;
+        std::cout << "  Boundary conditions applied in " << timer << std::endl;
     }
 
     // Solve
@@ -355,8 +352,8 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
     solver.analyzePattern(K);
     solver.factorize(K);
     if (verbose) {
-        std::cout << "  Analyzed pattern and factorized in " << timer.elapsed()
-                  << " ms" << std::endl;
+        std::cout << "  Analyzed pattern and factorized in " << timer
+                  << std::endl;
     }
     if (solver.info() != Eigen::Success) {
         std::cerr << "LU decomposition failed" << std::endl;
@@ -369,8 +366,7 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
     }
     U = solver.solve(Force);
     if (verbose) {
-        std::cout << "  Solver solved in " << timer.elapsed() << " ms"
-                  << std::endl;
+        std::cout << "  Solver solved in " << timer << std::endl;
     }
 
     // Copy displacement to Nodes
