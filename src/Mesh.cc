@@ -152,7 +152,7 @@ std::vector<double> const Mesh::equivalentForce(Load* load) {
     return equivalentForce;
 }
 
-Eigen::MatrixXd const Mesh::assembleStiffnessMatrix() {
+Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
 

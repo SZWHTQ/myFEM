@@ -5,6 +5,20 @@
 #include "Boundary.h"
 #include "Element.h"
 
+typedef std::pair<size_t, size_t> Key;
+
+struct KeyHash {
+    std::size_t operator()(const Key& k) const {
+        return std::hash<size_t>()(k.first) ^ std::hash<size_t>()(k.second);
+    }
+};
+
+struct KeyEqual {
+    bool operator()(const Key& lhs, const Key& rhs) const {
+        return lhs.first == rhs.first && lhs.second == rhs.second;
+    }
+};
+
 class Mesh {
    public:
     size_t nodeNum;
@@ -16,7 +30,7 @@ class Mesh {
 
     Eigen::SparseVector<double> Force;
 
-    Mesh() : nodeNum(0), planeStress(true){
+    Mesh() : nodeNum(0), planeStress(true) {
         Nodes = std::vector<std::shared_ptr<Node>>();
         Elements = std::vector<Element*>();
     }
@@ -29,21 +43,16 @@ class Mesh {
          std::vector<size_t> boundaryNodeTags, bool planeStress = true);
     ~Mesh();
 
-    Eigen::MatrixXd const assembleStiffnessMatrix();
+    Eigen::MatrixXd assembleStiffnessMatrix();
     Eigen::SparseMatrix<double> sparseAssembleStiffnessMatrix();
     Eigen::MatrixXd parallelAssembleStiffnessMatrix();
     Eigen::SparseMatrix<double> parallelSparseAssembleStiffnessMatrix();
+    std::unordered_map<Key, double, KeyHash, KeyEqual> getStiffnessMatrixMap();
     static std::vector<double> const equivalentForce(Load* load);
 
     int Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
               bool verbose = false);
-};
 
-struct pair_hash {
-    template <class T1, class T2>
-    std::size_t operator()(const std::pair<T1, T2>& pair) const {
-        auto hash1 = std::hash<T1>{}(pair.first);
-        auto hash2 = std::hash<T2>{}(pair.second);
-        return hash1 ^ hash2;
-    }
+    int cuSolver(std::list<Load>& loads, std::list<Boundary>& boundaries,
+                 bool verbose = false);
 };
