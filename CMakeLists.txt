@@ -8,12 +8,15 @@ project(
 )
 
 set(CMAKE_CXX_STANDARD 17)
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+    OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel" OR CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 else()
     message(WARNING "Unknown compiler, no warning flags set")
+    message(WARNING "Compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
 find_package(VTK COMPONENTS
@@ -43,6 +46,7 @@ target_link_libraries(
     PRIVATE
     ${VTK_LIBRARIES}
 )
+
 if(OpenMP_CXX_FOUND)
     target_link_libraries(
         ${PROJECT_NAME}
@@ -50,6 +54,7 @@ if(OpenMP_CXX_FOUND)
         OpenMP::OpenMP_CXX
     )
 endif()
+
 target_include_directories(
     ${PROJECT_NAME}
     PUBLIC

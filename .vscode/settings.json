@@ -3,6 +3,6 @@
         "cwd": "${workspaceFolder}",
         "args": [
             "${workspaceFolder}/work/singleton/settings.toml"
-        ],
-    },
+        ]
+    }
 }

@@ -1,13 +1,17 @@
+#include <omp.h>
+
 #include <Eigen/SparseLU>
+#include <climits>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <new>
 #include <thread>
 #include <vector>
 
 #include "Element.h"
 #include "Mesh.h"
-#include <omp.h>
 #include "Serendipity.h"
 #include "ThreadPool.h"
 #include "Timer.h"
@@ -352,26 +356,55 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
     // Solve
     // auto&& K = globalStiffnessMatrix.sparseView();
     Eigen::SparseVector<double> U;
-    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-    if (verbose) {
-        timer.reset();
-    }
-    solver.analyzePattern(K);
-    solver.factorize(K);
-    if (verbose) {
-        std::cout << "  Analyzed pattern and factorized in " << timer
-                  << std::endl;
-    }
-    if (solver.info() != Eigen::Success) {
-        std::cerr << "LU decomposition failed" << std::endl;
-        std::cerr << "Error code: " << solver.info() << std::endl;
-        std::cerr << "Error message: " << solver.lastErrorMessage() << "\n";
+    try {
+        Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+        if (verbose) {
+            timer.reset();
+        }
+        solver.analyzePattern(K);
+        solver.factorize(K);
+        if (verbose) {
+            std::cout << "  Analyzed pattern and factorized in " << timer
+                      << std::endl;
+        }
+        if (solver.info() != Eigen::Success) {
+            std::cerr << "LU decomposition failed" << std::endl;
+            std::cerr << "Error code: " << solver.info() << std::endl;
+            std::cerr << "Error message: " << solver.lastErrorMessage() << "\n";
+            return -1;
+        }
+        if (verbose) {
+            timer.reset();
+        }
+        U = solver.solve(Force);
+    } catch (const std::bad_alloc) {
+        std::cerr << "Memory allocation failed" << std::endl;
+        std::cerr << "Use Conjugate Gradient instead" << std::endl;
+
+        Eigen::ConjugateGradient<Eigen::SparseMatrix<double>,
+                                 Eigen::Lower | Eigen::Upper,
+                                 Eigen::DiagonalPreconditioner<double>>
+            solver;
+        if (verbose) {
+            timer.reset();
+        }
+
+        solver.compute(K);
+
+        solver.setTolerance(1e-9);
+        solver.setMaxIterations(INT_MAX);
+        U = solver.solve(Force);
+
+        if (solver.info() != Eigen::Success) {
+            std::cerr << "Conjugate Gradient failed" << std::endl;
+            std::cerr << "Error code: " << solver.info() << std::endl;
+            return -1;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Solver failed" << std::endl;
+        std::cerr << e.what() << std::endl;
         return -1;
     }
-    if (verbose) {
-        timer.reset();
-    }
-    U = solver.solve(Force);
     if (verbose) {
         std::cout << "  Solver solved in " << timer << std::endl;
     }
