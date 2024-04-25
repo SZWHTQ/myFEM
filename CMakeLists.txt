@@ -4,10 +4,20 @@ project(
     myFEM
     VERSION 1.0.0
     DESCRIPTION "A simple FEM library"
-    LANGUAGES CXX
+    LANGUAGES C CXX CUDA
 )
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER})
+set(CMAKE_CUDA_STANDARD 11)
+set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+set(CMAKE_CUDA_EXTENSIONS OFF)
+set(CMAKE_C_FLAGS "${CMAKE_CUDA_FLAGS} -allow-unsupported-compiler")
+set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -allow-unsupported-compiler")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -allow-unsupported-compiler")
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
@@ -35,6 +45,34 @@ find_package(OpenMP)
 
 set(srcs)
 add_subdirectory(src)
+
+add_library(
+    cuSolver
+    STATIC
+    src/cuSolve.cu
+)
+target_link_libraries(
+    cuSolver
+    PRIVATE
+    cusolver
+    cublas
+    cublasLt
+    cusparse
+    cusolverMg
+)
+target_include_directories(
+    cuSolver
+    PRIVATE
+    ${CUDA_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/include
+)
+set_property(TARGET cuSolver PROPERTY CUDA_ARCHITECTURES OFF)
+set_target_properties(
+    cuSolver
+    PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+)
 
 add_library(
     ${PROJECT_NAME}
