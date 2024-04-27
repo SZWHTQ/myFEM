@@ -6,6 +6,7 @@ list(
     ${dir}/GaussIntegral.cc
     ${dir}/Mesh.cc
     ${dir}/Serendipity.cc
+    ${dir}/ThreadPool.cc
     ${dir}/Timer.cc
     ${dir}/vtkManager.cc
 )

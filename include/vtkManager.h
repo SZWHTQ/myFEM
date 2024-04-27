@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "Mesh.h"
+class Mesh;
 
 // Declaration of an implementation class
 class vtkManagerImpl;

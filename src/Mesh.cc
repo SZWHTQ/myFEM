@@ -10,6 +10,7 @@
 #include <thread>
 #include <vector>
 
+#include "Boundary.h"
 #include "Element.h"
 #include "Mesh.h"
 #include "Serendipity.h"
@@ -377,7 +378,7 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
             timer.reset();
         }
         U = solver.solve(Force);
-    } catch (const std::bad_alloc) {
+    } catch (const std::bad_alloc& e) {
         std::cerr << "Memory allocation failed" << std::endl;
         std::cerr << "Use Conjugate Gradient instead" << std::endl;
 

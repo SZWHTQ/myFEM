@@ -7,7 +7,9 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
+#include "Element.h"
 #include "Material.h"
+#include "Mesh.h"
 #include "vtkManager.h"
 
 // Implementation class

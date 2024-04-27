@@ -3,6 +3,7 @@
 
 #include "ApplyBoundary.h"
 #include "Boundary.h"
+#include "Element.h"
 
 std::list<Load> apply_load(Mesh* mesh, double L, double B, double value) {
     std::list<Load> loadCondition;

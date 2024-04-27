@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 
-#include "Element.h"
+class Node;
 class Load {
    public:
     std::vector<std::shared_ptr<Node>> nodes{3, nullptr};

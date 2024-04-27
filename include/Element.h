@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
-// #include <tuple>
+#include <tuple>
 #include <vector>
 
 class Material;
@@ -39,7 +39,7 @@ class Element {
     Material* material;
     double thickness;
 
-    Element() : index(0), material(nullptr), thickness(1.0) {};
+    Element() : index(0), material(nullptr), thickness(1.0){};
     explicit Element(const size_t index_, const std::string elementName_);
     virtual ~Element(){};
 
@@ -58,7 +58,8 @@ class Element {
     virtual const Eigen::MatrixXd getJacobian(double ksi, double eta) const = 0;
 
     // Strain matrix
-    virtual const Eigen::MatrixXd getStrainMatrix(double ksi, double eta) const = 0;
+    virtual const Eigen::MatrixXd getStrainMatrix(double ksi,
+                                                  double eta) const = 0;
 
     // Elastic matrix
     virtual const Eigen::MatrixXd getElasticMatrix() const = 0;

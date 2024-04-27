@@ -2,8 +2,12 @@
 #include <memory>
 #include <vector>
 
-#include "Boundary.h"
-#include "Element.h"
+#include <Eigen/Eigen>
+
+class Load;
+class Boundary;
+class Node;
+class Element;
 
 class Mesh {
    public:
