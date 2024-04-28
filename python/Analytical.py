@@ -1,8 +1,10 @@
+from typing import Tuple, Any
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-def getLame(E: np.float64, nu: np.float64) -> tuple[np.float64, np.float64]:
+def getLame(E: np.float64, nu: np.float64) -> tuple[float | Any, float]:
     lam = E * nu / ((1 + nu) * (1 - 2 * nu))
     mu = E / (2 * (1 + nu))
     return lam, mu
@@ -15,7 +17,7 @@ def cylindricalInclusion(
     boundaryStress: np.float64 = 1,
     inclusionCircleRadius: np.float64 = 1,
 ) -> np.float64:
-    matrixModulus = 1  # Must be 1 for this analytical formula
+    matrixModulus = 1.0  # Must be 1 for this analytical formula
     _, mu_m = getLame(matrixModulus, matrixPoisson)
     _, mu_i = getLame(inclusionModulus, inclusionPoisson)
     u_r: np.float64 = (
@@ -49,7 +51,8 @@ def cylindricalInclusion(
     return -deltaU
 
 
-def circle(E_m=1, nu_m=0.3, E_i=1, nu_i=0.2, sigma_0=1, a=1):
+def circle(E_m: np.float64 = 1.0, nu_m: np.float64 = 0.3, E_i: np.float64 = 1.0, nu_i: np.float64 = 0.2, sigma_0=1,
+           a=1):
     L_m, mu_m = getLame(E_m, nu_m)
     L_i, mu_i = getLame(E_i, nu_i)
 
@@ -83,7 +86,7 @@ def main():
         1.802343,
         1.845309,
     ]
-    ## Plot
+    # Plot
     # Settings
     plt.rcParams["font.size"] = 24
     plt.figure(figsize=(10, 8))

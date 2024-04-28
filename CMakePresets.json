@@ -39,12 +39,14 @@
         {
             "name": "Release",
             "description": "Release build",
-            "configurePreset": "Default"
+            "configurePreset": "Default",
+            "configuration": "Release"
         },
         {
             "name": "Debug",
             "description": "Debug build",
-            "configurePreset": "Default"
+            "configurePreset": "Default",
+            "configuration": "Debug"
         }
     ]
 }

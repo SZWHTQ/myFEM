@@ -26,16 +26,17 @@ class Mesh {
     }
     Mesh(MeshType type, std::vector<double> nodeCoord,
          std::vector<size_t> elementNodeTags,
-         std::vector<size_t> boundaryNodeTags, bool planeStress = true);
+         const std::vector<size_t>& boundaryNodeTags, bool planeStress = true);
     Mesh(std::vector<double> nodeCoord,
          std::vector<std::pair<MeshType, std::vector<size_t>>>
              elementTypeAndNodeTags,
-         std::vector<size_t> boundaryNodeTags, bool planeStress = true);
+         const std::vector<size_t>& boundaryNodeTags, bool planeStress = true);
     ~Mesh();
 
-    Eigen::MatrixXd const assembleStiffnessMatrix();
+    [[maybe_unused]] Eigen::MatrixXd const assembleStiffnessMatrix();
     Eigen::SparseMatrix<double> sparseAssembleStiffnessMatrix();
-    Eigen::MatrixXd parallelAssembleStiffnessMatrix();
+
+    [[maybe_unused]] Eigen::MatrixXd parallelAssembleStiffnessMatrix();
     Eigen::SparseMatrix<double> parallelSparseAssembleStiffnessMatrix();
     static std::vector<double> const equivalentForce(Load* load);
 

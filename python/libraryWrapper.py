@@ -15,6 +15,9 @@ class PyWorkerWrapper:
         # Check if mac
         elif system == "darwin":
             libPath = libDirectory + "/" + libName + ".dylib"
+        else:
+            print(f"Unsupported system: {system}")
+            sys.exit(1)
 
         # Load library
         try:

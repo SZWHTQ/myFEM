@@ -209,8 +209,8 @@ int generate_mesh(std::vector<double>& nodeCoord,
                     isFirst = false;
                     startTag = eTags[0];
                 }
-                for (size_t i = 0; i < eTags.size(); ++i) {
-                    elementMaterialTags[eTags[i] - startTag] = 0;
+                for (unsigned long eTag : eTags) {
+                    elementMaterialTags[eTag - startTag] = 0;
                 }
             }
 
@@ -221,8 +221,8 @@ int generate_mesh(std::vector<double>& nodeCoord,
             for (const auto& s : surfaces) {
                 gmsh::model::mesh::getElementsByType(serendipityTag, eTags,
                                                      nTags, s);
-                for (size_t i = 0; i < eTags.size(); ++i) {
-                    elementMaterialTags[eTags[i] - startTag] = 1;
+                for (unsigned long eTag : eTags) {
+                    elementMaterialTags[eTag - startTag] = 1;
                 }
             }
         }

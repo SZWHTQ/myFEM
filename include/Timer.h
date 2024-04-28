@@ -7,9 +7,9 @@
 class Timer {
    public:
     Timer() : start(std::chrono::high_resolution_clock::now()) {}
-    ~Timer() {}
+    ~Timer() = default;
     void reset() { start = std::chrono::high_resolution_clock::now(); }
-    double elapsed() const {
+    [[nodiscard]] double elapsed() const {
         auto now = std::chrono::high_resolution_clock::now();
         return std::chrono::duration<double, std::milli>(now - start).count();
     }

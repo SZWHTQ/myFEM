@@ -1,3 +1,4 @@
+// This file does not belong to any project, just for the PyWorker interface.
 #pragma once
 #ifdef _WIN32
 #define EXPORT __declspec(dllexport)

@@ -2,7 +2,6 @@
 
 #include <Eigen/SparseLU>
 #include <climits>
-#include <exception>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -21,7 +20,7 @@ size_t Serendipity::nodeNum = 8;
 
 Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
            std::vector<size_t> elementNodeTags,
-           std::vector<size_t> boundaryNodeTags, bool planeStress_)
+           const std::vector<size_t>& boundaryNodeTags, bool planeStress_)
     : planeStress(planeStress_) {
     nodeNum = nodeCoord.size() / 3;
     Nodes.reserve(nodeNum);
@@ -31,8 +30,8 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
             id, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
     }
 
-    for (size_t i = 0; i < boundaryNodeTags.size(); ++i) {
-        Nodes[boundaryNodeTags[i]]->isBoundary = true;
+    for (unsigned long boundaryNodeTag : boundaryNodeTags) {
+        Nodes[boundaryNodeTag]->isBoundary = true;
     }
 
     switch (type) {
@@ -59,7 +58,7 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
 Mesh::Mesh(std::vector<double> nodeCoord,
            std::vector<std::pair<MeshType, std::vector<size_t>>>
                elementTypeAndNodeTags,
-           std::vector<size_t> boundaryNodeTags, bool planeStress_)
+           const std::vector<size_t>& boundaryNodeTags, bool planeStress_)
     : planeStress(planeStress_) {
     nodeNum = nodeCoord.size() / 3;
     Nodes.reserve(nodeNum);
@@ -68,8 +67,8 @@ Mesh::Mesh(std::vector<double> nodeCoord,
             i / 3, nodeCoord[i], nodeCoord[i + 1], nodeCoord[i + 2]));
     }
 
-    for (size_t i = 0; i < boundaryNodeTags.size(); ++i) {
-        Nodes[boundaryNodeTags[i] - 1]->isBoundary = true;
+    for (unsigned long boundaryNodeTag : boundaryNodeTags) {
+        Nodes[boundaryNodeTag - 1]->isBoundary = true;
     }
 
     for (auto&& [type, elementNodeTags] : elementTypeAndNodeTags) {
@@ -153,7 +152,7 @@ std::vector<double> const Mesh::equivalentForce(Load* load) {
     return equivalentForce;
 }
 
-Eigen::MatrixXd const Mesh::assembleStiffnessMatrix() {
+[[maybe_unused]] Eigen::MatrixXd const Mesh::assembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
 
@@ -212,7 +211,7 @@ Eigen::SparseMatrix<double> Mesh::sparseAssembleStiffnessMatrix() {
     return globalStiffnessMatrix;
 }
 
-Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
+[[maybe_unused]] Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
 

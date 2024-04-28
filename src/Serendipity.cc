@@ -148,7 +148,7 @@ const Eigen::MatrixXd Serendipity::getStiffnessMatrix() const {
     return stiffnessMatrix;
 }
 
-int Serendipity::calculateStrainStress() const {
+void Serendipity::calculateStrainStress() const {
     auto& D = getElasticMatrix();
     const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
@@ -163,7 +163,6 @@ int Serendipity::calculateStrainStress() const {
         nodes[n]->Stress = D * nodes[n]->Strain;
     }
 
-    return 0;
 }
 
 /*
@@ -274,7 +273,7 @@ double Serendipity::getStrainEnergy() const {
     return strainEnergy;
 }
 
-int Serendipity::calculateStrainStressGaussPoint() const {
+void Serendipity::calculateStrainStressGaussPoint() const {
     Eigen::VectorXd displacementArray(nodeNum * 2);
     for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
@@ -330,5 +329,4 @@ int Serendipity::calculateStrainStressGaussPoint() const {
         nodes[i]->Stress = D * nodes[i]->Strain;
     }
 
-    return 0;
 }
