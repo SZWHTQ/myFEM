@@ -417,7 +417,7 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
 
     // Calculate stain stress
     for (auto&& element : Elements) {
-        element->calculateStrainStressGaussPoint();
+        element->calculateNodeStrainStressViaGaussPoint();
     }
 
     return 0;

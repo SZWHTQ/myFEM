@@ -24,7 +24,7 @@ class Node {
     Node(double x_, double y_, double z_) : index(0), x(x_), y(y_), z(z_){};
     Node(size_t index_, double x_, double y_, double z_)
         : index(index_), x(x_), y(y_), z(z_){};
-    ~Node()= default;
+    ~Node() = default;
     [[nodiscard]] size_t getIndex() const { return index; };
     void setIndex(int i) { index = i; };
 };
@@ -40,8 +40,8 @@ class Element {
     double thickness;
 
     Element() : index(0), material(nullptr), thickness(1.0){};
-    explicit Element(size_t index_, std::string  elementName_);
-    virtual ~Element()= default;
+    explicit Element(size_t index_, std::string elementName_);
+    virtual ~Element() = default;
 
     // Area of element
     [[nodiscard]] virtual double getArea() const = 0;
@@ -55,11 +55,12 @@ class Element {
     getShapeFuncDerivative(double ksi, double eta) const = 0;
 
     // Jacobian matrix
-    [[nodiscard]] virtual const Eigen::MatrixXd getJacobian(double ksi, double eta) const = 0;
+    [[nodiscard]] virtual const Eigen::MatrixXd getJacobian(
+        double ksi, double eta) const = 0;
 
     // Strain matrix
-    [[nodiscard]] virtual const Eigen::MatrixXd getStrainMatrix(double ksi,
-                                                  double eta) const = 0;
+    [[nodiscard]] virtual const Eigen::MatrixXd getStrainMatrix(
+        double ksi, double eta) const = 0;
 
     // Elastic matrix
     [[nodiscard]] virtual const Eigen::MatrixXd getElasticMatrix() const = 0;
@@ -68,17 +69,20 @@ class Element {
     [[nodiscard]] virtual const Eigen::MatrixXd getStiffnessMatrix() const = 0;
 
     // Gauss Strain
-    [[nodiscard]] virtual const std::vector<Eigen::VectorXd> getGaussPointsStrain() const = 0;
+    [[nodiscard]] virtual const std::vector<Eigen::VectorXd>
+    getGaussPointsStrain() const = 0;
 
     // Gauss Stress
-    [[nodiscard]] virtual const std::vector<Eigen::VectorXd> getGaussPointsStress() const = 0;
+    [[nodiscard]] virtual const std::tuple<std::vector<Eigen::VectorXd>,
+                                           std::vector<Eigen::VectorXd>>
+    getGaussPointsStrainStress() const = 0;
 
     // Strain energy
     [[nodiscard]] virtual double getStrainEnergy() const = 0;
 
     // Calculate strain and stress
-    virtual void calculateStrainStress() const = 0;
-    virtual void calculateStrainStressGaussPoint() const = 0;
+    virtual void calculateNodeStrainStress() const = 0;
+    virtual void calculateNodeStrainStressViaGaussPoint() const = 0;
 
     [[nodiscard]] std::string getElementName() const { return elementName; };
     [[nodiscard]] size_t getIndex() const { return index; };

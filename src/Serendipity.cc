@@ -148,7 +148,7 @@ const Eigen::MatrixXd Serendipity::getStiffnessMatrix() const {
     return stiffnessMatrix;
 }
 
-void Serendipity::calculateStrainStress() const {
+void Serendipity::calculateNodeStrainStress() const {
     auto& D = getElasticMatrix();
     const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
@@ -162,7 +162,6 @@ void Serendipity::calculateStrainStress() const {
         nodes[n]->Strain = B * displacementArray;
         nodes[n]->Stress = D * nodes[n]->Strain;
     }
-
 }
 
 /*
@@ -240,22 +239,23 @@ const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStrain() const {
     return gaussStrain;
 }
 
-const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStress() const {
+const std::tuple<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
+Serendipity::getGaussPointsStrainStress() const {
     auto& D = getElasticMatrix();
     auto& strainGp = getGaussPointsStrain();
 
-    std::vector<Eigen::VectorXd> gaussStress(strainGp.size(),
-                                             Eigen::VectorXd::Zero(3));
+    std::vector<Eigen::VectorXd> stressGp(strainGp.size(),
+                                          Eigen::VectorXd::Zero(3));
     for (size_t i = 0; i < strainGp.size(); ++i) {
-        gaussStress[i] = D * strainGp[i];
+        stressGp[i] = D * strainGp[i];
     }
 
-    return gaussStress;
+    return {strainGp, stressGp};
 }
 
 double Serendipity::getStrainEnergy() const {
-    auto& strainGp = getGaussPointsStrain();
-    auto& stressGp = getGaussPointsStress();
+    // auto& strainGp = getGaussPointsStrain();
+    auto& [strainGp, stressGp] = getGaussPointsStrainStress();
     int gaussPointNum = 3;
     const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
     const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
@@ -273,7 +273,7 @@ double Serendipity::getStrainEnergy() const {
     return strainEnergy;
 }
 
-void Serendipity::calculateStrainStressGaussPoint() const {
+void Serendipity::calculateNodeStrainStressViaGaussPoint() const {
     Eigen::VectorXd displacementArray(nodeNum * 2);
     for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
@@ -328,5 +328,4 @@ void Serendipity::calculateStrainStressGaussPoint() const {
     for (size_t i = 0; i < nodeNum; ++i) {
         nodes[i]->Stress = D * nodes[i]->Strain;
     }
-
 }
