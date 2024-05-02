@@ -57,7 +57,7 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
 
 Mesh::Mesh(std::vector<double> nodeCoord,
            std::vector<std::pair<MeshType, std::vector<size_t>>>
-               elementTypeAndNodeTags,
+               elementsTypeAndNodeTags,
            const std::vector<size_t>& boundaryNodeTags, bool planeStress_)
     : planeStress(planeStress_) {
     nodeNum = nodeCoord.size() / 3;
@@ -71,7 +71,7 @@ Mesh::Mesh(std::vector<double> nodeCoord,
         Nodes[boundaryNodeTag - 1]->isBoundary = true;
     }
 
-    for (auto&& [type, elementNodeTags] : elementTypeAndNodeTags) {
+    for (auto&& [type, elementNodeTags] : elementsTypeAndNodeTags) {
         switch (type) {
             case MeshType::serendipity:
                 for (size_t i = 0; i < elementNodeTags.size();
