@@ -30,16 +30,12 @@ class Node {
 };
 
 class Element {
-   private:
-    size_t index;
-    std::string elementName;
-
    public:
     std::vector<std::shared_ptr<Node>> nodes;
     Material* material;
     double thickness;
 
-    Element() : index(0), material(nullptr), thickness(1.0){};
+    Element() : material(nullptr), thickness(1.0), index(0){};
     explicit Element(size_t index_, std::string elementName_);
     virtual ~Element() = default;
 
@@ -87,4 +83,8 @@ class Element {
     [[nodiscard]] std::string getElementName() const { return elementName; };
     [[nodiscard]] size_t getIndex() const { return index; };
     size_t setMaterial(Material* material_);
+
+   private:
+    size_t index;
+    std::string elementName;
 };

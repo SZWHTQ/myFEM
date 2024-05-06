@@ -16,8 +16,6 @@
 #include "ThreadPool.h"
 #include "Timer.h"
 
-size_t Serendipity::nodeNum = 8;
-
 Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
            std::vector<size_t> elementNodeTags,
            const std::vector<size_t>& boundaryNodeTags, bool planeStress_)

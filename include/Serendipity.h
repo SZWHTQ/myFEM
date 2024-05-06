@@ -6,7 +6,7 @@
 
 class Serendipity : public Element {
    public:
-    static size_t nodeNum;
+    static const size_t nodeNum = 8;
     bool planeStress;
 
     explicit Serendipity(const size_t index_)
