@@ -8,6 +8,8 @@
 #include "Material.h"
 #include "Serendipity.h"
 
+const size_t Serendipity::nodeNum;
+
 Serendipity::Serendipity(const size_t index_,
                          const std::vector<std::shared_ptr<Node>>& nodes_,
                          const bool planeStress_)
