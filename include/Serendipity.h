@@ -15,36 +15,31 @@ class Serendipity : public Element {
     };
     Serendipity(size_t index_, const std::vector<std::shared_ptr<Node>>& nodes_,
                 bool planeStress_ = true);
+    ~Serendipity() override {};
 
-    [[nodiscard]] double getArea() const override;
+    double getArea() const override;
 
-    [[nodiscard]] const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
-    getShapeFuncLocalDerivative(double ksi, double eta) const override;
-
-    [[nodiscard]] const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
-    getShapeFuncDerivative(double ksi, double eta) const override;
-
-    [[nodiscard]] const Eigen::MatrixXd getJacobian(double ksi,
-                                                    double eta) const override;
-
-    [[nodiscard]] const Eigen::MatrixXd getStrainMatrix(
+    std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncLocalDerivative(
         double ksi, double eta) const override;
 
-    [[nodiscard]] const Eigen::MatrixXd getElasticMatrix() const override;
+    std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncDerivative(
+        double ksi, double eta) const override;
 
-    [[nodiscard]] const Eigen::MatrixXd getStiffnessMatrix() const override;
+    Eigen::MatrixXd getJacobian(double ksi, double eta) const override;
 
-    [[nodiscard]] const std::vector<Eigen::VectorXd> getGaussPointsStrain()
-        const override;
+    Eigen::MatrixXd getStrainMatrix(double ksi, double eta) const override;
 
-    [[nodiscard]] const std::tuple<std::vector<Eigen::VectorXd>,
-                                   std::vector<Eigen::VectorXd>>
+    Eigen::MatrixXd getElasticMatrix() const override;
+
+    Eigen::MatrixXd getStiffnessMatrix() const override;
+
+    std::vector<Eigen::VectorXd> getGaussPointsStrain() const override;
+
+    std::tuple<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
     getGaussPointsStrainStress() const override;
 
-    [[nodiscard]] double getStrainEnergy() const override;
+    double getStrainEnergy() const override;
 
     void calculateNodeStrainStress() const override;
     void calculateNodeStrainStressViaGaussPoint() const override;
-
-    ~Serendipity() override{};
 };

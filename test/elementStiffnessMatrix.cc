@@ -22,7 +22,7 @@ int main() {
     std::shared_ptr<Element> counterClockWise =
         std::make_shared<Serendipity>(0, nodes);
     counterClockWise->setMaterial(&material);
-    auto& K1 = counterClockWise->getStiffnessMatrix();
+    auto&& K1 = counterClockWise->getStiffnessMatrix();
     std::cout << "Counter clockwise:" << std::endl;
     std::cout << K1 << std::endl;
 
@@ -32,7 +32,7 @@ int main() {
     std::shared_ptr<Element> clockWise =
         std::make_shared<Serendipity>(1, nodes);
     clockWise->setMaterial(&material);
-    auto& K2 = clockWise->getStiffnessMatrix();
+    auto&& K2 = clockWise->getStiffnessMatrix();
     std::cout << "Clockwise:" << std::endl;
     std::cout << K2 << std::endl;
 

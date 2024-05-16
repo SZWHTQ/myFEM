@@ -29,8 +29,8 @@ double Serendipity::getArea() const {
     const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
     const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
     for (size_t i = 0; i < ksiId.size(); ++i) {
-        auto& J = getJacobian(gaussData.abscissas[ksiId[i]],
-                              gaussData.abscissas[etaId[i]]);
+        auto&& J = getJacobian(gaussData.abscissas[ksiId[i]],
+                               gaussData.abscissas[etaId[i]]);
         double detJ = J.determinant();
         area +=
             detJ * gaussData.weights[ksiId[i]] * gaussData.weights[etaId[i]];
@@ -38,9 +38,9 @@ double Serendipity::getArea() const {
     return area;
 }
 
-const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
+std::tuple<Eigen::VectorXd, Eigen::VectorXd>
 Serendipity::getShapeFuncLocalDerivative(double ksi, double eta) const {
-    Eigen::VectorXd shapeFunction_ksi(8), shapeFunction_eta(8);
+    Eigen::Vector<double, nodeNum> shapeFunction_ksi, shapeFunction_eta;
     const std::vector<int> k{-1, 1, 1, -1}, e{-1, -1, 1, 1};
 
     for (size_t i = 0; i < 4; ++i) {
@@ -65,11 +65,11 @@ Serendipity::getShapeFuncLocalDerivative(double ksi, double eta) const {
     return {shapeFunction_ksi, shapeFunction_eta};
 }
 
-const std::tuple<Eigen::VectorXd, Eigen::VectorXd>
+std::tuple<Eigen::VectorXd, Eigen::VectorXd>
 Serendipity::getShapeFuncDerivative(double ksi, double eta) const {
-    auto& J = getJacobian(ksi, eta);
+    auto&& J = getJacobian(ksi, eta);
     double detJ = J.determinant();
-    auto& [N_ksi, N_eta] = getShapeFuncLocalDerivative(ksi, eta);
+    auto&& [N_ksi, N_eta] = getShapeFuncLocalDerivative(ksi, eta);
     Eigen::VectorXd shapeFunction_x =
         (J(1, 1) * N_ksi - J(1, 0) * N_eta) / detJ;
     Eigen::VectorXd shapeFunction_y =
@@ -78,10 +78,10 @@ Serendipity::getShapeFuncDerivative(double ksi, double eta) const {
     return {shapeFunction_x, shapeFunction_y};
 }
 
-const Eigen::MatrixXd Serendipity::getJacobian(double ksi, double eta) const {
+Eigen::MatrixXd Serendipity::getJacobian(double ksi, double eta) const {
     Eigen::MatrixXd J(2, 2);
     J.setZero();
-    auto& [N_ksi, N_eta] = getShapeFuncLocalDerivative(ksi, eta);
+    auto&& [N_ksi, N_eta] = getShapeFuncLocalDerivative(ksi, eta);
     for (size_t i = 0; i < nodeNum; ++i) {
         J(0, 0) += N_ksi(i) * nodes.at(i)->x;
         J(1, 0) += N_ksi(i) * nodes.at(i)->y;
@@ -91,9 +91,8 @@ const Eigen::MatrixXd Serendipity::getJacobian(double ksi, double eta) const {
     return J;
 }
 
-const Eigen::MatrixXd Serendipity::getStrainMatrix(double ksi,
-                                                   double eta) const {
-    auto& [N_x, N_y] = getShapeFuncDerivative(ksi, eta);
+Eigen::MatrixXd Serendipity::getStrainMatrix(double ksi, double eta) const {
+    auto&& [N_x, N_y] = getShapeFuncDerivative(ksi, eta);
     Eigen::MatrixXd strainMatrix(3, nodeNum * 2);
     strainMatrix.setZero();
 
@@ -107,7 +106,7 @@ const Eigen::MatrixXd Serendipity::getStrainMatrix(double ksi,
     return strainMatrix;
 }
 
-const Eigen::MatrixXd Serendipity::getElasticMatrix() const {
+Eigen::MatrixXd Serendipity::getElasticMatrix() const {
     double E = material->getElasticModulus();
     double nu = material->getPoissonRatio();
 
@@ -127,17 +126,17 @@ const Eigen::MatrixXd Serendipity::getElasticMatrix() const {
     return elasticMatrix;
 }
 
-const Eigen::MatrixXd Serendipity::getStiffnessMatrix() const {
+Eigen::MatrixXd Serendipity::getStiffnessMatrix() const {
     Eigen::MatrixXd stiffnessMatrix(nodeNum * 2, nodeNum * 2);
     stiffnessMatrix.setZero();
-    auto& D = getElasticMatrix();
+    auto&& D = getElasticMatrix();
 
     int gaussPointNum = 3;
     auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
 
     for (int i = 0; i < gaussPointNum; ++i) {
         for (int j = 0; j < gaussPointNum; ++j) {
-            auto& B =
+            auto&& B =
                 getStrainMatrix(gaussData.abscissas[i], gaussData.abscissas[j]);
             double detJ =
                 getJacobian(gaussData.abscissas[i], gaussData.abscissas[j])
@@ -151,7 +150,7 @@ const Eigen::MatrixXd Serendipity::getStiffnessMatrix() const {
 }
 
 void Serendipity::calculateNodeStrainStress() const {
-    auto& D = getElasticMatrix();
+    auto&& D = getElasticMatrix();
     const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
     const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
     Eigen::VectorXd displacementArray(nodeNum * 2);
@@ -217,7 +216,7 @@ int Serendipity::calculateStrainStress() {
 }
  */
 
-const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStrain() const {
+std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStrain() const {
     Eigen::VectorXd displacementArray(nodeNum * 2);
     for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
@@ -241,10 +240,10 @@ const std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStrain() const {
     return gaussStrain;
 }
 
-const std::tuple<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
+std::tuple<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
 Serendipity::getGaussPointsStrainStress() const {
-    auto& D = getElasticMatrix();
-    auto& strainGp = getGaussPointsStrain();
+    auto&& D = getElasticMatrix();
+    auto&& strainGp = getGaussPointsStrain();
 
     std::vector<Eigen::VectorXd> stressGp(strainGp.size(),
                                           Eigen::VectorXd::Zero(3));
@@ -257,15 +256,15 @@ Serendipity::getGaussPointsStrainStress() const {
 
 double Serendipity::getStrainEnergy() const {
     // auto& strainGp = getGaussPointsStrain();
-    auto& [strainGp, stressGp] = getGaussPointsStrainStress();
+    auto&& [strainGp, stressGp] = getGaussPointsStrainStress();
     int gaussPointNum = 3;
     const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
     const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
     const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
     double strainEnergy = 0;
     for (size_t i = 0; i < ksiId.size(); ++i) {
-        auto& J = getJacobian(gaussData.abscissas[ksiId[i]],
-                              gaussData.abscissas[etaId[i]]);
+        auto&& J = getJacobian(gaussData.abscissas[ksiId[i]],
+                               gaussData.abscissas[etaId[i]]);
         double detJ = J.determinant();
         strainEnergy += 0.5 * stressGp[i].dot(strainGp[i]) * detJ *
                         gaussData.weights[ksiId[i]] *
@@ -288,7 +287,7 @@ void Serendipity::calculateNodeStrainStressViaGaussPoint() const {
     const auto& strainGp = getGaussPointsStrain();
 
     // Calculate strain and stress at node
-    auto& D = getElasticMatrix();
+    auto&& D = getElasticMatrix();
     Eigen::MatrixXd interpolationMatrix(nodeNum, nodeNum);
     interpolationMatrix.setZero();
     const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};
