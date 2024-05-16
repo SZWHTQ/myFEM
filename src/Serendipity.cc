@@ -9,6 +9,7 @@
 #include "Serendipity.h"
 
 const size_t Serendipity::nodeNum;
+using GaussIntegral::GaussData;
 
 Serendipity::Serendipity(const size_t index_,
                          const std::vector<std::shared_ptr<Node>>& nodes_,
@@ -24,16 +25,15 @@ Serendipity::Serendipity(const size_t index_,
 // get the area of the element via gauss integral
 double Serendipity::getArea() const {
     double area = 0;
-    int gaussPointNum = 3;
-    const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
-    const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
-    const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
+    constexpr int gaussPointNum = 3;
+    constexpr std::array<int, 9> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
+    constexpr std::array<int, 9> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
     for (size_t i = 0; i < ksiId.size(); ++i) {
-        auto&& J = getJacobian(gaussData.abscissas[ksiId[i]],
-                               gaussData.abscissas[etaId[i]]);
+        auto&& J = getJacobian(GaussData<gaussPointNum>::abscissas[ksiId[i]],
+                               GaussData<gaussPointNum>::abscissas[etaId[i]]);
         double detJ = J.determinant();
-        area +=
-            detJ * gaussData.weights[ksiId[i]] * gaussData.weights[etaId[i]];
+        area += detJ * GaussData<gaussPointNum>::weights[ksiId[i]] *
+                GaussData<gaussPointNum>::weights[etaId[i]];
     }
     return area;
 }
@@ -41,7 +41,7 @@ double Serendipity::getArea() const {
 std::tuple<Eigen::VectorXd, Eigen::VectorXd>
 Serendipity::getShapeFuncLocalDerivative(double ksi, double eta) const {
     Eigen::Vector<double, nodeNum> shapeFunction_ksi, shapeFunction_eta;
-    const std::vector<int> k{-1, 1, 1, -1}, e{-1, -1, 1, 1};
+    constexpr std::array<int, 4> k{-1, 1, 1, -1}, e{-1, -1, 1, 1};
 
     for (size_t i = 0; i < 4; ++i) {
         shapeFunction_ksi(i) =
@@ -79,7 +79,7 @@ Serendipity::getShapeFuncDerivative(double ksi, double eta) const {
 }
 
 Eigen::MatrixXd Serendipity::getJacobian(double ksi, double eta) const {
-    Eigen::MatrixXd J(2, 2);
+    Eigen::Matrix<double, 2, 2> J;
     J.setZero();
     auto&& [N_ksi, N_eta] = getShapeFuncLocalDerivative(ksi, eta);
     for (size_t i = 0; i < nodeNum; ++i) {
@@ -93,7 +93,7 @@ Eigen::MatrixXd Serendipity::getJacobian(double ksi, double eta) const {
 
 Eigen::MatrixXd Serendipity::getStrainMatrix(double ksi, double eta) const {
     auto&& [N_x, N_y] = getShapeFuncDerivative(ksi, eta);
-    Eigen::MatrixXd strainMatrix(3, nodeNum * 2);
+    Eigen::Matrix<double, 3, nodeNum * 2> strainMatrix;
     strainMatrix.setZero();
 
     for (size_t i = 0; i < nodeNum; ++i) {
@@ -111,7 +111,7 @@ Eigen::MatrixXd Serendipity::getElasticMatrix() const {
     double nu = material->getPoissonRatio();
 
     double A1, A2, A3;
-    Eigen::MatrixXd elasticMatrix(3, 3);
+    Eigen::Matrix<double, 3, 3> elasticMatrix;
     if (planeStress) {
         A1 = nu;
         A2 = (1 - nu) * 0.5;
@@ -127,22 +127,21 @@ Eigen::MatrixXd Serendipity::getElasticMatrix() const {
 }
 
 Eigen::MatrixXd Serendipity::getStiffnessMatrix() const {
-    Eigen::MatrixXd stiffnessMatrix(nodeNum * 2, nodeNum * 2);
+    Eigen::Matrix<double, nodeNum * 2, nodeNum * 2> stiffnessMatrix;
     stiffnessMatrix.setZero();
     auto&& D = getElasticMatrix();
 
-    int gaussPointNum = 3;
-    auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
-
+    constexpr int gaussPointNum = 3;
     for (int i = 0; i < gaussPointNum; ++i) {
         for (int j = 0; j < gaussPointNum; ++j) {
-            auto&& B =
-                getStrainMatrix(gaussData.abscissas[i], gaussData.abscissas[j]);
-            double detJ =
-                getJacobian(gaussData.abscissas[i], gaussData.abscissas[j])
-                    .determinant();
+            auto&& B = getStrainMatrix(GaussData<gaussPointNum>::abscissas[i],
+                                       GaussData<gaussPointNum>::abscissas[j]);
+            double detJ = getJacobian(GaussData<gaussPointNum>::abscissas[i],
+                                      GaussData<gaussPointNum>::abscissas[j])
+                              .determinant();
             stiffnessMatrix += thickness * B.transpose() * D * B * detJ *
-                               gaussData.weights[i] * gaussData.weights[j];
+                               GaussData<gaussPointNum>::weights[i] *
+                               GaussData<gaussPointNum>::weights[j];
         }
     }
 
@@ -151,8 +150,8 @@ Eigen::MatrixXd Serendipity::getStiffnessMatrix() const {
 
 void Serendipity::calculateNodeStrainStress() const {
     auto&& D = getElasticMatrix();
-    const std::vector<int> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
-    const std::vector<int> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
+    constexpr std::array<int, nodeNum> Ksi = {-1, 1, 1, -1, 0, 1, 0, -1};
+    constexpr std::array<int, nodeNum> Eta = {-1, -1, 1, 1, -1, 0, 1, 0};
     Eigen::VectorXd displacementArray(nodeNum * 2);
     for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
@@ -165,76 +164,25 @@ void Serendipity::calculateNodeStrainStress() const {
     }
 }
 
-/*
-int Serendipity::calculateStrainStress() {
-    Eigen::VectorXd displacementArray(nodeNum * 2);
-    for (int i = 0; i < nodeNum; ++i) {
-        displacementArray(2 * i) = nodes[i]->Displacement(0);
-        displacementArray(2 * i + 1) = nodes[i]->Displacement(1);
-    }
-
-    // Calculate strain at gauss point
-    int gaussPointNum = 3;
-    const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
-
-    std::vector<Eigen::Vector3d> strainAtGaussPoints(
-        gaussPointNum * gaussPointNum, Eigen::Vector3d::Zero());
-    strainAtGaussPoints[0] =
-        strainMatrix(gaussData.abscissas[0], gaussData.abscissas[0]) *
-        displacementArray;
-    strainAtGaussPoints[1] =
-        strainMatrix(gaussData.abscissas[1], gaussData.abscissas[0]) *
-        displacementArray;
-    strainAtGaussPoints[2] =
-        strainMatrix(gaussData.abscissas[1], gaussData.abscissas[1]) *
-        displacementArray;
-    strainAtGaussPoints[3] =
-        strainMatrix(gaussData.abscissas[0], gaussData.abscissas[1]) *
-        displacementArray;
-
-    // Calculate strain and stress at node
-    auto& D = elasticMatrix(planeStress);
-    const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};
-    const std::vector<int> S = {-1, -1, 1, 1, -1, 0, 1, 0};
-    for (int n = 0; n < nodeNum; ++n) {
-        nodes[n]->Strain.setZero();
-        double r = R[n] / (-gaussData.abscissas[0]),
-               s = S[n] / (-gaussData.abscissas[0]);
-        std::vector<double> N(8);
-        N[0] = 0.25 * (1 - r) * (1 - s);
-        N[1] = 0.25 * (1 + r) * (1 - s);
-        N[2] = 0.25 * (1 + r) * (1 + s);
-        N[3] = 0.25 * (1 - r) * (1 + s);
-        nodes[n]->Strain += N[0] * strainAtGaussPoints[0];
-        nodes[n]->Strain += N[1] * strainAtGaussPoints[1];
-        nodes[n]->Strain += N[2] * strainAtGaussPoints[2];
-        nodes[n]->Strain += N[3] * strainAtGaussPoints[3];
-
-        nodes[n]->Stress = D * nodes[n]->Strain;
-    }
-    return 0;
-}
- */
-
 std::vector<Eigen::VectorXd> Serendipity::getGaussPointsStrain() const {
-    Eigen::VectorXd displacementArray(nodeNum * 2);
+    Eigen::Vector<double, nodeNum * 2> displacementArray;
     for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
         displacementArray(2 * i + 1) = nodes[i]->Displacement(1);
     }
 
     // Calculate strain at gauss point
-    int gaussPointNum = 3;
-    const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
+    constexpr int gaussPointNum = 3;
     std::vector<Eigen::VectorXd> gaussStrain(gaussPointNum * gaussPointNum,
                                              Eigen::VectorXd::Zero(3));
 
-    const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
-    const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
+    constexpr std::array<int, 9> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
+    constexpr std::array<int, 9> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
     for (size_t i = 0; i < ksiId.size(); ++i) {
-        gaussStrain[i] = getStrainMatrix(gaussData.abscissas[ksiId[i]],
-                                         gaussData.abscissas[etaId[i]]) *
-                         displacementArray;
+        gaussStrain[i] =
+            getStrainMatrix(GaussData<gaussPointNum>::abscissas[ksiId[i]],
+                            GaussData<gaussPointNum>::abscissas[etaId[i]]) *
+            displacementArray;
     }
 
     return gaussStrain;
@@ -245,8 +193,7 @@ Serendipity::getGaussPointsStrainStress() const {
     auto&& D = getElasticMatrix();
     auto&& strainGp = getGaussPointsStrain();
 
-    std::vector<Eigen::VectorXd> stressGp(strainGp.size(),
-                                          Eigen::VectorXd::Zero(3));
+    std::vector<Eigen::VectorXd> stressGp(strainGp.size());
     for (size_t i = 0; i < strainGp.size(); ++i) {
         stressGp[i] = D * strainGp[i];
     }
@@ -257,44 +204,42 @@ Serendipity::getGaussPointsStrainStress() const {
 double Serendipity::getStrainEnergy() const {
     // auto& strainGp = getGaussPointsStrain();
     auto&& [strainGp, stressGp] = getGaussPointsStrainStress();
-    int gaussPointNum = 3;
-    const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
-    const std::vector<int> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
-    const std::vector<int> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
+    constexpr int gaussPointNum = 3;
+    constexpr std::array<int, 9> ksiId = {0, 0, 2, 2, 0, 1, 2, 1, 1};
+    constexpr std::array<int, 9> etaId = {0, 2, 2, 0, 1, 2, 1, 0, 1};
     double strainEnergy = 0;
     for (size_t i = 0; i < ksiId.size(); ++i) {
-        auto&& J = getJacobian(gaussData.abscissas[ksiId[i]],
-                               gaussData.abscissas[etaId[i]]);
+        auto&& J = getJacobian(GaussData<gaussPointNum>::abscissas[ksiId[i]],
+                               GaussData<gaussPointNum>::abscissas[etaId[i]]);
         double detJ = J.determinant();
         strainEnergy += 0.5 * stressGp[i].dot(strainGp[i]) * detJ *
-                        gaussData.weights[ksiId[i]] *
-                        gaussData.weights[etaId[i]];
+                        GaussData<gaussPointNum>::weights[ksiId[i]] *
+                        GaussData<gaussPointNum>::weights[etaId[i]];
     }
 
     return strainEnergy;
 }
 
 void Serendipity::calculateNodeStrainStressViaGaussPoint() const {
-    Eigen::VectorXd displacementArray(nodeNum * 2);
+    Eigen::Vector<double, nodeNum * 2> displacementArray;
     for (size_t i = 0; i < nodeNum; ++i) {
         displacementArray(2 * i) = nodes[i]->Displacement(0);
         displacementArray(2 * i + 1) = nodes[i]->Displacement(1);
     }
 
     // Calculate strain at gauss point
-    int gaussPointNum = 3;
-    const auto& gaussData = GaussIntegral::getGaussData(gaussPointNum);
+    constexpr int gaussPointNum = 3;
     const auto& strainGp = getGaussPointsStrain();
 
     // Calculate strain and stress at node
     auto&& D = getElasticMatrix();
     Eigen::MatrixXd interpolationMatrix(nodeNum, nodeNum);
     interpolationMatrix.setZero();
-    const std::vector<int> R = {-1, 1, 1, -1, 0, 1, 0, -1};
-    const std::vector<int> S = {-1, -1, 1, 1, -1, 0, 1, 0};
+    constexpr std::array<int, nodeNum> R = {-1, 1, 1, -1, 0, 1, 0, -1};
+    constexpr std::array<int, nodeNum> S = {-1, -1, 1, 1, -1, 0, 1, 0};
     for (size_t n = 0; n < nodeNum; ++n) {
-        double r = R[n] / (-gaussData.abscissas[0]),
-               s = S[n] / (-gaussData.abscissas[0]);
+        double r = R[n] / (-GaussData<gaussPointNum>::abscissas[0]),
+               s = S[n] / (-GaussData<gaussPointNum>::abscissas[0]);
 
         interpolationMatrix(n, 4) = 0.5 * (1 - r * r) * (1 - s);
         interpolationMatrix(n, 5) = 0.5 * (1 + r) * (1 - s * s);
@@ -315,7 +260,7 @@ void Serendipity::calculateNodeStrainStressViaGaussPoint() const {
     }
 
     auto& solver = interpolationMatrix.colPivHouseholderQr();
-    Eigen::VectorXd strain(nodeNum);
+    Eigen::Vector<double, nodeNum> strain;
     for (int d = 0; d < 3; ++d) {
         for (size_t i = 0; i < nodeNum; ++i) {
             strain(i) = strainGp[i](d);
