@@ -1,3 +1,5 @@
+#include "vtkManager.h"
+
 #include <vtkCellData.h>
 #include <vtkFloatArray.h>
 #include <vtkNew.h>
@@ -10,10 +12,9 @@
 #include "Element.h"
 #include "Material.h"
 #include "Mesh.h"
-#include "vtkManager.h"
 
 // Implementation class
-class vtkManagerImpl {
+class vtkManager::vtkManagerImpl {
    public:
     vtkNew<vtkUnstructuredGrid> Grid;
     vtkNew<vtkXMLUnstructuredGridWriter> writer;
@@ -38,7 +39,7 @@ vtkManager::vtkManager(Mesh& mesh) : pimpl(std::make_unique<vtkManagerImpl>()) {
 
 vtkManager::~vtkManager() {
     // Destructor
-    // Must be defined in the .cc file
+    // Must be defined in the source file
 }
 
 void vtkManager::setMeshData(Mesh& mesh) const {
