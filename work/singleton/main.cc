@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
         int err = generate_mesh(nodeCoord, elementNodeTags, elementMaterialTags,
                                 boundaryNodeTags, settings);
         if (err != 0) {
+            std::cerr << "Error in generate_mesh" << std::endl;
             return err;
         }
         std::cout << std::fixed << std::setprecision(2);
