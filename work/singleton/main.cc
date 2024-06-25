@@ -67,8 +67,8 @@ int main(int argc, char* argv[]) {
 
         // Apply boundary
         auto value = settings["Load"]["Value"].value_or(1.0);
-        auto&& loadCondition = apply_load(mesh, L, B, value);
-        auto&& boundaryCondition = apply_boundary(mesh, 0, 0);
+        auto loadCondition = apply_load(mesh, L, B, value);
+        auto boundaryCondition = apply_boundary(mesh, 0, 0);
 
         // Solve
         timer.reset();
