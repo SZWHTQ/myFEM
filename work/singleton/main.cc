@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 
         auto settings = toml::parse_file(argv[1]);
         // Define geometry
-        auto L = settings["Rectangle"]["L"].value_or(2);
+        auto L = settings["Rectangle"]["L"].value_or(2.0);
         auto B = settings["Rectangle"]["B"].value_or(0.9);
         auto isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
 
@@ -57,16 +57,16 @@ int main(int argc, char* argv[]) {
                   << mesh->Elements.size() << " elements" << std::endl;
 
         // Set material
-        double E1 = settings["Material"]["Matrix"][0].value_or(1.0);
-        double nu1 = settings["Material"]["Matrix"][1].value_or(0.3);
-        double E2 = settings["Material"]["Inclusion"][0].value_or(1.0);
-        double nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
+        auto E1 = settings["Material"]["Matrix"][0].value_or(1.0);
+        auto nu1 = settings["Material"]["Matrix"][1].value_or(0.3);
+        auto E2 = settings["Material"]["Inclusion"][0].value_or(1.0);
+        auto nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
         Elastic matrix(1, E1, nu1);
         Elastic inclusion(2, E2, nu2);
         set_material(mesh, {&matrix, &inclusion}, elementMaterialTags);
 
         // Apply boundary
-        double value = settings["Load"]["Value"].value_or(1);
+        auto value = settings["Load"]["Value"].value_or(1.0);
         auto&& loadCondition = apply_load(mesh, L, B, value);
         auto&& boundaryCondition = apply_boundary(mesh, 0, 0);
 
@@ -164,6 +164,7 @@ int main(int argc, char* argv[]) {
 
         // Clear memory
         {
+            // Not necessary
             nodeCoord.clear();
             std::vector<double>().swap(nodeCoord);
             elementNodeTags.clear();
