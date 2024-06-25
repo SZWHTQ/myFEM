@@ -25,9 +25,9 @@ int main(int argc, char* argv[]) {
 
         auto settings = toml::parse_file(argv[1]);
         // Define geometry
-        double L = settings["Rectangle"]["L"].value_or(2);
-        double B = settings["Rectangle"]["B"].value_or(0.9);
-        bool isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
+        auto L = settings["Rectangle"]["L"].value_or(2);
+        auto B = settings["Rectangle"]["B"].value_or(0.9);
+        auto isPlaneStress = settings["Mesh"]["planeStress"].value_or(true);
 
         // Generate mesh
         Timer globalTimer, timer;
@@ -48,12 +48,13 @@ int main(int argc, char* argv[]) {
 
         // Convert mesh
         timer.reset();
-        Mesh mesh(nodeCoord,
-                  {std::pair(Mesh::MeshType::serendipity, elementNodeTags)},
-                  boundaryNodeTags, isPlaneStress);
+        auto mesh =
+            new Mesh(nodeCoord,
+                     {std::pair(Mesh::MeshType::serendipity, elementNodeTags)},
+                     boundaryNodeTags, isPlaneStress);
         std::cout << "Mesh converted in " << timer << " with "
-                  << mesh.Nodes.size() << " nodes and " << mesh.Elements.size()
-                  << " elements" << std::endl;
+                  << mesh->Nodes.size() << " nodes and "
+                  << mesh->Elements.size() << " elements" << std::endl;
 
         // Set material
         double E1 = settings["Material"]["Matrix"][0].value_or(1.0);
@@ -62,32 +63,31 @@ int main(int argc, char* argv[]) {
         double nu2 = settings["Material"]["Inclusion"][1].value_or(0.2);
         Elastic matrix(1, E1, nu1);
         Elastic inclusion(2, E2, nu2);
-        set_material(&mesh, {&matrix, &inclusion}, elementMaterialTags);
+        set_material(mesh, {&matrix, &inclusion}, elementMaterialTags);
 
         // Apply boundary
         double value = settings["Load"]["Value"].value_or(1);
-        auto&& loadCondition = apply_load(&mesh, L, B, value);
-        auto&& boundaryCondition = apply_boundary(&mesh, 0, 0);
+        auto&& loadCondition = apply_load(mesh, L, B, value);
+        auto&& boundaryCondition = apply_boundary(mesh, 0, 0);
 
         // Solve
         timer.reset();
-        mesh.Solve(loadCondition, boundaryCondition, true);
+        mesh->Solve(loadCondition, boundaryCondition, true);
         std::cout << "Mesh solved in " << timer << std::endl;
 
         // Write output
-        std::string vtkFileName =
-            settings["VTK"]["fileName"].value_or("result.vtk");
+        auto vtkFileName = settings["VTK"]["fileName"].value_or("result.vtk");
         bool isBinary = settings["VTK"]["Binary"].value_or(false);
         timer.reset();
-        vtkManager vtk(mesh);
-        vtk.setMeshData(mesh);
+        vtkManager vtk(*mesh);
+        vtk.setMeshData(*mesh);
         vtk.write(vtkFileName, isBinary);
         std::cout << "Vtk written in " << timer << std::endl;
         std::cout << "Total time: " << globalTimer << std::endl;
         std::cout << "\n";
 
         double matrixStrainEnergy = 0, inclusionStrainEnergy = 0;
-        for (auto& element : mesh.Elements) {
+        for (auto& element : mesh->Elements) {
             if (element->material->getIndex() == 1) {
                 matrixStrainEnergy += element->getStrainEnergy();
             } else if (element->material->getIndex() == 2) {
@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Strain energy change: " << std::endl;
         std::cout << "  Finite element analysis result: " << deltaEnergy * 4
                   << std::endl;
-        auto deltaU = getStrainEnergyChange(&mesh, &meshNoInclusion, &matrix,
+        auto deltaU = getStrainEnergyChange(mesh, &meshNoInclusion, &matrix,
                                             &inclusion, isPlaneStress);
         std::cout << "  Integral on the interface result: " << deltaU * 4
                   << std::endl;
@@ -169,6 +169,7 @@ int main(int argc, char* argv[]) {
             elementNodeTags.clear();
             std::vector<size_t>().swap(elementNodeTags);
         }
+        delete mesh;
 
         // Finalize the Gmsh library
         gmsh::finalize();
