@@ -1,8 +1,7 @@
 #pragma once
+#include <Eigen/Eigen>
 #include <memory>
 #include <vector>
-
-#include <Eigen/Eigen>
 
 class Load;
 class Boundary;
@@ -20,7 +19,7 @@ class Mesh {
 
     Eigen::SparseVector<double> Force;
 
-    Mesh() : nodeNum(0), planeStress(true){
+    Mesh() : nodeNum(0), planeStress(true) {
         Nodes = std::vector<std::shared_ptr<Node>>();
         Elements = std::vector<Element*>();
     }
@@ -34,10 +33,10 @@ class Mesh {
     ~Mesh();
 
     [[maybe_unused]] Eigen::MatrixXd const assembleStiffnessMatrix();
-    Eigen::SparseMatrix<double> sparseAssembleStiffnessMatrix();
+    Eigen::SparseMatrix<double> assembleSparseStiffnessMatrix();
 
     [[maybe_unused]] Eigen::MatrixXd parallelAssembleStiffnessMatrix();
-    Eigen::SparseMatrix<double> parallelSparseAssembleStiffnessMatrix();
+    [[maybe_unused]] Eigen::SparseMatrix<double> parallelAssembleSparseStiffnessMatrix();
     static std::vector<double> const equivalentForce(Load* load);
 
     int Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,

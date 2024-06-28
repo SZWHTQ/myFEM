@@ -150,7 +150,7 @@ std::vector<double> const Mesh::equivalentForce(Load* load) {
     return equivalentForce;
 }
 
-[[maybe_unused]] Eigen::MatrixXd const Mesh::assembleStiffnessMatrix() {
+Eigen::MatrixXd const Mesh::assembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
 
@@ -177,7 +177,7 @@ std::vector<double> const Mesh::equivalentForce(Load* load) {
     return globalStiffnessMatrix;
 }
 
-Eigen::SparseMatrix<double> Mesh::sparseAssembleStiffnessMatrix() {
+Eigen::SparseMatrix<double> Mesh::assembleSparseStiffnessMatrix() {
     Eigen::SparseMatrix<double> globalStiffnessMatrix(Nodes.size() * 2,
                                                       Nodes.size() * 2);
     std::vector<Eigen::Triplet<double>> triplets;
@@ -209,7 +209,7 @@ Eigen::SparseMatrix<double> Mesh::sparseAssembleStiffnessMatrix() {
     return globalStiffnessMatrix;
 }
 
-[[maybe_unused]] Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
+Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
 
@@ -234,55 +234,57 @@ Eigen::SparseMatrix<double> Mesh::sparseAssembleStiffnessMatrix() {
             }
         }
     };
-
-    ThreadPool pool(std::thread::hardware_concurrency());
-    for (auto element : Elements) {
-        pool.enqueue([&task, &element] { return task(element); });
+    {
+        ThreadPool pool(std::thread::hardware_concurrency());
+        for (auto element : Elements) {
+            pool.enqueue([&task, &element] { return task(element); });
+        }
     }
 
     return globalStiffnessMatrix;
 }
-/*
-Eigen::SparseMatrix<double> Mesh::parallelSparseAssembleStiffnessMatrix() {
+// FIXME: This function is wrong
+Eigen::SparseMatrix<double> Mesh::parallelAssembleSparseStiffnessMatrix() {
     Eigen::SparseMatrix<double> globalStiffnessMatrix(Nodes.size() * 2,
                                                       Nodes.size() * 2);
     std::vector<Eigen::Triplet<double>> triplets;
     triplets.reserve(Elements.size() * 4 * Serendipity::nodeNum *
                      Serendipity::nodeNum);
 
-    std::mutex mtx;
+    // std::mutex mtx;
     auto threadTask = [&](Element* element) {
-        auto&& ke = element->stiffnessMatrix();
+        auto&& ke = element->getStiffnessMatrix();
         for (size_t i = 0; i < Serendipity::nodeNum; ++i) {
             for (size_t j = 0; j < Serendipity::nodeNum; ++j) {
-                std::lock_guard<std::mutex> lock(mtx);
-                triplets.push_back({2 * element->nodes[i]->getIndex(),
-                                    2 * element->nodes[j]->getIndex(),
-                                    ke(2 * i, 2 * j)});
-                triplets.push_back({2 * element->nodes[i]->getIndex(),
-                                    2 * element->nodes[j]->getIndex() + 1,
-                                    ke(2 * i, 2 * j + 1)});
-                triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
-                                    2 * element->nodes[j]->getIndex(),
-                                    ke(2 * i + 1, 2 * j)});
-                triplets.push_back({2 * element->nodes[i]->getIndex() + 1,
-                                    2 * element->nodes[j]->getIndex() + 1,
-                                    ke(2 * i + 1, 2 * j + 1)});
+                // std::lock_guard<std::mutex> lock(mtx);
+                triplets.emplace_back(2 * element->nodes[i]->getIndex(),
+                                      2 * element->nodes[j]->getIndex(),
+                                      ke(2 * i, 2 * j));
+                triplets.emplace_back(2 * element->nodes[i]->getIndex(),
+                                      2 * element->nodes[j]->getIndex() + 1,
+                                      ke(2 * i, 2 * j + 1));
+                triplets.emplace_back(2 * element->nodes[i]->getIndex() + 1,
+                                      2 * element->nodes[j]->getIndex(),
+                                      ke(2 * i + 1, 2 * j));
+                triplets.emplace_back(2 * element->nodes[i]->getIndex() + 1,
+                                      2 * element->nodes[j]->getIndex() + 1,
+                                      ke(2 * i + 1, 2 * j + 1));
             }
         }
     };
-
-    ThreadPool pool(std::thread::hardware_concurrency());
-    for (auto element : Elements) {
-        pool.enqueue([&threadTask, &element] { return threadTask(element);
-        });
+    {
+        ThreadPool pool(std::thread::hardware_concurrency());
+        for (auto element : Elements) {
+            pool.enqueue(
+                [&threadTask, &element] { return threadTask(element); });
+        }
     }
 
     globalStiffnessMatrix.setFromTriplets(triplets.begin(), triplets.end());
 
     return globalStiffnessMatrix;
 }
- */
+
 int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
                 bool verbose) {
     Timer timer;
@@ -310,7 +312,7 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
     }
 
     // Assemble stiffness matrix
-    auto&& K = sparseAssembleStiffnessMatrix();
+    auto&& K = assembleSparseStiffnessMatrix();
     if (verbose) {
         std::cout << "  Stiffness matrix assembled in " << timer << std::endl;
         timer.reset();
