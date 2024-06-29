@@ -14,7 +14,7 @@ class Mesh {
     std::vector<std::shared_ptr<Node>> Nodes;
     std::vector<Element*> Elements;
 
-    bool planeStress;
+    const bool planeStress;
     enum MeshType { null, serendipity };
 
     Eigen::SparseVector<double> Force;
@@ -23,24 +23,28 @@ class Mesh {
         Nodes = std::vector<std::shared_ptr<Node>>();
         Elements = std::vector<Element*>();
     }
-    Mesh(MeshType type, std::vector<double> nodeCoord,
-         std::vector<size_t> elementNodeTags,
-         const std::vector<size_t>& boundaryNodeTags, bool planeStress = true);
-    Mesh(std::vector<double> nodeCoord,
-         std::vector<std::pair<MeshType, std::vector<size_t>>>
+    Mesh(const MeshType type, const std::vector<double> nodeCoord,
+         const std::vector<size_t> elementNodeTags,
+         const std::vector<size_t>& boundaryNodeTags,
+         const bool planeStress = true);
+    Mesh(const std::vector<double> nodeCoord,
+         const std::vector<std::pair<MeshType, std::vector<size_t>>>
              elementsTypeAndNodeTags,
-         const std::vector<size_t>& boundaryNodeTags, bool planeStress = true);
+         const std::vector<size_t>& boundaryNodeTags,
+         const bool planeStress = true);
     ~Mesh();
 
-    [[maybe_unused]] Eigen::MatrixXd const assembleStiffnessMatrix();
+    [[maybe_unused]] Eigen::MatrixXd assembleStiffnessMatrix();
     Eigen::SparseMatrix<double> assembleSparseStiffnessMatrix();
 
     [[maybe_unused]] Eigen::MatrixXd parallelAssembleStiffnessMatrix();
-    [[maybe_unused]] Eigen::SparseMatrix<double> parallelAssembleSparseStiffnessMatrix();
-    static std::vector<double> const equivalentForce(Load* load);
+    [[maybe_unused]] Eigen::SparseMatrix<double>
+    parallelAssembleSparseStiffnessMatrix();
+    static const std::vector<double> equivalentForce(const Load& load);
 
-    int Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
-              bool verbose = false);
+    int Solve(const std::list<Load>& loads,
+              const std::list<Boundary>& boundaries,
+              const bool verbose = false);
 };
 
 struct pair_hash {

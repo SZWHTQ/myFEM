@@ -16,9 +16,9 @@
 #include "ThreadPool.h"
 #include "Timer.h"
 
-Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
-           std::vector<size_t> elementNodeTags,
-           const std::vector<size_t>& boundaryNodeTags, bool planeStress_)
+Mesh::Mesh(const MeshType type, const std::vector<double> nodeCoord,
+           const std::vector<size_t> elementNodeTags,
+           const std::vector<size_t>& boundaryNodeTags, const bool planeStress_)
     : planeStress(planeStress_) {
     nodeNum = nodeCoord.size() / 3;
     Nodes.reserve(nodeNum);
@@ -53,10 +53,10 @@ Mesh::Mesh(MeshType type, std::vector<double> nodeCoord,
     }
 }
 
-Mesh::Mesh(std::vector<double> nodeCoord,
-           std::vector<std::pair<MeshType, std::vector<size_t>>>
+Mesh::Mesh(const std::vector<double> nodeCoord,
+           const std::vector<std::pair<MeshType, std::vector<size_t>>>
                elementsTypeAndNodeTags,
-           const std::vector<size_t>& boundaryNodeTags, bool planeStress_)
+           const std::vector<size_t>& boundaryNodeTags, const bool planeStress_)
     : planeStress(planeStress_) {
     nodeNum = nodeCoord.size() / 3;
     Nodes.reserve(nodeNum);
@@ -100,10 +100,10 @@ Mesh::~Mesh() {
     Elements.clear();
 }
 
-std::vector<double> const Mesh::equivalentForce(Load* load) {
+std::vector<double> const Mesh::equivalentForce(const Load& load) {
     std::vector<double> equivalentForce(6);
     Eigen::VectorXd X(6), Y(6);
-    auto&& n = load->nodes;
+    auto& n = load.nodes;
     X(0) = -10 * n[0]->x - 2 * n[1]->x + 12 * n[2]->x;
     X(1) = n[0]->x - n[1]->x;
     X(2) = -6 * n[0]->x - 2 * n[1]->x + 8 * n[2]->x;
@@ -118,39 +118,39 @@ std::vector<double> const Mesh::equivalentForce(Load* load) {
     Y(5) = -16 * n[0]->y + 16 * n[1]->y;
 
     equivalentForce[0] =
-        (X(0) * load->shearForce[0] + X(1) * load->shearForce[1] +
-         X(2) * load->shearForce[2] + Y(0) * load->normalForce[0] +
-         Y(1) * load->normalForce[1] + Y(2) * load->normalForce[2]) *
-        load->thickness / 30;
+        (X(0) * load.shearForce[0] + X(1) * load.shearForce[1] +
+         X(2) * load.shearForce[2] + Y(0) * load.normalForce[0] +
+         Y(1) * load.normalForce[1] + Y(2) * load.normalForce[2]) *
+        load.thickness / 30;
     equivalentForce[1] =
-        (Y(0) * load->shearForce[0] + Y(1) * load->shearForce[1] +
-         Y(2) * load->shearForce[2] - X(0) * load->normalForce[0] -
-         X(1) * load->normalForce[1] - X(2) * load->normalForce[2]) *
-        load->thickness / 30;
+        (Y(0) * load.shearForce[0] + Y(1) * load.shearForce[1] +
+         Y(2) * load.shearForce[2] - X(0) * load.normalForce[0] -
+         X(1) * load.normalForce[1] - X(2) * load.normalForce[2]) *
+        load.thickness / 30;
     equivalentForce[2] =
-        (X(1) * load->shearForce[0] + X(3) * load->shearForce[1] +
-         X(4) * load->shearForce[2] + Y(1) * load->normalForce[0] +
-         Y(3) * load->normalForce[1] + Y(4) * load->normalForce[2]) *
-        load->thickness / 30;
+        (X(1) * load.shearForce[0] + X(3) * load.shearForce[1] +
+         X(4) * load.shearForce[2] + Y(1) * load.normalForce[0] +
+         Y(3) * load.normalForce[1] + Y(4) * load.normalForce[2]) *
+        load.thickness / 30;
     equivalentForce[3] =
-        (Y(1) * load->shearForce[0] + Y(3) * load->shearForce[1] +
-         Y(4) * load->shearForce[2] - X(1) * load->normalForce[0] -
-         X(3) * load->normalForce[1] - X(4) * load->normalForce[2]) *
-        load->thickness / 30;
+        (Y(1) * load.shearForce[0] + Y(3) * load.shearForce[1] +
+         Y(4) * load.shearForce[2] - X(1) * load.normalForce[0] -
+         X(3) * load.normalForce[1] - X(4) * load.normalForce[2]) *
+        load.thickness / 30;
     equivalentForce[4] =
-        (X(2) * load->shearForce[0] + X(4) * load->shearForce[1] +
-         X(5) * load->shearForce[2] + Y(2) * load->normalForce[0] +
-         Y(4) * load->normalForce[1] + Y(5) * load->normalForce[2]) *
-        load->thickness / 30;
+        (X(2) * load.shearForce[0] + X(4) * load.shearForce[1] +
+         X(5) * load.shearForce[2] + Y(2) * load.normalForce[0] +
+         Y(4) * load.normalForce[1] + Y(5) * load.normalForce[2]) *
+        load.thickness / 30;
     equivalentForce[5] =
-        (Y(2) * load->shearForce[0] + Y(4) * load->shearForce[1] +
-         Y(5) * load->shearForce[2] - X(2) * load->normalForce[0] -
-         X(4) * load->normalForce[1] - X(5) * load->normalForce[2]) *
-        load->thickness / 30;
+        (Y(2) * load.shearForce[0] + Y(4) * load.shearForce[1] +
+         Y(5) * load.shearForce[2] - X(2) * load.normalForce[0] -
+         X(4) * load.normalForce[1] - X(5) * load.normalForce[2]) *
+        load.thickness / 30;
     return equivalentForce;
 }
 
-Eigen::MatrixXd const Mesh::assembleStiffnessMatrix() {
+Eigen::MatrixXd Mesh::assembleStiffnessMatrix() {
     Eigen::MatrixXd globalStiffnessMatrix(Nodes.size() * 2, Nodes.size() * 2);
     globalStiffnessMatrix.setZero();
 
@@ -236,13 +236,14 @@ Eigen::MatrixXd Mesh::parallelAssembleStiffnessMatrix() {
     };
     {
         ThreadPool pool(std::thread::hardware_concurrency());
-        for (auto element : Elements) {
+        for (const auto element : Elements) {
             pool.enqueue([&task, &element] { return task(element); });
         }
     }
 
     return globalStiffnessMatrix;
 }
+
 // FIXME: This function is wrong
 Eigen::SparseMatrix<double> Mesh::parallelAssembleSparseStiffnessMatrix() {
     Eigen::SparseMatrix<double> globalStiffnessMatrix(Nodes.size() * 2,
@@ -274,7 +275,7 @@ Eigen::SparseMatrix<double> Mesh::parallelAssembleSparseStiffnessMatrix() {
     };
     {
         ThreadPool pool(std::thread::hardware_concurrency());
-        for (auto element : Elements) {
+        for (const auto element : Elements) {
             pool.enqueue(
                 [&threadTask, &element] { return threadTask(element); });
         }
@@ -285,8 +286,8 @@ Eigen::SparseMatrix<double> Mesh::parallelAssembleSparseStiffnessMatrix() {
     return globalStiffnessMatrix;
 }
 
-int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
-                bool verbose) {
+int Mesh::Solve(const std::list<Load>& loads,
+                const std::list<Boundary>& boundaries, const bool verbose) {
     Timer timer;
     Eigen::setNbThreads(omp_get_max_threads());
     if (verbose) {
@@ -295,14 +296,14 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
     }
 
     // Get equivalent force
-    Force.resize(Nodes.size() * 2);
-    Force.setZero();
-    for (auto&& load : loads) {
-        auto&& equivalentForce = Mesh::equivalentForce(&load);
+    this->Force.resize(Nodes.size() * 2);
+    this->Force.setZero();
+    for (const auto& load : loads) {
+        auto& equivalentForce = Mesh::equivalentForce(load);
         for (size_t i = 0; i < 3; ++i) {
-            Force.coeffRef(2 * load.nodes[i]->getIndex()) +=
+            this->Force.coeffRef(2 * load.nodes[i]->getIndex()) +=
                 equivalentForce[2 * i];
-            Force.coeffRef(2 * load.nodes[i]->getIndex() + 1) +=
+            this->Force.coeffRef(2 * load.nodes[i]->getIndex() + 1) +=
                 equivalentForce[2 * i + 1];
         }
     }
@@ -312,7 +313,7 @@ int Mesh::Solve(std::list<Load>& loads, std::list<Boundary>& boundaries,
     }
 
     // Assemble stiffness matrix
-    auto&& K = assembleSparseStiffnessMatrix();
+    auto K = assembleSparseStiffnessMatrix();
     if (verbose) {
         std::cout << "  Stiffness matrix assembled in " << timer << std::endl;
         timer.reset();
