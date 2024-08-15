@@ -21,6 +21,14 @@ else()
     message(WARNING "Compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
+# Intel
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel" OR CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM")
+    set(MKLROOT $ENV{MKLROOT})
+    add_definitions(-DEIGEN_USE_MKL_ALL)
+    include_directories(${MKLROOT}/include)
+    set(CMAKE_LINK_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--start-group ${MKLROOT}/lib/libmkl_intel_lp64.a ${MKLROOT}/lib/libmkl_intel_thread.a ${MKLROOT}/lib/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl")
+endif()
+
 find_package(VTK COMPONENTS
     CommonCore
     IOCore
