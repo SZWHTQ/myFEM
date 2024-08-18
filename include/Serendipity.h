@@ -20,14 +20,16 @@ class Serendipity : public Element {
     double getArea() const override;
 
     std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncLocalDerivative(
-        double ksi, double eta) const override;
+        const double ksi, const double eta) const override;
 
     std::tuple<Eigen::VectorXd, Eigen::VectorXd> getShapeFuncDerivative(
-        double ksi, double eta) const override;
+        const double ksi, const double eta) const override;
 
-    Eigen::MatrixXd getJacobian(double ksi, double eta) const override;
+    Eigen::MatrixXd getJacobian(const double ksi,
+                                const double eta) const override;
 
-    Eigen::MatrixXd getStrainMatrix(double ksi, double eta) const override;
+    Eigen::MatrixXd getStrainMatrix(const double ksi,
+                                    const double eta) const override;
 
     Eigen::MatrixXd getElasticMatrix() const override;
 
