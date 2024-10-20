@@ -17,7 +17,7 @@ def getCurve(Ksi, inclusionModulus):
     wrapper.meshSize = 0.5
     wrapper.refinementFactor = 20
     wrapper.convertToSquare = True
-    wrapper.verbose = True
+    wrapper.verbose = False
     for xi in Ksi:
         wrapper.ksi = xi
         result = np.append(result, wrapper.run())
